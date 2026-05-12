@@ -1,0 +1,40 @@
+{
+  "_meta": {
+    "description": "Канонические slug'и составов. Используется парсером ingest и validator'ом KBDoc.",
+    "schema_version": 1,
+    "format": "comp_slug = class[-spec][+class[-spec]]+"
+  },
+  "our_comps": {
+    "rogue+mage": { "short": "rm",  "human": "Rogue / Mage" },
+    "rogue+priest": { "short": "rp", "human": "Rogue / Priest (Disc)" }
+  },
+  "enemy_comps_2v2": {
+    "warrior+resto-druid":       { "short": "warr-rdruid",   "human": "Warrior / Resto Druid" },
+    "warrior+resto-shaman":      { "short": "warr-rsham",    "human": "Warrior / Resto Shaman" },
+    "ret-paladin+resto-shaman":  { "short": "retpala-rsham", "human": "Ret Paladin / Resto Shaman" },
+    "warlock+resto-druid":       { "short": "lock-rdruid",   "human": "Warlock / Resto Druid" },
+    "warlock+priest":            { "short": "lock-priest",   "human": "Warlock / Priest" },
+    "warlock+rogue":             { "short": "lock-rogue",    "human": "Warlock / Rogue" },
+    "rogue+mage":                { "short": "rm-mirror",     "human": "Rogue / Mage (mirror)" },
+    "rogue+rogue":               { "short": "rr",            "human": "Rogue / Rogue" },
+    "rogue+priest":              { "short": "rogue-priest",  "human": "Rogue / Priest" },
+    "rogue+resto-druid":         { "short": "rogue-rdruid",  "human": "Rogue / Resto Druid" },
+    "hunter+resto-druid":        { "short": "hunter-rdruid", "human": "Hunter / Resto Druid" },
+    "mage+priest":               { "short": "mage-priest",   "human": "Mage / Priest" }
+  },
+  "classes": [
+    "warrior", "paladin", "hunter", "rogue",
+    "priest", "shaman", "mage", "warlock", "druid"
+  ],
+  "specs": {
+    "priest": ["disc", "holy", "shadow"],
+    "druid":  ["balance", "feral", "resto"],
+    "paladin": ["holy", "prot", "ret"],
+    "shaman": ["ele", "enh", "resto"],
+    "warrior": ["arms", "fury", "prot"],
+    "rogue": ["combat", "subtlety", "assassination"],
+    "mage": ["frost", "fire", "arcane"],
+    "hunter": ["bm", "marks", "survival"],
+    "warlock": ["affli", "demo", "destro"]
+  }
+}

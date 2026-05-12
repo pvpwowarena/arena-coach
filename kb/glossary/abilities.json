@@ -1,0 +1,529 @@
+{
+  "ambush": {
+    "slug": "ambush",
+    "en_name": "Ambush",
+    "icon": "ability_rogue_ambush",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "ambush"
+    ]
+  },
+  "blind": {
+    "slug": "blind",
+    "en_name": "Blinds",
+    "icon": "spell_shadow_mindsteal",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "Blind",
+      "blind",
+      "blinded and",
+      "blinds"
+    ]
+  },
+  "cheap-shot": {
+    "slug": "cheap-shot",
+    "en_name": "Cheap Shot",
+    "icon": "ability_cheapshot",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "cheap shot",
+      "cheap shotting"
+    ]
+  },
+  "cloak": {
+    "slug": "cloak",
+    "en_name": "Cloak",
+    "icon": "spell_shadow_nethercloak",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "cloak"
+    ]
+  },
+  "cloak-of-shadows": {
+    "slug": "cloak-of-shadows",
+    "en_name": "Cloak Of Shadows",
+    "icon": "spell_shadow_nethercloak",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "cloak of shadows"
+    ]
+  },
+  "counterspell": {
+    "slug": "counterspell",
+    "en_name": "Counterspell",
+    "icon": "spell_frost_iceshock",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "counterspell",
+      "counterspells"
+    ]
+  },
+  "cyclone": {
+    "slug": "cyclone",
+    "en_name": "Cyclone",
+    "icon": "spell_nature_earthbind",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "cyclone"
+    ]
+  },
+  "deadly-throw": {
+    "slug": "deadly-throw",
+    "en_name": "Deadly Throw",
+    "icon": "inv_throwingknife_06",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "deadly throw"
+    ]
+  },
+  "death-coil": {
+    "slug": "death-coil",
+    "en_name": "Death Coil",
+    "icon": "spell_shadow_deathcoil",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "death coil"
+    ]
+  },
+  "evasion": {
+    "slug": "evasion",
+    "en_name": "Evasion",
+    "icon": "spell_shadow_shadowward",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "evasion"
+    ]
+  },
+  "evisc": {
+    "slug": "evisc",
+    "en_name": "Evisc",
+    "icon": "ability_rogue_eviscerate",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "evisc"
+    ]
+  },
+  "expose-armor": {
+    "slug": "expose-armor",
+    "en_name": "Expose Armor",
+    "icon": "ability_warrior_riposte",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "Expose armor",
+      "expose armor"
+    ]
+  },
+  "fear": {
+    "slug": "fear",
+    "en_name": "Fear",
+    "icon": "spell_shadow_psychicscream",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "Fear",
+      "fear",
+      "fears"
+    ]
+  },
+  "garrote": {
+    "slug": "garrote",
+    "en_name": "Garrote",
+    "icon": "ability_rogue_garrote",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "garrote"
+    ]
+  },
+  "gouge": {
+    "slug": "gouge",
+    "en_name": "Gouge",
+    "icon": "ability_gouge",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "gouge"
+    ]
+  },
+  "hammer-of-justice": {
+    "slug": "hammer-of-justice",
+    "en_name": "Hammer Of Justice",
+    "icon": "spell_holy_sealofmight",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "hammer of justice"
+    ]
+  },
+  "hemo": {
+    "slug": "hemo",
+    "en_name": "Hemo Twice",
+    "icon": "spell_shadow_lifedrain",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "hemo",
+      "hemo once",
+      "hemo twice"
+    ]
+  },
+  "ice-block": {
+    "slug": "ice-block",
+    "en_name": "Ice Blocks It",
+    "icon": "spell_frost_frost",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "ice block",
+      "ice blocks it"
+    ]
+  },
+  "icy-veins": {
+    "slug": "icy-veins",
+    "en_name": "Icy Veins",
+    "icon": "spell_frost_coldhearted",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "icy veins"
+    ]
+  },
+  "kidney": {
+    "slug": "kidney",
+    "en_name": "Kidney",
+    "icon": "ability_rogue_kidneyshot",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "kidney"
+    ]
+  },
+  "kidney-shot": {
+    "slug": "kidney-shot",
+    "en_name": "Kidney Shot",
+    "icon": "ability_rogue_kidneyshot",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "Kidney shot",
+      "kidney shot",
+      "kidney shots",
+      "kidney shots with big burst along with your priest"
+    ]
+  },
+  "mana-burn": {
+    "slug": "mana-burn",
+    "en_name": "Mana Burn",
+    "icon": "spell_shadow_manaburn",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "mana burn",
+      "mana burning him early",
+      "mana burns on the shaman if you manage to restealth or if the paladin has no HoJ",
+      "mana burns whenever convenient"
+    ]
+  },
+  "nova": {
+    "slug": "nova",
+    "en_name": "Nova",
+    "icon": "spell_frost_frostnova",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "nova"
+    ]
+  },
+  "pain-suppression": {
+    "slug": "pain-suppression",
+    "en_name": "Pain Suppression",
+    "icon": "spell_holy_painsupression",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "pain suppression"
+    ]
+  },
+  "premed": {
+    "slug": "premed",
+    "en_name": "Premed",
+    "icon": "spell_shadow_possession",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "Premed",
+      "premed"
+    ]
+  },
+  "preparation": {
+    "slug": "preparation",
+    "en_name": "Preparation",
+    "icon": "spell_shadow_antishadow",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "Preparation",
+      "preparation"
+    ]
+  },
+  "rupture": {
+    "slug": "rupture",
+    "en_name": "Rupture",
+    "icon": "ability_rogue_rupture",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "rupture"
+    ]
+  },
+  "sap": {
+    "slug": "sap",
+    "en_name": "Sap",
+    "icon": "ability_sap",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "Sap",
+      "sap"
+    ]
+  },
+  "scatter-shot": {
+    "slug": "scatter-shot",
+    "en_name": "Scatter Shot",
+    "icon": "ability_golemstormbolt",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "scatter shot"
+    ]
+  },
+  "shadowstep": {
+    "slug": "shadowstep",
+    "en_name": "Shadowstep",
+    "icon": "ability_rogue_shadowstep",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "shadowstep"
+    ]
+  },
+  "sheep": {
+    "slug": "sheep",
+    "en_name": "Sheep",
+    "icon": "spell_nature_polymorph",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "sheep"
+    ]
+  },
+  "shiv": {
+    "slug": "shiv",
+    "en_name": "Shiv",
+    "icon": "inv_throwingknife_04",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "shiv",
+      "shiv crippling",
+      "shiv twice"
+    ]
+  },
+  "slice-and-dice": {
+    "slug": "slice-and-dice",
+    "en_name": "Slice And Dice",
+    "icon": "ability_rogue_slicedice",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "Slice and dice",
+      "slice and dice"
+    ]
+  },
+  "step": {
+    "slug": "step",
+    "en_name": "Step",
+    "icon": "ability_rogue_shadowstep",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "step"
+    ]
+  },
+  "vanish": {
+    "slug": "vanish",
+    "en_name": "Vanish",
+    "icon": "ability_vanish",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "vanish"
+    ]
+  },
+  "will-of-the-forsaken": {
+    "slug": "will-of-the-forsaken",
+    "en_name": "Will Of The Forsaken",
+    "icon": "spell_shadow_raisedead",
+    "spell_id": null,
+    "dr_category": null,
+    "duration": null,
+    "school": null,
+    "ru_name": null,
+    "class_": null,
+    "aliases": [
+      "will of the forsaken"
+    ]
+  }
+}
