@@ -1,0 +1,39 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - pydantic>=2.7
+          - types-PyYAML
+        args: ["--config-file=pyproject.toml"]
+        pass_filenames: false
+        # mypy запускается на всех корневых пакетах через mypy_path в pyproject
+        entry: mypy backend bridge ingest
+
+  - repo: local
+    hooks:
+      - id: no-saved-variables
+        name: запретить коммит SavedVariables.lua
+        entry: bash -c 'if git diff --cached --name-only | grep -i "SavedVariables"; then echo "ОТКАЗ: SavedVariables.lua не должен попадать в репо"; exit 1; fi'
+        language: system
+        pass_filenames: false

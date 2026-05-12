@@ -1,0 +1,60 @@
+# --- secrets ---
+.env
+.env.*
+!.env.example
+*.token
+*.key
+*.pem
+*.p12
+*.pfx
+
+# --- WoW client artifacts ---
+SavedVariables.lua
+SavedVariables*.lua
+Logs/
+WTF/
+
+# --- python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+pytest-cache-files-*/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+.venv/
+venv/
+env/
+
+# --- databases ---
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# --- audit / runtime data ---
+audit-*.jsonl
+/var/lib/arena-coach/
+
+# --- editors / OS ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# --- ops local state ---
+deploy.local.sh
+*.local.*
