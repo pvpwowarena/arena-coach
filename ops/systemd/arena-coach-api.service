@@ -1,0 +1,25 @@
+[Unit]
+Description=Arena Coach API (FastAPI + WSS)
+After=network.target
+
+[Service]
+Type=exec
+User=arenacoach
+Group=arenacoach
+WorkingDirectory=/opt/arena-coach
+EnvironmentFile=/etc/arena-coach/api.env
+ExecStart=/opt/arena-coach/.venv/bin/uvicorn arena_coach.api.app:create_app --factory --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/arena-coach
+
+[Install]
+WantedBy=multi-user.target

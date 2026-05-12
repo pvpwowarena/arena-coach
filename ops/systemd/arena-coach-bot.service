@@ -1,0 +1,24 @@
+[Unit]
+Description=Arena Coach Discord Bot
+After=network.target
+
+[Service]
+Type=exec
+User=arenacoach
+Group=arenacoach
+WorkingDirectory=/opt/arena-coach
+EnvironmentFile=/etc/arena-coach/bot.env
+ExecStart=/opt/arena-coach/.venv/bin/python -m arena_coach.bot.client
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/arena-coach
+
+[Install]
+WantedBy=multi-user.target
