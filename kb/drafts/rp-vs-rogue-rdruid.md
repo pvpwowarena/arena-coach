@@ -23,59 +23,59 @@ tags: []
 
 ## Opener
 
-Look for the enemy rogue/druid in stealth.
+Ищи вражеского рога/друида в стелсе.
 
-If you are Human and you spot the enemy rogue, [[ability:sap]] him and then sweep the surrounding area for the druid and spam [[ability:shadowstep]] > [[ability:premed]] > [[ability:cheap-shot]] on him. If you can't find the druid, simply dispel the rogue and open on him along with your priest and burst him.
+Если ты Human и засёк вражеского рога — [[ability:sap]] его и обыщи округу в поисках друида, спамя [[ability:shadowstep]] → [[ability:premed]] → [[ability:cheap-shot]] по нему. Если друида не находишь — просто диспеллишь рога и открываешь на нём вместе с прийстом, burst'ишь.
 
-I like to [[ability:premed]] > [[ability:cheap-shot]] > shiv wound once in the [[ability:cheap-shot]] and then pool energy before I [[ability:kidney-shot]] and mash [[ability:hemo]] during kidney. The reason is because if you're only shiving wounds during your setups you won't be forcing cooldowns — you need to be dealing damage too.
+Я обычно [[ability:premed]] → [[ability:cheap-shot]] → шивлю wound один раз во время [[ability:cheap-shot]], потом пулю энергию до [[ability:kidney-shot]] и spam'лю [[ability:hemo]] во время kidney. Причина — если шивишь только wound'ы во время setup'ов, ты не вынуждаешь КД; дамаг тоже нужен.
 
-Double wound should be equipped any time you are stunning anything in this matchup, unless you need to immediately cripple somebody's trinket.
+Double wound должен быть надет когда станишь кого-либо в этом матчапе, кроме случая когда срочно нужно cripple на чей-то trinket.
 
 ## Alternative opener
 
 ### Alternative Openers
 
-If you [[ability:sap]] the rogue you also have the option to dispel him immediately and re-[[ability:sap]] him once he drops combat. Then your priest can mount up and look to [[ability:fear]] the druid the moment he pops out of stealth to heal. This is a bit unreliable because it depends where the druid pops out.
+Если [[ability:sap]] рога — есть опция диспеллить его сразу и ре-[[ability:sap]] когда он выпадет из combat'а. Тогда прийст mount'ится и ищет [[ability:fear]] на друида в момент его выхода из стелса на heal. Чуть нестабильно — зависит от того где друид выйдет.
 
-Even if you're not Human, you can always look for the enemy rogue/druid — there's no real risk in the opener against this comp, so gambling and searching in stealth is fine.
+Даже если ты не Human, всегда можно искать вражеского рога/друида — реального риска на opener'е против этой комбы нет, гэмблить и искать в стелсе ок.
 
-If you find the druid in stealth without seeing the rogue, call it out to your priest and have him mount closer. Once you open on the druid, your priest immediately enters combat avoiding the [[ability:sap]]. Open druid with [[ability:cheap-shot]] without [[ability:premed]] and just mash [[ability:hemo]], because you wanna deal as much damage as you can before you get stunned.
+Если нашёл друида в стелсе без рога — call'аешь прийсту чтобы он подошёл ближе. Когда открываешь на друида, прийст сразу заходит в combat избегая [[ability:sap]]. Открывай друида [[ability:cheap-shot]] **без** [[ability:premed]] и сразу mash [[ability:hemo]] — выжимаешь максимум дамага до того как тебя застанят.
 
-Try to save [[ability:fear]] 1-1.5 seconds before your own rogue gets gouged or kidney'd, as this will cause the enemy rogue to be on global cooldown when he presses [[ability:will-of-the-forsaken]], granting you the ability to try and [[ability:evasion]] his incoming [[ability:kidney-shot]].
+Попробуй сохранить [[ability:fear]] прийста за 1-1.5 сек до того как тебя gouge / kidney — это поставит вражеского рога на global cooldown в момент когда он жмёт [[ability:will-of-the-forsaken]], давая тебе шанс [[ability:evasion]] входящий [[ability:kidney-shot]].
 
 ## Mid-fight rotation
 
 ### Mid-Game
 
-Typically the matchup is all about stacking wounds on the rogue and pumping him along with your priest during [[ability:kidney-shot]]. When the kill attempt is over, put the rogue into a [[ability:fear]] and walk behind the pillar.
+Обычно матчап про накопление wound'ов на роге и pump'инг его с прийстом во время [[ability:kidney-shot]]. Когда попытка убийства закончилась — ставишь рога в [[ability:fear]] и заходишь за пиллар.
 
-Sometimes after fearing the enemy rogue you'll be able to restealth and [[ability:sap]] him out of [[ability:fear]] or [[ability:shadowstep]] [[ability:sap]] if he's too far. If the druid makes it difficult, have your priest put a rank 1 shadow word pain on the rogue to prevent him restealthing.
+Иногда после fear'а вражеского рога можно restealth'нуться и [[ability:sap]] его из [[ability:fear]] или [[ability:shadowstep]] [[ability:sap]] если он далеко. Если друид мешает — попроси прийста повесить rank-1 shadow word pain на рога, чтобы он не мог restealth'нуться.
 
 ## Win conditions
 
-Killing the rogue/druid during cheap/[[ability:kidney-shot]]. Forcing [[ability:cloak-of-shadows]] off the enemy rogue and then maintaining wounds to kill slowly. [[ability:fear]]/[[ability:blind]]/[[ability:sap]] setups on either rogue or druid and killing the other. Winning on mana.
+Убийство рога/друида во время cheap / [[ability:kidney-shot]]. Вынуждение [[ability:cloak-of-shadows]] от вражеского рога и медленное убийство через wound'ы. Setup'ы [[ability:fear]] / [[ability:blind]] / [[ability:sap]] на рога или друида с убийством второго. Выигрыш на мане.
 
-Ultimately you rotate stunlocks on the enemy rogue and put him into [[ability:fear]] into saps. If there's no clear kill opportunity your priest sits down to drink whenever possible.
+В итоге ты ротируешь stunlock'и на роге и ставишь его в [[ability:fear]] → sap. Если нет явной возможности убийства — прийст садится drink'ать при первой возможности.
 
 ## Notes
 
 ### Things to Watch Out For
 
-[[ability:blind]] + [[ability:sap]] windows for the enemy rogue druid when you or your priest doesn't have trinket. Rogue Druid capitalizes on trinkets really well with long CC chains. Don't just trinket a [[ability:blind]] alone — wait for the rogue to blow a [[ability:vanish]] out of the blind and get 2 cooldowns for 1.
+[[ability:blind]] + [[ability:sap]] окна для вражеского RD когда у тебя или прийста нет trinket'а. Rogue Druid очень хорошо капитализирует на trinket'ах через длинные CC-цепи. Не трикеть просто [[ability:blind]] — жди пока рог сольёт [[ability:vanish]] из blind'а, и получи 2 КД за 1.
 
-Recognize early when the enemy team can build pressure on you and put the rogue into [[ability:fear]]. Don't give them a window where they have trinkets, [[ability:will-of-the-forsaken]], [[ability:blind]], and [[ability:vanish]], with one of you not having trinket.
+Рано распознавай момент когда вражеская команда может построить давление на тебе и ставь рога в [[ability:fear]]. Не давай им окно где у них есть trinket'ы, [[ability:will-of-the-forsaken]], [[ability:blind]] и [[ability:vanish]], а у одного из вас trinket'а нет.
 
-Look at the enemy rogue's [[ability:cloak-of-shadows]] cooldown a lot. If you ever get a clean [[ability:cheap-shot]] without him having cloak and your priest has mana, apply pressure and don't let him escape.
+Смотри много на КД [[ability:cloak-of-shadows]] вражеского рога. Если поймал чистый [[ability:cheap-shot]] без cloak'а у него и прийст с маной — давление, не дай ему сбежать.
 
-[[ability:expose-armor]] is big value in this matchup. If you have excess combo points on the enemy rogue, almost always press [[ability:expose-armor]] instead of [[ability:rupture]].
+[[ability:expose-armor]] большой value в этом матчапе. Если есть лишние combo points на роге — почти всегда жми [[ability:expose-armor]] вместо [[ability:rupture]].
 
-Pool energy before you stun the enemy rogue/druid. Don't [[ability:kidney-shot]] with low energy unless the only play is to survive.
+Пулько энергию перед стан вражеского рога/друида. Не [[ability:kidney-shot]] на low energy, кроме случая когда единственный play — выжить.
 
-Only swap to crippling at the end of a stunlock to prevent them from escaping. Always have double wound during stuns.
+Свапайся на crippling только в конце stunlock'а чтобы они не сбежали. Double wound всегда во время стана.
 
-Another big cooldown to look for is NS. If the druid has no NS and the enemy rogue has no CC breakers and you have [[ability:fear]]/[[ability:blind]] and potentially a [[ability:vanish]], you have the option to run the druid down and put the rogue into endless CC.
+Ещё один важный КД — NS у друида. Если у друида нет NS, у вражеского рога нет CC-breaker'ов, а у тебя есть [[ability:fear]] / [[ability:blind]] и потенциально [[ability:vanish]] — есть опция zerg'ить друида и ставить рога в endless CC.
 
-Expose armor over rupture on the rogue. Pool energy before stuns. Track cloak of shadows cooldown on the enemy rogue — it's the single most important cooldown in this matchup.
+Expose armor над rupture на роге. Пулько энергию перед станами. Отслеживай cloak of shadows на роге — это единственный самый важный КД матчапа.
 
 Video clips
 

@@ -23,20 +23,20 @@ tags: []
 
 ## Opener
 
-Cross the map immediately with sprint and [[ability:sap]] the mage from max range while making your way towards the priest.
+Сразу sprint'ом пересекаешь карту и [[ability:sap]] мага с максимальной дистанции, продолжая движение к прийсту.
 
-Once you've sapped the mage, your mage should be crossing the map trying to avoid the enemy mage so the enemy mage doesn't trinket [[ability:sap]] and slow him, just have your mage circle around him as best as he can without wasting too much time on the cc from [[ability:sap]].
+После sap'а вражеского мага твой маг тоже пересекает карту, стараясь обогнуть вражеского мага так, чтобы тот не трикетнул [[ability:sap]] и не заслоил его — пусть маг крутится вокруг, не теряя слишком много времени на CC от sap'а.
 
-When you reach the priest, you have the option to either [[ability:sap]] him to give your mage time to get into position, or simply open with a [[ability:premed]] > [[ability:cheap-shot]] > [[ability:kidney]], assuming that the enemy mage is sitting the [[ability:sap]].
+Когда добрался до прийста — есть два варианта: либо [[ability:sap]] его (чтобы маг успел занять позицию), либо сразу открываешь [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney]], при условии что вражеский маг сидит в sap'е.
 
-I like to equip double wound in this matchup actually, despite the priest being able to resist my stun. The reason for this is because I'm limited on time and I want to apply as much pressure to the priest in a short window as possible. If he were to resist the initial [[ability:cheap-shot]] I would simply [[ability:vanish]] and try to [[ability:cheap-shot]] him again.
+Я обычно ставлю double wound в этом матчапе, несмотря на то что прийст может зарезистить stun. Причина — ограниченность по времени; хочется выжать максимум давления на прийсте в коротком окне. Если он зарезистит первый [[ability:cheap-shot]] — просто [[ability:vanish]] и пытаюсь [[ability:cheap-shot]] его снова.
 
-Once the priest trinkets the [[ability:kidney]], you have the option to either [[ability:garrote]] or imp [[ability:counterspell]] his trinket and finish him if he's low enough. But usually at this stage the priest will be too healthy, in which case I'll just [[ability:blind]] him semi low hp or on PS and try to avoid the mage.
+Когда прийст трикетит [[ability:kidney]] — либо [[ability:garrote]], либо imp [[ability:counterspell]] на trinket и доводим его если low. Но чаще на этом этапе прийст ещё слишком healthy — тогда [[ability:blind]] semi-low HP или на PS, и пытаемся избегать мага.
 
-If the enemy mage allows you to restealth and [[ability:sap]] the priest at this point that's massive obviously, but usually you're gonna have to [[ability:vanish]]. Many times you're even gonna be forced to [[ability:cloak]] [[ability:vanish]] to ensure the enemy mage doesn't get you out.
+Если вражеский маг даёт восстановить стелс и [[ability:sap]] прийста — это огромный плюс, но обычно приходится [[ability:vanish]]. Часто даже [[ability:cloak]] + [[ability:vanish]] чтобы вражеский маг не выбил тебя из стелса.
 
-After the [[ability:blind]], [[ability:sap]] the priest to stall the stun DR's and then re-open with another [[ability:premed]] > [[ability:cheap-shot]] > [[ability:kidney]] and finish him off. Later seasons when your mage has more haste, you have the option to kill the mage. This would typically look like this; Enemy mage trinkets [[ability:sap]], gets [[ability:blind]] [[ability:ice-block]]. Enemy priest trinkets [[ability:kidney-shot]] > You [[ability:sheep]] the enemy priest with either an imp [[ability:counterspell]] blanket on mage or priest depending on the position and if the enemy mage has CS available and then you kill the mage.
+После [[ability:blind]] — [[ability:sap]] прийста для stall'а stun DR'ов, и переоткрываем: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney]], добиваем. В поздних seasons когда у мага больше haste, есть опция убить мага. Выглядит это так: вражеский маг трикетит [[ability:sap]], получает [[ability:blind]] [[ability:ice-block]]. Вражеский прийст трикетит [[ability:kidney-shot]] → ты [[ability:sheep]] прийста через imp [[ability:counterspell]] blanket на мага или прийста (зависит от позиции и доступности CS у вражеского мага), и убиваем мага.
 
-In this situation you can also [[ability:shadowstep]] [[ability:vanish]] [[ability:garrote]] the mage to cover your own mage for the [[ability:sheep]] on the enemy priest, but again, this is a strategy for season 3-4.
+В такой ситуации также можно [[ability:shadowstep]] [[ability:vanish]] [[ability:garrote]] на мага, прикрывая своего мага для [[ability:sheep]] на вражеском прийсте — но это стратегия для season 3-4.
 
-In season 1-2 you'll pretty much always be looking to kill the priest.
+В season 1-2 кил-таргет почти всегда прийст.

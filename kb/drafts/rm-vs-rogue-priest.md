@@ -23,24 +23,24 @@ tags: []
 
 ## Opener
 
-If they're horde, you're free to roam the map and look for the rogue using your goggles and/or perception. I typically do a lap circling around the edges of the map surrounding the enemy priest, but you have to mix up your stealth pattern if you're facing the same team over and over.
+Если они horde — свободно ходишь по карте и ищешь рога через goggles и/или perception. Я обычно делаю круг по краям карты вокруг вражеского прийста, но stealth-паттерн надо миксовать если играешь против одной и той же команды многократно.
 
-If they're alliance, you can save your goggles and/or perception and let your mage create space by blizzarding around the map and by letting your mage push slightly to make it seem like you are actively looking for them. While your mage is creating space you sit back and hold your goggles/perception until a later time in which you assume their rogue has already wasted his perception.
+Если они alliance — можно сохранить goggles/perception и дать магу создавать space через blizzard'ы по карте; маг чуть пушит, имитируя что вы активно ищете. Пока маг создаёт space, ты сидишь сзади и держишь goggles/perception до момента, когда предположительно их рог уже потратил свой perception.
 
-Optionally your mage can also invis after the gates open, as this is usually a sign for the enemy team that you are pushing in.
+Опционально маг может invis'нуться после открытия ворот — это обычно знак для вражеской команды что вы пушите.
 
-If you can't find the rogue and get the optimal opener, waiting for the eyes to spawn is not a bad idea, as your mage will usually have eye-priority over the priest with slows and sheeps. Once your mage has the eye, he can send the pet on the enemy rogue and try to pet nova him out while communicating to you where the enemy rogue is.
+Если рога не нашёл и не получаешь оптимальный opener — подождать спавна глаз тоже OK: маг обычно имеет приоритет по глазу через slow'ы и sheep'ы. Когда маг подобрал глаз, он шлёт пет на рога и пытается pet-nova вытащить его, попутно сообщая где рог.
 
 Option 1 — Go Priest
 
-If you choose to open on the priest you would equip wound main hand and crippling off hand so that you're ready to shiv the priest in case of a stun resist or trinket.
+Если выбираешь открыть на прийста: equip wound main-hand и crippling off-hand, чтобы готов шивнуть прийста на случай stun-резиста или trinket'а.
 
-You [[ability:premed]]> [[ability:cheap-shot]]> [[ability:hemo]]> [[ability:kidney]], and [[ability:counterspell]] at the same time your kidney lands, expecting the priest's trinket, and if your mage manages to cast a full shatter before this point, the enemy priest should be low enough to finish with a [[ability:vanish]] [[ability:garrote]]. Use [[ability:cloak-of-shadows]] after cheap shot if expecting the priest to trinket and fear. Make sure to be ready to blind or vanish immediately in case the enemy rogue trinkets the [[ability:sap]] or the incoming sheep after the [[ability:sap]].
+[[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]], и [[ability:counterspell]] одновременно с lэнд'ом kidney, ожидая trinket прийста. Если маг к этому моменту успел сделать full shatter — прийст должен быть достаточно low для добивания [[ability:vanish]] [[ability:garrote]]. [[ability:cloak-of-shadows]] после cheap shot — на случай ожидаемого trinket'а + fear от прийста. Будь готов blind'нуть или vanish'нуться сразу, если вражеский рог трикетит [[ability:sap]] или входящий sheep после [[ability:sap]].
 
 Option 2 — Go Rogue
 
-If you choose to open on the rogue, your mage would typically run on top of the enemy priest and blanket [[ability:counterspell]] into a sheep, then pop cooldowns and start casting on the rogue while he's in [[ability:sap]].
+Если открываешь на рога — маг обычно встаёт прямо на вражеского прийста и blanket [[ability:counterspell]] → sheep, потом поднимает КД и начинает кастовать по рогу пока тот в [[ability:sap]].
 
-Once the priest is sheeped and your mage is casting on the rogue, you [[ability:premed]]> [[ability:cheap-shot]]> [[ability:hemo]]> [[ability:kidney]] the rogue. If he trinkets, you vanish off immediately and your mage looks to blizzard the enemy rogue out of vanish. If the enemy rogue manages to trinket and vanish cheap shot you, your mage can try to sheep the enemy rogue before kidney lands on you, giving you time to vanish or to blind the rogue. Otherwise trinket the kidney and blind the enemy rogue and look to restealth/vanish and [[ability:sap]] him. Then repeat the same opener.
+Когда прийст в sheep'е и маг кастует по рогу — [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]] рога. Если он трикетит, ты сразу vanish'ишься; маг blizzard'ит чтобы выбить его из vanish'а. Если вражеский рог успел трикет + vanish + cheap shot тебя, маг может sheep'нуть рога до lэнд'а kidney на тебе, давая время vanish'нуться или blind'нуть. Иначе трикетишь kidney + blind рога + restealth/vanish + [[ability:sap]] его. И повторяешь тот же opener.
 
-Generally this matchup comes down to opener. For less experienced players, priest is the most common kill target. When going rogue you need to adapt in the moment way more. I personally prefer going rogue into Disc Priest/Rogue as RM because it involves less RNG.
+Матчап обычно решается на opener'е. Для менее опытных игроков прийст — самый частый кил-таргет. Going rogue требует больше моментальной адаптации. Я лично предпочитаю going rogue против Disc Priest/Rogue как RM — меньше RNG.

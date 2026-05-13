@@ -25,20 +25,20 @@ tags: []
 
 ### Strategy
 
-Run away far from your mage and hide, try to save your sprint if possible unless the warlock is pathing into you and hug a wall.
+Отбегай далеко от мага и прячься; пытайся сохранить sprint, кроме случая когда варлок идёт прямо на тебя — тогда прижмись к стене.
 
-Let your mage avoid the warlock by LoSing on pillars or sitting back in the room if it's Ruins of Lordaeron. The reason your mage wants to avoid the warlock in the beginning is to wait for the warlock pet sacrifice shield to wear off, and to stall some time on the enemy rogue's goggles/perception pop. Sometimes on Ruins I like to sit in the room alongside my mage and let my mage stand behind the wall close to the door to give me space.
+Дай магу избегать варлока через LoS на пилларах или сидя в комнате (если карта Ruins of Lordaeron). Причина — маг ждёт пока спадёт pet sacrifice shield варлока и stall'ит время на pop'е goggles/perception вражеского рога. На Ruins я иногда сижу в комнате вместе с магом, маг стоит за стеной у двери чтобы дать мне пространство.
 
-You have a couple of options once the warlock gets close to your mage. You can open with a [[ability:garrote]] and quickly [[ability:vanish]] as your mage pops his pet and his [[ability:icy-veins]] to put pressure on the warlock, or you can just stay away. It kind of depends how well your mage is doing in this 1v1 typically and it comes down to a lot of RNG factors such as resists, frostbite procs, sticky novas, etc. I like to stay away completely for at least 20-30 seconds unless I expect the enemy rogue's goggles/perception have already been used.
+Когда варлок приближается к магу — есть варианты. Можно открыть [[ability:garrote]] и быстро [[ability:vanish]], пока маг поднимает pet и [[ability:icy-veins]] для давления на варлока. Или можно просто оставаться в стороне. Зависит от того, как маг справляется в 1v1, и многое решают RNG-факторы (resist'ы, frostbite proc'и, sticky nova'ы и т.д.). Я обычно полностью отбегаю минимум на 20-30 секунд, кроме случая когда уверен что вражеский рог уже потратил goggles/perception.
 
-Once I expect the enemy rogue's goggles/perception has expired, I pop my own goggles/perception and get a bit closer while still keeping a slight distance away from the warlock as I scout the area for the rogue. In this situation I am spamming [[ability:shadowstep]] [[ability:sap]] on the rogue typically.
+Когда ожидаю что вражеский рог уже потратил goggles/perception — поднимаю свои и подбираюсь чуть ближе, держа лёгкую дистанцию от варлока, сканирую область в поисках рога. В этой ситуации обычно спамлю [[ability:shadowstep]] [[ability:sap]] на рога.
 
-In the case that you find the rogue, you have the option to just [[ability:sap]] him and open on the warlock with a [[ability:premed]] > [[ability:garrote]] > [[ability:evisc]] and just all-in the warlock, or you can just kill the rogue. It kind of depends how healthy the warlock is at this point.
+Если нашёл рога — есть опция [[ability:sap]] его и открыть на варлоке [[ability:premed]] → [[ability:garrote]] → [[ability:evisc]] и all-in варлока, либо убить рога. Зависит от HP варлока на этот момент.
 
-If I were to kill the rogue it would be a [[ability:premed]] > [[ability:cheap-shot]] > [[ability:rupture]], similar to the rogue mage mirror matchup. After that you can do a [[ability:hemo]] or two into a short [[ability:kidney]] and [[ability:vanish]] and play it from there. Rogue should basically be dead at this point. Don't be afraid to throw a lot of cooldowns in this matchup in a quick sequence.
+Если убиваю рога — это [[ability:premed]] → [[ability:cheap-shot]] → [[ability:rupture]], аналогично RM-mirror'у. Потом можно сделать одно-два [[ability:hemo]], короткий [[ability:kidney]] и [[ability:vanish]], играешь дальше. Рог должен быть фактически мёртв к этому моменту. Не бойся жечь много КД быстрой связкой в этом матчапе.
 
-Also make sure to be quick and look for [[ability:death-coil]] as well and try to [[ability:vanish]] it.
+Будь быстрым со [[ability:death-coil]] — пытайся vanish'нуть его.
 
-You can also [[ability:premed]] > [[ability:cheap-shot]] > [[ability:kidney]] the rogue and try to [[ability:blind]] him when he trinkets but I wouldn't recommend this when you're killing the rogue because he can trinket > [[ability:blind]] you and just [[ability:vanish]]. Which puts you in an awkward position.
+Можно также [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney]] рога и [[ability:blind]] на trinket — но я не рекомендую этот вариант когда убиваешь рога, потому что он может trinket → [[ability:blind]] тебя и просто vanish. Что ставит тебя в неудобную позицию.
 
-Pre-vanishing in this matchup is also very common, especially if you are wearing goggles or have perception, or even both. Pre-vanishing vs rogue warlock as rogue mage usually nets you a lot of profit, as the enemy rogue is feeling very certain of getting the opener, having paranoia + goggles + perception.
+Pre-vanish'инг в этом матчапе тоже частая вещь, особенно если ты в goggles или с perception (или обоими). Pre-vanish vs rogue warlock как rogue mage обычно приносит много profit'а — вражеский рог чувствует себя очень уверенно про opener имея paranoia + goggles + perception.

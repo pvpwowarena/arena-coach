@@ -7,12 +7,14 @@ name = "arena-coach-workspace"
 version = "0.1.0"
 description = "Arena Coach — мульти-компонентный помощник для 2v2/3v3 арены WoW BC Classic Anniversary (2.4.3)"
 readme = "README.md"
-requires-python = ">=3.11"
+# 3.10 — минимум, который держится Ubuntu 22.04 (без deadsnakes PPA).
+# Код совместим с 3.10 через `from __future__ import annotations`.
+requires-python = ">=3.10"
 license = { text = "Proprietary" }
 authors = [{ name = "Arena Coach Dev" }]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py310"
 line-length = 100
 src = ["backend", "bridge", "ingest"]
 # Legacy tests/ под-папки внутри backend/bridge/ingest остались как placeholder'ы
@@ -57,7 +59,7 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.10"
 strict = true
 warn_unused_ignores = true
 warn_return_any = true

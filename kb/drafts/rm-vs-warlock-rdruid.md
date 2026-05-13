@@ -23,12 +23,12 @@ tags: []
 
 ## Opener
 
-Look for the druid with your goggles and/or perception while your mage avoids getting dotted by the enemy warlock while running around pillars. Finding the druid vs this comp is very crucial, and if you don't, then it's most likely a lost game.
+Ищи друида через goggles и/или perception, пока маг уворачивается от dot'ов варлока, бегая вокруг пилларов. Найти друида в этом матчапе — критично; если не найдёшь — игра почти наверняка проиграна.
 
-Once you find the druid shout to your mage that you've found him and have your mage make his way over there. Your mage might want to cone of cold and potentially nova the warlock after he uses his spellstone to get rid of the slow in order to keep him away.
+Когда нашёл друида — кричишь магу, что нашёл, и маг идёт к тебе. Магу стоит cone of cold'нуть и nova'нуть варлока (особенно после того, как варлок использовал spellstone для снятия слоя), чтобы держать его в дистанции.
 
-You open on the druid with double wound equipped and [[ability:premed]]> [[ability:cheap-shot]]> [[ability:shiv]]> [[ability:kidney]] the druid. Once the druid trinkets you have two options: either [[ability:blind]] him in humanoid form and vanish immediately before you get dotted and then [[ability:sap]] him to stall stun DR's and re-open kill him; or [[ability:garrote]]/[[ability:counterspell]] him after he trinkets and keep riding him down. Make sure to build wounds and prioritize shiv over hemo unless he's already 4-5 wounds and you have plenty of energy.
+Открываешь на друида с double wound: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:shiv]] → [[ability:kidney]]. Когда друид трикетит — два варианта: либо [[ability:blind]] его в humanoid-форме и сразу [[ability:vanish]] до того как тебя задотят, потом [[ability:sap]] для stall'а stun DR'ов и переоткрытия на убийство; либо [[ability:garrote]] + [[ability:counterspell]] сразу после trinket'а и продолжаем пилить. Накапливай wound-стэки — приоритезируй shiv над hemo, кроме случая когда уже 4-5 wound'ов и есть запас энергии.
 
-Watch out for [[ability:death-coil]] as well and try to vanish it if possible. Counterspelling the warlock on fear and preventing him from disrupting you is also a good option.
+Следи за [[ability:death-coil]] и пытайся vanish'нуть его если возможно. Counterspell'ить варлока на fear'ах, не давая ему disrupt'ить тебя — тоже хороший вариант.
 
-In the case that you don't find the druid, your mage has the option to try and pick up the eye and fish the druid out, however this is usually quite unlikely to happen.
+Если друида так и не нашёл, маг может попытаться поднять глаз и зафишить друида через него — но обычно это маловероятно.

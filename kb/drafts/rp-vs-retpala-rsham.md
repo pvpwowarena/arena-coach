@@ -25,26 +25,28 @@ tags: []
 
 ### Strategy
 
-[[ability:sap]] the paladin and start the match by [[ability:mana-burn]], forcing grounding totem and shock. Then potentially re-[[ability:sap]] him and stun him as the burn lands or is about to land.
+[[ability:sap]] паладина и старт матча — [[ability:mana-burn]], вынуждая grounding totem и shock. Потом потенциально ре-[[ability:sap]] и стан паладина в момент когда burn lэнднет или вот-вот лэнднет.
 
-The goal is for your priest to run away from the ret and maintain solid distance from him, and for you to keep the ret paladin at bay with crippling and wound poison. Wounds are important not only because they reduce the shaman's healing on the ret, but also because they cover the crippling poison.
+Цель: прийст убегает от ret'а и держит уверенную дистанцию, а ты держишь ret-паладина в crippling + wound poison. Wound'ы важны не только потому что снижают heal от shaman'а, но и потому что прикрывают crippling poison.
 
-Any time the ret paladin gets dispelled on crippling you re-shiv crippling and make sure to have excess energy for when he manages to get out of crippling poison. If you starve yourself on energy and he manages to dispel crippling, the ret will run down your priest.
+Каждый раз когда crippling диспелят с ret-паладина — ре-шив crippling, и держи запас энергии на момент когда он выходит из crippling. Если starve'аешь себя по энергии и он успевает продиспеллить crippling — ret'у не помешает ничего, он zerg'ит прийста.
 
-Be very mindful of the paladin's Reckoning proc at all times — this buff makes him deal significantly more burst damage. If the paladin is proccing reckoning and targeting you, step away out of his melee range or [[ability:evasion]] yourself and keep sticking to him. Treat him like a cactus during his Reckoning proc :)
+Очень внимательно следи за Reckoning proc'ом паладина — этот buff даёт ему серьёзно больше burst-дамага. Если паладин proc'нул reckoning и таргетит тебя — отойди из melee range или [[ability:evasion]] и продолжай липнуть к нему. Обращайся с ним как с кактусом во время Reckoning :)
 
-Save your [[ability:gouge]] and [[ability:kidney-shot]] for the paladin's freedom, giving your priest time to dispel it and allowing you to re-apply crippling.
+[[ability:gouge]] и [[ability:kidney-shot]] держи на freedom паладина, чтобы дать прийсту время продиспеллить и ре-применить crippling.
 
-If the paladin ever reaches your priest with a repentance and is about to connect with [[ability:hammer-of-justice]], use your [[ability:gouge]]/[[ability:kidney-shot]]/[[ability:vanish]] [[ability:cheap-shot]]/[[ability:blind]]. Do not allow the ret to hit your priest, especially not with Reckoning proc.
+Если паладин когда-либо добирается до прийста с repentance и вот-вот лэнднет [[ability:hammer-of-justice]] — жми [[ability:gouge]] / [[ability:kidney-shot]] / [[ability:vanish]] [[ability:cheap-shot]] / [[ability:blind]]. Не дай ret'у попасть по прийсту, особенно не с Reckoning proc'ом.
 
-Whenever your priest gets solid distance from the ret, he can start casting [[ability:mana-burn]] again and eventually oom the paladin.
+Когда прийст получает уверенную дистанцию от ret'а — начинает кастовать [[ability:mana-burn]] и в итоге oom'ит паладина.
 
-Once the ret paladin is oom, it's better to hit the shaman than the paladin generally, but keep putting the ret into [[ability:fear]] and stuns every now and then as he will slowly regain mana. If the ret is ever oom, do not let him drink.
+После того как ret-паладин oom — обычно лучше бить shaman'а, чем паладина, но продолжай ставить ret'а в [[ability:fear]] и станы время от времени (он постепенно регенит ману). Если ret oom — не дай ему drink'ать.
 
-Look for restealths a lot in this matchup around pillars and look for stuns on the enemy shaman into a [[ability:fear]] on the ret with [[ability:mana-burn]].
+В этом матчапе ищи restealth'ы вокруг пилларов; ищи станы на вражеском shaman'е с [[ability:fear]] на ret'е через [[ability:mana-burn]].
 
-This is a complex matchup. The key is keeping the ret crippled and away from your priest at all costs. Rotate your cooldowns well and keep excess energy for when crippling gets dispelled. Mana burn the paladin to oom and the game is won.
+Сложный матчап. Ключ — держать ret в crippling'е и подальше от прийста любой ценой. Хорошо ротируй КД и держи запас энергии на случай диспелла crippling. Mana burn паладина в oom — и игра выиграна.
 
 Video clips
 
 ![Game #1](https://mirlol.pro/img/thumbnail%20videos/dpr-retsham.webp)
+
+Game #1

@@ -23,12 +23,12 @@ tags: []
 
 ## Opener
 
-Have your mage go invis and communicate to him where the hunter is (if for whatever reason he's not sitting on top of flare.) Once the mage comes out of invis he will pop his water elemental and solo the hunter with novas and cone of colds and veins and blocking/trinketing any cc thrown at him while keeping the hunter slowed.
+Маг идёт в invis и сообщает где hunter (если по какой-то причине он не сидит на flare'е). Когда маг выходит из invis'а, он поднимает water elemental и соло-бьёт hunter'а через nova'ы, cone of cold'ы, veins, блокируя/трикетя любые CC; держит hunter'а в slow'е.
 
-When your mage is soloing the hunter, pop your goggles and/or perception and look for the druid and stun him immediately the moment you find him. Once you cheap shot him, put him into a [[ability:gouge]]> [[ability:kidney]] and run to the hunter and finish him off. Your mage should [[ability:counterspell]] the druid after the kidney.
+Пока маг соло'ит hunter'а, поднимай goggles и/или perception, ищи друида и стань его сразу как нашёл. После cheap shot'а — [[ability:gouge]] → [[ability:kidney]] и беги к hunter'у добивать. Маг должен [[ability:counterspell]] друида после kidney.
 
-If the druid trinkets kidney you [[ability:blind]] him and kill the hunter. I like to have double wound equipped here even though most hunters are playing dwarf, because the mage is already slowing the hunter.
+Если друид трикетит kidney — [[ability:blind]] его и продолжаешь убивать hunter'а. Я обычно держу double wound даже если hunter dwarf — потому что маг и так slow'ит hunter'а.
 
-A lot of the time the druid is sitting on top of the flare alongside his hunter, sometimes in treeform with pre-hots. But the strategy doesn't change usually.
+Часто друид сидит прямо на flare'е рядом с hunter'ом, иногда в tree form'е с pre-hot'ами. Но стратегия обычно не меняется.
 
-There are times where the mage is unable to solo the hunter due to unlucky RNG. When this happens you can try to sheep the hunter after the failed kill attempt and then try to kill the druid instead.
+Бывает что маг не вытягивает соло против hunter'а из-за неудачного RNG. В этом случае после неудачной попытки убийства можно sheep'нуть hunter'а и попробовать убить друида вместо него.

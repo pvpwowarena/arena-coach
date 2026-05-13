@@ -25,39 +25,39 @@ tags: []
 
 ### General
 
-Double wound should be equipped most of the time during this matchup. Unless you get to a point where you're killing the warrior, in which case you need to quickly rotate between crippling and wound poison depending on abolish and what it manages to dispel, in order to have as much uptime as possible on the warrior.
+Double wound должен стоять большую часть матча. Исключение — момент, когда переключаешься на убийство варриора: тогда быстро ротируешь crippling / wound poison в зависимости от abolish и того, что он успевает диспеллить, чтобы держать максимальный uptime на варре.
 
-Druid is the main target however, and while tunneling druid, double wound is equipped most of the time.
+Основная цель всё равно друид, и пока tunnel'им друида — double wound почти всегда.
 
-[[ability:sap]] the warrior before he reaches your priest and look for the druid in stealth. If it's Ruins it becomes trickier but even then the goal should be to look for the druid, unless you are NOT human.
+[[ability:sap]] варриора до того как он добежал до твоего прийста, и ищи друида в стелсе. На Ruins это сложнее, но цель та же — найти друида, если только ты не human rogue.
 
-In the case you are not playing human rogue, your priest can solo the warrior while you wait for the druid to pop out of stealth.
+Если ты **не** human rogue, твой прийст может соло-выживать против варра, пока ты ждёшь выхода друида из стелса.
 
-Once he pops out of stealth to heal the warrior, or if you simply find the druid in stealth; open on the druid with a [[ability:cheap-shot]] > [[ability:hemo]] > [[ability:gouge]] > [[ability:kidney-shot]].
+Когда друид выходит из стелса хилить варра (или ты просто нашёл его в стелсе) — открываешь на друида: [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:gouge]] → [[ability:kidney-shot]].
 
-Depending on how much pressure your priest has developed on the warrior, you can either go for a [[ability:kidney-shot]] > [[ability:fear]] on druid and stack up wounds on the warrior and try to finish him, OR focus the druid and [[ability:fear]] him out of [[ability:kidney-shot]].
+В зависимости от того, насколько прийст уже накачал давление на варриоре, есть два варианта: либо [[ability:kidney-shot]] → [[ability:fear]] на друида + накопление wound'ов на варре с попыткой добить варра, ЛИБО фокус на друиде и [[ability:fear]] из [[ability:kidney-shot]].
 
-When the [[ability:fear]] lands on the druid, assuming the idea is to kill the druid, let him sit in [[ability:fear]] until he's about to get feared away from you, and then shiv crippling on the druid once so he doesn't get feared too far away. Be careful of intercept > disarm while you have your crippling off hand equipped though, and make sure to swap back to your wound off hand right after you've crippled him.
+Когда [[ability:fear]] лэндит на друида (при условии что цель — убить друида), даёшь ему сидеть в fear'е до момента когда он почти уйдёт от тебя, и тогда шивишь crippling на друида один раз, чтобы он не убежал слишком далеко. Осторожно с intercept → disarm пока у тебя crippling в off-hand'е; сразу свапайся обратно на wound off-hand после crippling.
 
-I like to use [[ability:blind]] as a gap-closer for the priest to catch up for a [[ability:fear]], or while I'm disarmed.
+[[ability:blind]] использую как gap-closer для прийста (чтобы догнать на [[ability:fear]]) или когда я под disarm'ом.
 
-The goal is to invest every cooldown into the druid and rotate them as well as we can while having as much uptime as we're able to.
+Цель — вкладывать каждый КД в друида и ротировать их как можно эффективнее, держа максимальный uptime.
 
 ## Notes
 
 ### Things to Watch Out For
 
-Warrior's and Priest's distance compared to you and the Druid.
+Дистанция варриора и прийста относительно тебя и друида.
 
-Priest's distance to the druid is important because you need to be able to [[ability:fear]] out of your stunlock on the druid.
+Дистанция прийста до друида важна — нужно успевать [[ability:fear]] прийстом из твоего stunlock'а на друиде.
 
-Warrior's distance to YOU and the druid is important because you don't wanna get intercepted at a critical time like right before you manage to [[ability:kidney-shot]] the druid.
+Дистанция варра до **тебя** и друида важна — не хочешь получить intercept в критический момент (например прямо перед [[ability:kidney-shot]] по друиду).
 
-Always be aware of where the warrior and the priest are, especially the warrior. If you see he's close enough to intercept you and you expect him to intercept you; try to pre-[[ability:gouge]] the intercept or pre-[[ability:kidney-shot]] it. That way you can hold onto your trinket so the druid cannot NS [[ability:cyclone]] you, or save trinket for a more critical CC like a macestun at a bad time.
+Постоянно следи где варр и где прийст, особенно варр. Если видишь что он близко и ждёшь intercept — попробуй pre-[[ability:gouge]] или pre-[[ability:kidney-shot]] intercept. Так сохраняешь trinket на случай NS [[ability:cyclone]] от друида, или на более критичный CC типа неудобного mace-stun'а.
 
-You can also clutch it and try to [[ability:cloak-of-shadows]] the druid's NS [[ability:cyclone]] if you've already used trinket.
+Можно также клатчево [[ability:cloak-of-shadows]] NS [[ability:cyclone]] друида, если trinket уже потрачен.
 
-Double wound at all times while on the druid. Rotate crippling/wound when swapping to warrior depending on abolish. Use blind as a gap closer and invest every cooldown into the druid.
+Double wound на друиде на протяжении всего матча. При переключении на варра ротируй crippling/wound в зависимости от abolish. Blind — как gap closer. Каждый КД инвестируй в друида.
 
 Video clips
 

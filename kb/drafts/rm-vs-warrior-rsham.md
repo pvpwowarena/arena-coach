@@ -23,10 +23,10 @@ tags: []
 
 ## Opener
 
-This matchup is very similar to Warrior/Druid, but due to shock and grounding totem existing, a lot of the time you have to open on the shaman as your mage is sheeping the warrior simultaneously. Most people don't play gnome warrior in this comp, so usually no need to worry about escape artist.
+Матчап очень похож на Warrior/Druid, но из-за shock'ов и grounding totem'а часто приходится открывать на shaman'а, пока маг параллельно sheep'ит warrior'а. Большинство в этой комбе не играет gnome warrior'ом, поэтому escape artist обычно можно не учитывать.
 
-Typically your mage just runs on top of the enemy warrior and novas him at the same time as you [[ability:premed]]> [[ability:cheap-shot]]> [[ability:hemo]]> [[ability:gouge]] shaman. Your mage sheeps the warrior and tries to shatter the shaman as the kidney lands, and blanket [[ability:counterspell]] the shaman after the kidney (or even during, if you're expecting a trinket).
+Стандартно: маг встаёт прямо на варриора и nova'ет его одновременно с тем как ты делаешь [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:gouge]] по shaman'у. Маг sheep'ит варра и пытается shatter shaman'а на lэнд'е kidney, потом blanket [[ability:counterspell]] shaman'а после kidney (или прямо во время, если ждёшь trinket).
 
-Similarly to Warrior/Druid your mage takes care of the warrior and makes sure he doesn't move while you're building pressure and stacking wounds on the shaman. I like to have double wound equipped vs this comp but sometimes I need to cripple the shaman to make sure he's in LoS of my mage.
+Как и в Warrior/Druid, маг занимается варром и не даёт ему двигаться, пока ты строишь давление и стэкаешь wound'ы на shaman'е. Я обычно держу double wound в этом матчапе, но иногда нужно cripple shaman'а чтобы он был в LoS у мага.
 
-If the warrior trinkets, look to either resheep/nova his trinket or blind him if it's too inconvenient for the mage and keep riding the shaman.
+Если warrior трикетит — либо resheep / nova на trinket, либо blind если магу неудобно; продолжаешь пилить shaman'а.

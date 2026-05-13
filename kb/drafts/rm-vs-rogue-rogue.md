@@ -25,12 +25,12 @@ tags: []
 
 ### Stealth Game
 
-This matchup is a game of stealth and there's a ton of different ways to go about it, but the main take-away is to be unpredictable with your stealth pattern. It can be either rushing straight in and looking for them in the room with your goggles/perception pop assuming they're saving their goggles/perception and maybe even pre-vanishing to cover yourself from getting found, or you can sit back in the room and come in late and pop your goggles/perception along with a pre-vanish, or you could run away and hide for 20-30 seconds and pop your goggles/perception around your mage.
+Это матчап стелс-игры, и подходов масса — но главное правило: будь непредсказуем со своим stealth-паттерном. Можно врываться сразу и искать их в комнате через goggles/perception (полагая что они держат свои в запасе), возможно даже pre-vanish'аться чтобы прикрыться от обнаружения. Можно отсидеться в комнате и зайти поздно, поднимая goggles/perception вместе с pre-vanish. Можно отбежать и спрятаться на 20-30 секунд, потом поднять goggles/perception рядом с магом.
 
-The important thing is to mix things up and try to predict their stealth pattern in your head, and this comes from experience more than anything else.
+Главное — миксовать и пытаться предугадать их stealth-паттерн в голове, и это приходит с опытом.
 
-If you're in pre-vanish you should be sapping one and looking for the other since you're covered by the pre-vanish. If you don't pre vanish then I'd look to [[ability:sap]] and run away and let my mage open on the sapped rogue alone while spamming [[ability:step]]> [[ability:premed]]> [[ability:cheap-shot]] on the 2nd rogue.
+Если ты в pre-vanish — сапаешь одного и ищешь другого (pre-vanish тебя прикрывает). Если pre-vanish'а нет, я обычно [[ability:sap]] и убегаю, давая магу открыть на sapped'ого рога в одиночку, пока я спамлю [[ability:step]] → [[ability:premed]] → [[ability:cheap-shot]] на второго.
 
-Whenever I manage to stun one rogue, assuming the other rogue is still in stealth, I would [[ability:premed]]> [[ability:cheap-shot]]> [[ability:rupture]]> [[ability:vanish]] and immediately press [[ability:preparation]] in stealth, and the moment the second rogue opens I would [[ability:premed]]> [[ability:cheap-shot]]> [[ability:kidney]] overlap on cheap shot and vanish again.
+Когда удаётся застанить одного рога (при условии что второй ещё в стелсе): [[ability:premed]] → [[ability:cheap-shot]] → [[ability:rupture]] → [[ability:vanish]] и сразу [[ability:preparation]] в стелсе. Момент когда второй рог открывает — [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney]] overlap на cheap shot и снова vanish.
 
-This matchup comes down to opener primarily, there really isn't that much else to cover.
+Матчап решается в основном на opener'е, других нюансов почти нет.

@@ -23,31 +23,31 @@ tags: []
 
 ## Opener
 
-I hope you're playing Human rogue for this matchup :)
+Надеюсь ты играешь Human rogue в этом матчапе :)
 
-Look for the druid in stealth in the opener and call out to your priest when you spot him so he can make his way over and assist you.
+Ищи друида в стелсе на opener'е и сообщи прийсту когда нашёл, чтобы он подошёл и помог.
 
-When the hunter is in range to hit you, put up [[ability:evasion]] immediately as his [[ability:scatter-shot]] has a 25% chance to miss during evasion, plus another 4% from your heightened talent. If [[ability:scatter-shot]] misses on you when you're on the druid, the game is most likely won.
+Когда hunter в радиусе удара по тебе — сразу поднимай [[ability:evasion]], так как у [[ability:scatter-shot]] 25% шанс miss'а во время evasion'а плюс ещё 4% от heightened talent'а. Если [[ability:scatter-shot]] промахивается когда ты на друиде — игра почти гарантированно выиграна.
 
-Open on the druid with double wound equipped and [[ability:premed]] > [[ability:cheap-shot]] > [[ability:hemo]] > [[ability:kidney-shot]] > [[ability:hemo]] during kidney. If you're unlucky with wound procs you might have to invest globals into shiving during kidney rather than hemo.
+Открываешь на друида с double wound: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney-shot]] → [[ability:hemo]] во время kidney. Если не повезло с wound proc'ами — придётся вкладывать global'ы в шив во время kidney вместо hemo.
 
-Try to [[ability:gouge]] the druid out of kidney to give your priest time to reach him for a [[ability:fear]]. Use [[ability:blind]] as well if needed for your priest to close the gap.
+Попробуй [[ability:gouge]] друида из kidney чтобы дать прийсту время добежать до него на [[ability:fear]]. [[ability:blind]] тоже используй если нужно для прийста (закрыть gap).
 
-At this point just rotate your vanishes when the druid comes off stun DR and zerg him down. Face the hunter if he's close to you so that you can dodge his wing clips with your [[ability:evasion]], denying his slows and potential improved wing clip procs (roots).
+На этом этапе просто ротируешь vanish'и когда друид выходит из stun DR'а и zerg'ишь его. Лицом к hunter'у если он близко — увернёшься от его wing clip'ов через [[ability:evasion]], запретив его slow'ы и возможные improved wing clip proc'и (root'ы).
 
-Chain stuns and gouges and [[ability:fear]] and don't let the druid escape you. Use [[ability:blind]] as another gap closer and stun DR staller.
+Chain stuns + gouges + [[ability:fear]] и не давай друиду убежать. [[ability:blind]] — ещё один gap-closer и stall stun DR'ов.
 
 ## Alternative opener
 
 ### Plan B — Kill the Pet
 
-In the instance that the druid kill attempt fails, or if you never find the druid, you have the option to try and kill the pet along with your priest. Sometimes hunters send their pets behind a pillar and send them back too late, giving you an opportunity.
+Если попытка убить друида проваливается или ты вообще не нашёл его — есть опция убить пета вместе с прийстом. Иногда охотники шлют пета за пиллар и забирают слишком поздно, давая возможность.
 
-Assuming the pet is dead, you have the option to stun > [[ability:fear]] > [[ability:mana-burn]] the hunter and chase him all game to prevent his pet re-summon. Hunters require quite a bit of mana to revive their pet, so once you kill it, this is a solid win condition.
+При условии что пет мёртв — есть опция stun → [[ability:fear]] → [[ability:mana-burn]] hunter'а и гонять его весь матч, не давая re-summon пета. Hunter'ам нужно прилично маны на revive пета, так что после его убийства это устойчивое win condition.
 
-If the pet is dead it will also allow your priest to drink, as the hunter won't have a pet to prevent drinking. You might be able to restealth and [[ability:sap]] the enemy hunter out of [[ability:fear]], which also allows your priest to drink.
+Если пет мёртв, прийст может dr'ить — у hunter'а нет пета чтобы это прерывать. Можно ещё restealth'нуться и [[ability:sap]] вражеского hunter'а из [[ability:fear]], что тоже даёт прийсту dr'ить.
 
-Optimally the druid should be the kill target. Killing the pet is plan B. Use evasion early to potentially dodge scatter shot — if it misses, the game is basically won.
+Идеально кил-таргет должен быть друид. Убийство пета — plan B. Используй evasion рано чтобы потенциально увернуться от scatter shot — если он miss'нёт, игра почти выиграна.
 
 Video clips
 

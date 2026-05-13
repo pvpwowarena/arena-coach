@@ -23,20 +23,20 @@ tags: []
 
 ## Opener
 
-Look for the enemy rogue with your goggles and/or perception and once you [[ability:sap]] him, look to find the druid too. If you manage to [[ability:sap]] the rogue you kill the druid with [[ability:premed]] > [[ability:cheap-shot]] > [[ability:kidney-shot]] and resheep/[[ability:blind]] the rogue off of [[ability:sap]] when he trinkets. Double wound should be equipped at all times vs this matchup and shiv should be prioritized over [[ability:hemo]] to build wounds.
+Ищи вражеского рога через goggles и/или perception. Как только [[ability:sap]] его — ищи и друида. Если удалось [[ability:sap]] рога, убиваем друида связкой [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney-shot]]; когда рог трикетит — resheep или [[ability:blind]] его с sap'а. Double wound на протяжении всего матча, shiv в приоритете над [[ability:hemo]] для накопления wound-стэков.
 
-In the case that you don't find the rogue, you might be forced to open on the druid if he is harassing your mage with moonfire/insect swarm. In that case what I like to do is call a 3,2,1 go on the druid and [[ability:premed]] > [[ability:cheap-shot]] > [[ability:kidney-shot]] overlap on top of [[ability:cheap-shot]] as your mage pops his [[ability:icy-veins]] and pet on the druid to shatter him. That will force the enemy rogue to open and peel his druid.
+Если рога не нашёл, иногда приходится открывать на друида — например, если он харрасит мага moonfire/insect swarm. В этом случае: считаешь «3, 2, 1, go» по друиду и делаешь [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney-shot]] overlap'ом поверх cheap shot'а, пока маг пускает [[ability:icy-veins]] и пет на друида для shatter'а. Это вынудит вражеского рога открыть и пилить своего друида.
 
-The reason we [[ability:kidney-shot]] overlap on [[ability:cheap-shot]] is because we want to avoid getting stunned by the enemy rogue and forcing him to stop our mage instead of us. If he stops our mage at this point we can [[ability:cheap-shot]] him into a sheep and keep riding the druid with a [[ability:garrote]]/blanket [[ability:counterspell]].
+Причина, по которой делаем kidney overlap на cheap shot — чтобы избежать стана от вражеского рога и заставить его остановить нашего мага вместо нас. Если он всё-таки останавливает мага в этот момент — мы [[ability:cheap-shot]] его в sheep и продолжаем пилить друида с [[ability:garrote]] / blanket [[ability:counterspell]].
 
 ## If enemy opens first
 
 ### If the Enemy Rogue Opens First
 
-If the enemy rogue opens on our mage before we've even opened, depending on if the druid is outside of stealth or not, I like to either [[ability:cheap-shot]] > sheep the rogue and [[ability:vanish]] > [[ability:premed]] > [[ability:cheap-shot]] > [[ability:kidney-shot]] the druid and kill the druid.
+Если вражеский рог открыл на нашего мага раньше нас — в зависимости от того, в стелсе друид или нет, я обычно либо [[ability:cheap-shot]] → sheep на рога и [[ability:vanish]] → [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney-shot]] по друиду, и убиваем друида.
 
-Or pop pet and [[ability:icy-veins]] and open on the rogue alongside your mage if he has no pre-hots and spam blanket [[ability:counterspell]] on the enemy druid the moment he comes out of stealth to heal the rogue and try to blow up the rogue as quickly as you can.
+Либо: поднимаем пет и [[ability:icy-veins]] и открываем на рога вместе с магом — при условии что у него нет pre-hot'ов; спамим blanket [[ability:counterspell]] на друида в момент выхода из стелса (чтобы не дать heal'ить рога) и пытаемся снести рога максимально быстро.
 
-If the rogue trinkets, we have the option to [[ability:blind]] him on [[ability:cloak-of-shadows]] and run away and restealth. Then we can either [[ability:sap]] him and kill the druid or [[ability:sap]] him and pretend to go on the druid by having my mage cast spells on the druid and then turning on the rogue instead.
+Если рог трикетит — есть вариант [[ability:blind]] его под [[ability:cloak-of-shadows]] и убежать в restealth. Потом либо [[ability:sap]] и убить друида, либо [[ability:sap]] и притвориться что идём на друида (маг кастует по друиду), а сами переключаемся на рога.
 
-This matchup is quite tricky and requires a lot of adaptation from the side of the rogue mage depending on what's going on.
+Этот матчап сложный и требует много adaptation'а от RM в зависимости от происходящего.

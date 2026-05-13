@@ -23,12 +23,12 @@ tags: []
 
 ## Opener
 
-[[ability:sap]] the paladin at the end of the sacrifice buff on the shaman, and have your mage come in on mount and try to [[ability:nova]]> [[ability:sheep]] the shaman. Sometimes you have to blanket counterspell in order to get the sheep here.
+[[ability:sap]] паладина под конец sacrifice-баффа на shaman'е, маг подходит на mount'е и пытается [[ability:nova]] → [[ability:sheep]] shaman'а. Иногда нужен blanket counterspell чтобы лэндить sheep.
 
-Once the shaman is sheeped, open on the ret with [[ability:premed]]> [[ability:cheap-shot]]> [[ability:hemo]]> [[ability:kidney]] with double wound equipped and blast him together with your mage. Shaman might trinket in the opener in which case you either try to re-sheep or blanket counterspell him. Hopefully you manage to force either paladin trinket or bubble, and then you vanish away and have your mage blink away and escape as fast as he can.
+После того как shaman в sheep'е — открываешь на ret'е с double wound: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]], blast вместе с магом. Shaman может трикетнуть в opener'е — тогда либо ре-sheep, либо blanket counterspell. Идеально вынудить trinket паладина или bubble, после чего vanish'аешься, маг blink'ается и убегаете.
 
-At this point, wait in stealth for stun and sheep DR's and once they're off DR's, re-open on the paladin again with a nova > blanket > counterspell on the shaman and repeat the same combo.
+После этого ждёшь в стелсе пока DR'ы стана и sheep'а отойдут, и когда они off-DR — переоткрываешь на паладина: nova → blanket → counterspell shaman'а, и повторяешь то же комбо.
 
-[[ability:blind]] should not be used on the shaman in this matchup typically — it's much better spent on the paladin to force bubble or trinket so that your next stun is full. It can even be used after bubble to save your mage and to stall stun/sheep DR's for the next setup.
+[[ability:blind]] в этом матчапе обычно **не** тратится на shaman'а — гораздо полезнее на паладина, чтобы вынудить bubble или trinket, чтобы следующий стан был full. Blind также можно использовать после bubble'а — спасти мага и stall stun/sheep DR'ы перед следующим setup'ом.
 
-If your mage iceblocks before the enemy paladin bubbles you typically automatically lose the game. Saving blind for the paladin is crucial here. This is a difficult matchup and requires good play on the mage/rogue's part.
+Если маг iceblock'ается до того как вражеский паладин bubble'ится — игра обычно автоматически проиграна. Сохранять blind на паладина критично. Сложный матчап, требует чёткой игры от мага и от рога.

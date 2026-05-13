@@ -25,18 +25,18 @@ tags: []
 
 Option 1 — Most Solid
 
-[[ability:sap]] the priest and have your mage run in and get into position to open on the priest alongside you. Equip crippling in your off hand so that you can apply crippling after [[ability:cheap-shot]] the priest in case of stun resist. [[ability:premed]]> [[ability:cheap-shot]]> [[ability:hemo]]/[[ability:shiv]]> [[ability:kidney]] and blast him with your mage. Equip wound in off hand once kidney successfully lands and depending on wound procs either shiv or hemo to build up your wounds to 4-5.
+[[ability:sap]] прийста и пусть маг забегает + занимает позицию для opener'а на прийсте вместе с тобой. Equip: crippling в off-hand, чтобы шивнуть crippling после [[ability:cheap-shot]] на случай stun-резиста. [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] / [[ability:shiv]] → [[ability:kidney]], и blast'ишь вместе с магом. Свапаешь wound в off-hand когда kidney успешно лэндит, и в зависимости от wound proc'ов шивишь или hemo'ишь до 4-5 wound'ов.
 
-If the priest is dwarf, we have to [[ability:blind]] him once he trinkets before he's able to stoneform desperate prayer himself back to full HP, and then try to [[ability:sap]] him in between dot ticks and hold cloak until the second setup on him.
+Если прийст — dwarf, нужно [[ability:blind]] его сразу когда он трикетит, до того как он успеет stoneform + desperate prayer обратно в full HP; потом [[ability:sap]] между dot tick'ами и держим cloak до второго setup'а.
 
-If he's not dwarf however, I suggest you don't even kidney shot him most of the time. Instead open with [[ability:premed]]> [[ability:cheap-shot]]> [[ability:expose-armor]]> [[ability:shiv]]> swap wound OH > [[ability:vanish]]> [[ability:garrote]] and just blast the shit out of him as fast as you can. Your mage can follow up with a blanket counterspell after the garrote. Try to hold onto your [[ability:cloak-of-shadows]] as long as you can so you don't catch a full line of dots after cloak.
+Если он не dwarf — я обычно даже не kidney shot его. Открываем: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:expose-armor]] → [[ability:shiv]] → swap wound OH → [[ability:vanish]] → [[ability:garrote]], и blast как можно быстрее. Маг может фоллоу-апить blanket counterspell после garrote. Держим [[ability:cloak-of-shadows]] подольше, чтобы не словить full line of dots после cloak.
 
-Once the priest is dead you cross the map and your mage should be playing for your survival as a rogue is able to beat a warlock pretty consistently 1on1.
+После того как прийст мёртв — пересекаем карту, маг играет на твоё выживание, потому что рог обычно стабильно бьёт варлока 1v1.
 
 Option 2 — Season 1 Rush
 
-Equip double wound, [[ability:sap]] the enemy priest, and open on the warlock with a [[ability:premed]]> [[ability:garrote]]> [[ability:shiv]]> [[ability:rupture]] and vanish before you get dotted. Then you press [[ability:preparation]] in stealth and re-[[ability:sap]] the priest two more times into a [[ability:premed]]> [[ability:cheap-shot]]> [[ability:kidney]] on the priest and get back to banging the warlock.
+Equip double wound, [[ability:sap]] вражеского прийста и открываешь на варлоке: [[ability:premed]] → [[ability:garrote]] → [[ability:shiv]] → [[ability:rupture]] и vanish до того как тебя задотят. Затем [[ability:preparation]] в стелсе и ре-[[ability:sap]] прийста ещё два раза, после чего [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney]] по прийсту, и обратно на варлока.
 
-If the priest trinkets you blind him quickly and resume killing the warlock.
+Если прийст трикетит — быстро blind'ишь и возвращаешься к варлоку.
 
-Prioritize shiving wounds in this matchup over spamming hemo as it denies not only the priest's healing but also the healthstone heal.
+Шив wound'ов в приоритете над hemo-спамом — это запрещает не только heal'инг прийста, но и heal от healthstone.

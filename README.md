@@ -90,16 +90,19 @@ arena-coach/
 
 ## Phase-план
 
-См. [`docs/phase-0-design.md`](docs/phase-0-design.md) §14.
+См. [`docs/phase-0-design.md`](docs/phase-0-design.md) §14 и [`docs/strategy-data-acquisition.md`](docs/strategy-data-acquisition.md) (стратегия источников данных).
 
 - **Phase 0** — Design (готово). Документы, ADR, mock'и.
 - **Phase 1** — Скелет + KB-ingest. *(готово — 22 драфта в `kb/drafts/`)*
-- **Phase 1.5** — Russian prose translation через Haiku, см. [`docs/phase-1.5-translation-plan.md`](docs/phase-1.5-translation-plan.md).
-- **Phase 2** — Discord-бот (read-only): slash-команды, whitelist, audit log.
-- **Phase 3** — Lua-аддон + SV-events + chat-frame mirror.
-- **Phase 4** — Bridge + real-time text-hints (приватный канал, player-role).
-- **Phase 4.5** — Voice hints (TTS в Discord voice channel), см. [`docs/phase-4.5-voice.md`](docs/phase-4.5-voice.md).
-- **Phase 5** — CV/OCR (после отдельного ToS risk assessment).
+- **Phase 1.5** — Russian prose translation, см. [`docs/phase-1.5-translation-plan.md`](docs/phase-1.5-translation-plan.md). *(готово)*
+- **Phase 2** — Discord-бот (read-only): slash-команды `/matchup`, `/glossary`, `/access`, whitelist, audit log. *(in progress)*
+- **Phase 3** — **Combat-log bridge** (Python-демон у тестера читает `Logs/WoWCombatLog.txt`, без аддона). Минимальный install у тестера.
+- **Phase 4** — Real-time text-hints (event → KB-retrieve → LLM synth → Discord embed).
+- **Phase 4c** — Voice hints (Edge-TTS в Discord voice channel), см. [`docs/phase-4.5-voice.md`](docs/phase-4.5-voice.md).
+- **Phase 5a** — Lua-аддон (опциональный upgrade для ≤1 сек latency + custom-событий).
+- **Phase 5b** — Twitch-CV fallback (видео-анализ для observer-режима).
+
+**Важно:** порядок Phase 3 ↔ Phase 5a поменян относительно изначального Phase-0 design — combat-log файл идёт первым как MVP с минимальным барьером входа, аддон откладывается на upgrade-фазу. Обоснование — в [`docs/strategy-data-acquisition.md`](docs/strategy-data-acquisition.md).
 
 ## Безопасность
 

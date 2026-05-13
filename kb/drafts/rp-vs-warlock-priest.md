@@ -25,21 +25,21 @@ tags: []
 
 ### Strategy
 
-This matchup is all about efficiency and good global/energy management.
+Этот матчап про эффективность и хороший global/energy management.
 
-If they allow it, optimally [[ability:sap]] the enemy priest and [[ability:cheap-shot]] the warlock into a [[ability:gouge]] while your priest dispels him fully so that he can have an easier time dispelling shields and buffs throughout the game. [[ability:kidney-shot]] out of the [[ability:gouge]] and start building wound poison stacks on the warlock.
+Если разрешают — идеально [[ability:sap]] вражеского прийста и [[ability:cheap-shot]] варлока в [[ability:gouge]], пока прийст полностью диспеллит варлока (чтобы потом ему легче было снимать shield'ы и баффы по ходу матча). [[ability:kidney-shot]] из [[ability:gouge]] и начинаешь стэкать wound poison на варлоке.
 
-Keep the warlock cripple poisoned so he doesn't drag you away from your priest and keep 5 wounds up all game. Make sure to have [[ability:expose-armor]] on him the entire time. If you have excess combo points you can also [[ability:slice-and-dice]], making it easier to maintain poison uptime while also dealing good damage. [[ability:slice-and-dice]] is very effective into targets with little dodge/parry chance when you can make full use of the duration.
+Держи варлока в crippling, чтобы он не утащил тебя от прийста, и держи 5 wound'ов весь матч. [[ability:expose-armor]] на нём всё время. Если есть лишние combo points — можно ещё [[ability:slice-and-dice]], это облегчает поддержку poison-uptime'а и даёт хороший дамаг. [[ability:slice-and-dice]] очень эффективен против целей с малым шансом dodge/parry если можно выжать полную длительность.
 
-You can also shiv mind-numbing on the warlock if he spends a lot of time casting fear, to make him waste time.
+Можно ещё шивнуть mind-numbing на варлока если он много времени тратит на касты fear'а — пусть теряет время.
 
-[[ability:blind]] the priest as early as you can to force his trinket, giving you the option to close out the game with blind [[ability:sap]] later once your [[ability:blind]] comes back off cooldown.
+[[ability:blind]] прийста как можно раньше чтобы вынудить trinket — это даёт опцию закрыть игру через blind [[ability:sap]] позже когда [[ability:blind]] откатается.
 
-If your health goes low and your priest can't cast heals on you, you can let your priest tank a spellock on purpose and then [[ability:cloak-of-shadows]] and [[ability:vanish]] away. Depending on whether the warlock still has trinket and if your priest can top you in stealth, you can sit in stealth and stall — stall stun DR's, stall [[ability:cloak-of-shadows]] CD, stall the time before the warlock re-dots you.
+Если HP проседает и прийст не может прокастить heal на тебе — можно дать прийсту намеренно поймать spellock и потом [[ability:cloak-of-shadows]] + [[ability:vanish]]. В зависимости от того, остался ли trinket у варлока и может ли прийст полечить тебя в стелсе, ты можешь сидеть в стелсе и stall'ить — stall stun DR'ов, stall'а [[ability:cloak-of-shadows]] CD, времени до того как варлок ре-dot'нёт тебя.
 
-Make sure to [[ability:evasion]] when the enemy priest uses Shadowfiend on you and try to face the Shadowfiend to deny mana value.
+[[ability:evasion]] когда вражеский прийст ставит Shadowfiend на тебя; лицом к Shadowfiend'у чтобы запретить ему mana-value.
 
-This is an easy matchup and shouldn't be any problem for you. Keep expose armor and 5 wounds up at all times, keep warlock crippled, and blind the priest early to force trinket.
+Это лёгкий матчап, проблем быть не должно. Держи expose armor и 5 wound'ов всегда, держи варлока в crippling'е, и рано blind'и прийста чтобы вынудить trinket.
 
 Video clips
 
