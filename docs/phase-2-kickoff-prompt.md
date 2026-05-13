@@ -10,56 +10,35 @@ Crusade Classic Anniversary. Phase 0 (design), Phase 1 (KB + ingest), Phase
 1.5 (RU translation) — закрыты. Репо на GitHub: pvpwowarena/arena-coach
 (приватный, push через SSH). CI зелёный на py3.10/3.11/3.12.
 
-Сейчас Phase 2: дозавершить server setup + написать Discord-бот.
+Сейчас Phase 2: server setup на свежепереустановленном VPS + Discord-бот.
 
 ═══════════════════════════════════════════════════════════════════════
-СОСТОЯНИЕ СЕРВЕРА (Hetzner, root@55184, Ubuntu 22.04 LTS, 1 GB RAM)
+СОСТОЯНИЕ СЕРВЕРА
 ═══════════════════════════════════════════════════════════════════════
 
-ГОТОВО:
-✓ Disk cleanup: ~600 MB освобождено (apt clean + autoremove)
-✓ Swap 512 MB создан (/swapfile, в /etc/fstab)
-✓ Установлены: git 2.34, python3.10-venv, python3-pip
-✓ Системно уже было: python3.10, webmin (port 10000), certbot в /opt/certbot
-  (старые TLS-ключи для забытого поддомена — переиспользуем в Phase 4)
-✓ Disk free: ~1.5 GB после swap (был 2.1, swap занял 512)
+VPS у Senko Digital (реселлер Hetzner Cloud). Владелец решил переустановить
+ОС из админки → CHИСТЫЙ сервер, Ubuntu 22.04 или 24.04 LTS, 1 GB RAM.
 
-НЕ ТРОГАТЬ:
-✗ Webmin (port 10000) — оставлен по решению владельца
-✗ /etc/ssh/sshd_config — пользователь зашёл по паролю под root, ssh
-  готовый, ключ ещё не настроен
-✗ Существующий firewall (UFW нет, iptables пустой) — не лезем без явного
-  запроса владельца
-
-ОСТАЛОСЬ ДОДЕЛАТЬ НА СЕРВЕРЕ (5-10 минут):
-1. Скопировать SSH-ключ Mac'а пользователя через ssh-copy-id, отключить
-   парольную auth для root, перевести на ключ
-2. Создать пользователя arenacoach (без пароля, без sudo)
-3. Создать /opt/arena-coach, /var/lib/arena-coach, /etc/arena-coach
-   (последняя chmod 750)
-4. Скопировать SSH-ключ root'а в /home/arenacoach/.ssh/authorized_keys
-5. Под arenacoach: сгенерировать deploy-key, добавить в GitHub repo
-   (Settings → Deploy keys → read-only)
-6. Клонировать git@github.com:pvpwowarena/arena-coach.git в /opt/arena-coach
-7. python3.10 -m venv .venv + pip install -e backend -e ingest
-8. Acceptance: `python -m arena_coach validate-kb kb/drafts` → "OK: 22"
-
-Конкретные команды для пунктов 1-8 — в предыдущей Cowork-сессии. Можешь
-их повторить или предложить свои если есть лучше.
+Шаги setup'а описаны ДЕТАЛЬНО в arena-coach/docs/server-setup-clean.md.
+Этот документ — твой основной guide на этапе деплоя. Шаги A→K, без
+shortcut'ов. Никакого Webmin / x-ui / certbot legacy уже нет.
 
 ═══════════════════════════════════════════════════════════════════════
 ПЕРВЫЙ ШАГ: ВХОД В КОНТЕКСТ
 ═══════════════════════════════════════════════════════════════════════
 
 Прочитай в этом порядке (5-10 минут):
-1. arena-coach/docs/strategy-data-acquisition.md — стратегия источников
+1. arena-coach/docs/server-setup-clean.md — пошаговая инструкция для чистого
+   Ubuntu (шаги A-K: reinstall → ssh-keys → user → deploy key → venv → check).
+   На этапе server setup твоя главная роль — провести владельца по шагам.
+2. arena-coach/docs/strategy-data-acquisition.md — стратегия источников
    данных. ВАЖНО: Phase 3 = combat-log bridge (НЕ аддон). Аддон откладывается
    на Phase 5a как опциональный upgrade.
-2. arena-coach/docs/investor-brief.md — где мы и куда идём
-3. arena-coach/docs/phase-0-design.md — архитектура и решения (старая
+3. arena-coach/docs/investor-brief.md — где мы и куда идём
+4. arena-coach/docs/phase-0-design.md — архитектура и решения (старая
    roadmap там, но §5/§6 про whitelist и события актуальны)
-4. arena-coach/docs/decisions/ — три ADR (Python-стек, SQLite, chat-frame)
-5. arena-coach/README.md — текущая (обновлённая) roadmap
+5. arena-coach/docs/decisions/ — три ADR (Python-стек, SQLite, chat-frame)
+6. arena-coach/README.md — текущая (обновлённая) roadmap
 
 ═══════════════════════════════════════════════════════════════════════
 ЦЕЛИ PHASE 2 (Discord-бот, read-only, без realtime)
@@ -75,7 +54,7 @@ Crusade Classic Anniversary. Phase 0 (design), Phase 1 (KB + ingest), Phase
 - bot/checks.py — @whitelist_required(role=...) декоратор, default-deny
 
 - access/models.py — SQLAlchemy 2 declarative: WhitelistEntry с
-  Fernet-encrypted character/realm, AuditEntry (но писать в JSONL не БД!)
+  Fernet-encrypted character/realm
 - access/crypto.py — Fernet wrappers, MultiFernet для ротации ключа
 - access/service.py — add/remove/check/list бизнес-логика
 - access/audit.py — append-only JSONL writer, SHA-256 hash payload
@@ -99,7 +78,7 @@ Crusade Classic Anniversary. Phase 0 (design), Phase 1 (KB + ingest), Phase
 ОГРАНИЧЕНИЯ И ПРИНЦИПЫ
 ═══════════════════════════════════════════════════════════════════════
 
-- Python 3.10+ (на сервере 3.10, не 3.11). Уже в pyproject.toml.
+- Python 3.10+ на сервере (22.04). На 24.04 — 3.12 системный, тоже OK.
 - KB — единственный источник правды. Бот никогда не выдумывает совет.
   Нет матчапа → ephemeral "нет в KB, добавь через /source request".
 - Default-deny whitelist на ВСЕХ командах, включая /glossary и /list_comps.
@@ -113,40 +92,40 @@ Crusade Classic Anniversary. Phase 0 (design), Phase 1 (KB + ingest), Phase
 INFRA
 ═══════════════════════════════════════════════════════════════════════
 
-- VPS Hetzner: 1 GB RAM + 512 MB swap, 1.5 GB диск свободно
+- VPS Senko Digital (Hetzner reseller), 1 GB RAM, чистый Ubuntu
 - Discord scope: single-guild private (владелец + тестеры по whitelist)
 - Push через SSH (PAT не имеет workflow scope, поэтому HTTPS не работает
   для коммитов с изменениями в .github/workflows/)
 - CI: ruff + mypy --strict + pytest на py3.10/3.11/3.12, KB-validation на 3.10
-- Phase 4 будет переиспользовать certbot из /opt/certbot для TLS на WSS
+- Phase 4 (realtime) поднимет certbot + WSS на 443 (uфw уже открыт)
 
 ═══════════════════════════════════════════════════════════════════════
 ПЕРЕД ПИСАНИЕМ КОДА — ЗАДАЙ МНЕ через AskUserQuestion
 ═══════════════════════════════════════════════════════════════════════
 
-1. Какие Discord-секреты подготовлены и где они:
+1. Сервер уже переустановил через админку Senko Digital или ещё нет?
+   - Если нет — сначала пройдись по docs/server-setup-clean.md шагам A-K
+     с владельцем (он на сервере под root через панельку).
+   - Если да и шаги A-K пройдены — переходим сразу к Phase 2 коду.
+
+2. Какие Discord-секреты подготовлены и где они:
    - DISCORD_BOT_TOKEN (из Developer Portal → Bot → Token)
    - DISCORD_APPLICATION_ID
    - DISCORD_GUILD_ID (private server)
    - ARENA_COACH_OWNER_DISCORD_IDS (мой User ID)
    Я сохранил их в (Notes / 1Password / нигде ещё) — куда класть?
 
-2. Куда деплоить первую версию бота:
+3. Куда деплоить первую версию бота:
    - Сразу на VPS (нужен SSH-доступ под arenacoach)
    - Сначала локально на Mac, потом VPS
-   - Параллельно: дописывать код локально, тесты гонять локально + CI,
-     деплой на VPS отдельным шагом
+   - Параллельно: код локально + тесты CI, деплой на VPS отдельно
 
-3. Какие slash-команды приоритетны на первую итерацию (MVP бота):
+4. Какие slash-команды приоритетны на первую итерацию (MVP бота):
    - Только /matchup + /access add (минимум для проверки KB → Discord)
    - Полный набор сразу
    - По приоритету: /access add → /matchup → /glossary → остальные
 
-4. Server setup пункты 1-7 — выполняем (а) ты даёшь команды по одной
-   я выполняю на сервере, (б) я сам справлюсь с командами из предыдущего
-   сеанса, дай мне только дельта-команды если есть отличия.
-
-После ответов 1-4 — план + реализация + acceptance demo.
+После ответов — план + реализация + acceptance demo.
 
 ═══════════════════════════════════════════════════════════════════════
 ACCEPTANCE PHASE 2 (5-7 шагов чтобы потрогать живой бот)
@@ -168,16 +147,16 @@ ACCEPTANCE PHASE 2 (5-7 шагов чтобы потрогать живой бо
 После Phase 2 → Phase 3 (combat-log bridge) → Phase 4 (realtime hints) →
 Phase 4c (voice через Edge-TTS) → Phase 5a (опциональный Lua-аддон).
 
-Начни с пункта "ПЕРЕД ПИСАНИЕМ КОДА" — задай мне 4 вопроса.
+Начни с пункта "ПЕРЕД ПИСАНИЕМ КОДА" — задай 4 вопроса.
 ```
 
 ---
 
 ## Что новый агент сделает первым делом
 
-1. Прочитает 5 указанных docs (~10 минут).
-2. Через `AskUserQuestion` спросит 4 ключевых вопроса (секреты, локально или VPS, приоритет команд, формат server setup).
-3. На основании ответов — даст пошаговый план Phase 2 implementation.
-4. Будет вкатывать итеративно: server setup → минимальный бот с /matchup → whitelist + Fernet → audit → остальные команды → демо.
+1. Прочитает 6 указанных docs (~10 минут).
+2. Через `AskUserQuestion` спросит 4 ключевых вопроса (статус reinstall, секреты, локально/VPS, приоритет команд).
+3. Если сервер ещё не переустановлен — проведёт владельца по [`docs/server-setup-clean.md`](server-setup-clean.md) шаги A-K.
+4. После того как `validate-kb` прошёл на сервере → начнёт писать Discord-бот итеративно.
 
 Если новый агент застрянет — возвращайся в этот сеанс, проверим архитектуру и стратегию.
