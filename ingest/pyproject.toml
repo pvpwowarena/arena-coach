@@ -8,7 +8,10 @@ requires-python = ">=3.11"
 dependencies = [
   "pydantic>=2.7,<3",
   "PyYAML>=6.0,<7",
-  "arena-coach-backend",
+  # NB: ingest импортирует из arena_coach.kb.loader при approve-flow, но при
+  # editable-install через `pip install -e backend -e bridge -e ingest` пакет
+  # arena-coach-backend ещё не разрешим резолвером (не на PyPI). Полагаемся
+  # на то, что backend ставится первым в CI; deps декларацию не пишем явно.
 ]
 
 [project.optional-dependencies]

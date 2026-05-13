@@ -33,8 +33,10 @@ jobs:
           python -m pip install --upgrade pip
           # Сначала dev-tooling
           pip install ruff mypy pytest pytest-asyncio types-PyYAML
-          # Затем editable installs наших пакетов
-          pip install -e backend -e bridge -e ingest
+          # Editable installs — строго по порядку, чтобы ingest увидел backend
+          pip install -e backend
+          pip install -e bridge
+          pip install -e ingest
 
       - name: Ruff (lint)
         run: ruff check .
@@ -58,6 +60,7 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: |
-          pip install -e backend -e ingest
-      - name: Validate every kb/matchups/*.md against schema
-        run: python -m arena_coach.kb.loader --validate-all kb/matchups
+          pip install -e backend
+          pip install -e ingest
+      - name: Validate every kb/drafts/*.md against schema
+        run: python -m arena_coach validate-kb kb/drafts

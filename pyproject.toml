@@ -15,6 +15,13 @@ authors = [{ name = "Arena Coach Dev" }]
 target-version = "py311"
 line-length = 100
 src = ["backend", "bridge", "ingest"]
+# Legacy tests/ под-папки внутри backend/bridge/ingest остались как placeholder'ы
+# (sandbox-сессия не дала их удалить). Реальные тесты — в корневом tests/.
+extend-exclude = [
+  "backend/tests",
+  "bridge/tests",
+  "ingest/tests",
+]
 
 [tool.ruff.lint]
 select = [
@@ -30,7 +37,16 @@ select = [
   "RUF", # ruff-specific
 ]
 ignore = [
-  "E501", # line-length handled by formatter
+  "E501",   # line-length handled by formatter
+  # У нас многоязычный проект (русские docstrings/комментарии). Эти 3 правила
+  # ложно срабатывают на буквы вроде русской 'с' в "блока с YAML" — мы пишем
+  # сознательно по-русски, не путаем алфавиты.
+  "RUF001", # ambiguous unicode in strings
+  "RUF002", # ambiguous unicode in docstrings
+  "RUF003", # ambiguous unicode in comments
+  # UP042 предлагает StrEnum (3.11+) вместо `class X(str, Enum)`. Pydantic v2
+  # и многие сериализаторы лучше работают со стандартным `(str, Enum)`, оставляем.
+  "UP042",
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -49,11 +65,34 @@ warn_unreachable = true
 namespace_packages = true
 explicit_package_bases = true
 mypy_path = "backend:bridge:ingest"
+# Легаси одноимённые tests-пакеты в backend/bridge/ingest — placeholder'ы,
+# sandbox-сессия не дала их удалить. Реальные тесты — в корневом tests/.
+exclude = [
+  "backend/tests/",
+  "bridge/tests/",
+  "ingest/tests/",
+]
 
 [[tool.mypy.overrides]]
 # Сторонние пакеты без стабов
 module = ["discord.*", "yt_dlp.*", "mss.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Phase 2/4 stub-модули — пока пустые. Strict-typing включим когда реализуем.
+# KB-схема и loader (Phase 1 real-code) остаются под --strict.
+module = [
+  "arena_coach.api.*",
+  "arena_coach.bot.*",
+  "arena_coach.access.*",
+  "arena_coach.orchestrator.*",
+  "arena_coach.shared.*",
+  "arena_bridge.*",
+]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+warn_return_any = false
+check_untyped_defs = false
 
 [tool.pytest.ini_options]
 minversion = "7.0"

@@ -15,7 +15,9 @@ class BridgeConfig(BaseModel):
 
     wow_install_path: Path = Field(description="Корень установки WoW клиента")
     account_name: str = Field(description="Имя WTF/Account/<NAME> папки")
-    backend_wss_url: str = Field(description="WSS URL backend'а (например wss://coach.example.com/ws)")
+    backend_wss_url: str = Field(
+        description="WSS URL backend'а (например wss://coach.example.com/ws)"
+    )
     bearer_token: str = Field(description="Per-player bearer-токен (выдаётся при /access add)")
     sv_poll_interval_sec: float = 5.0
     chat_log_poll_interval_sec: float = 0.5

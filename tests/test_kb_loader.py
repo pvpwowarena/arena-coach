@@ -92,6 +92,6 @@ class TestValidateDirectory:
     ) -> None:
         if not drafts_dir.is_dir() or not glossary_path.is_file():
             pytest.skip("kb/drafts/ или kb/glossary/ не сгенерированы")
-        ok, errors = validate_directory(drafts_dir, glossary_path=glossary_path)
+        _ok, errors = validate_directory(drafts_dir, glossary_path=glossary_path)
         orphan_errs = [(p, e) for p, e in errors if "Способности не найдены" in e]
         assert orphan_errs == [], f"Orphan ability-slugs: {orphan_errs}"

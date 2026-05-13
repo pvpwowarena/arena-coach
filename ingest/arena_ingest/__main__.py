@@ -37,7 +37,9 @@ def _cmd_paste(args: argparse.Namespace) -> int:
     if not source.is_file():
         print(f"ERROR: {source} не найден", file=sys.stderr)
         return 1
-    output_dir = (Path(args.output_dir) if args.output_dir else _kb_root_default() / "drafts").resolve()
+    output_dir = (
+        Path(args.output_dir) if args.output_dir else _kb_root_default() / "drafts"
+    ).resolve()
     results = parse_and_write_drafts(
         source_file=source,
         our_composition=args.comp,
@@ -93,7 +95,9 @@ def _cmd_review_approve(args: argparse.Namespace) -> int:
     target = kb / "matchups" / draft.name
     target.parent.mkdir(parents=True, exist_ok=True)
     if target.exists():
-        print(f"ERROR: {target} уже существует. Сначала удали или используй --force", file=sys.stderr)
+        print(
+            f"ERROR: {target} уже существует. Сначала удали или используй --force", file=sys.stderr
+        )
         return 1
     shutil.move(str(draft), str(target))
     print(f"Approved: {draft.name} → kb/matchups/")
@@ -128,7 +132,9 @@ def main() -> int:
         help="Slug нашего состава, например 'rogue+mage' или 'rogue+priest'",
     )
     p_paste.add_argument("--output-dir", help="Куда писать draft'ы (по умолчанию kb/drafts/)")
-    p_paste.add_argument("--dry-run", action="store_true", help="Не писать файлы, только показать план")
+    p_paste.add_argument(
+        "--dry-run", action="store_true", help="Не писать файлы, только показать план"
+    )
     p_paste.set_defaults(func=_cmd_paste)
 
     # ── glossary extract ──

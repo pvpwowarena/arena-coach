@@ -70,7 +70,9 @@ def _split_frontmatter(text: str) -> tuple[dict[str, object], str]:
     except yaml.YAMLError as e:
         raise KBFrontmatterError(f"YAML парсинг упал: {e}") from e
     if not isinstance(fm, dict):
-        raise KBFrontmatterError(f"Frontmatter должен быть YAML-mapping, получено: {type(fm).__name__}")
+        raise KBFrontmatterError(
+            f"Frontmatter должен быть YAML-mapping, получено: {type(fm).__name__}"
+        )
     return fm, body
 
 
@@ -143,9 +145,7 @@ def validate_directory(
 
     Возвращает (ok_count, [(path, error_msg), ...]).
     """
-    glossary = (
-        GlossaryIndex.from_file(glossary_path) if glossary_path else GlossaryIndex.empty()
-    )
+    glossary = GlossaryIndex.from_file(glossary_path) if glossary_path else GlossaryIndex.empty()
 
     ok = 0
     errors: list[tuple[Path, str]] = []
