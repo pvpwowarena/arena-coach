@@ -204,6 +204,41 @@ local function OnArenaOpponentUpdate()
     ScanEnemies(AC.currentSession)
 end
 
+-- ── UNIT_AURA ────────────────────────────────────────────────────────────────
+-- Отслеживаем появление/снятие ауры на arena-unit'ах.
+-- Используем для детекта активных CC на врагах (cyclone, fear, poly и т.д.)
+-- В TBC 2.4.3: UNIT_AURA передаёт только unitId ("arena1", "arena2", ...)
+
+local function OnUnitAura(unitId)
+    if not AC.currentSession then return end
+    -- Проверяем только arena-units
+    local isArena = false
+    for _, u in ipairs(ARENA_UNITS) do
+        if u == unitId then isArena = true; break end
+    end
+    if not isArena then return end
+
+    -- Сканируем ауры unit'а в поисках отслеживаемых CC/дефенсивов
+    local i = 1
+    while true do
+        -- UnitDebuff/UnitBuff: name, rank, icon, count, debuffType, duration, expirationTime, ...
+        local name, _, _, _, _, _, _, _, _, spellId = UnitDebuff(unitId, i)
+        if not name then break end
+        if spellId and AC.TRACKED_SPELLS[spellId] then
+            AppendEvent(
+                AC.currentSession,
+                "aura_applied",
+                unitId,
+                unitId,
+                spellId,
+                name,
+                { spell_key = AC.TRACKED_SPELLS[spellId], aura_index = i }
+            )
+        end
+        i = i + 1
+    end
+end
+
 -- ── Простой OnUpdate-таймер (замена C_Timer.After, которого нет в 2.4.3) ──────
 
 local function ScheduleCall(delay, func)
@@ -228,6 +263,7 @@ frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 -- ARENA_PREP_OPPONENT_SPECIALIZATIONS не существует в TBC 2.4.3 — пропускаем
 frame:RegisterEvent("ARENA_OPPONENT_UPDATE")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+frame:RegisterEvent("UNIT_AURA")
 -- START/END через zone change — TBC не имеет прямого ARENA_MATCH_START
 frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterEvent("UPDATE_BATTLEFIELD_STATUS")
@@ -261,6 +297,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
     elseif event == "ARENA_OPPONENT_UPDATE" then
         OnArenaOpponentUpdate()
+
+    elseif event == "UNIT_AURA" then
+        local unitId = ...
+        OnUnitAura(unitId)
 
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
         -- Передаём varargs напрямую — не используем CombatLogGetCurrentEventInfo()
