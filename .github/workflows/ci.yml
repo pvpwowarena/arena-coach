@@ -32,12 +32,21 @@ jobs:
       - name: Install workspace
         run: |
           python -m pip install --upgrade pip
-          # Сначала dev-tooling
-          pip install ruff mypy pytest pytest-asyncio types-PyYAML
+          # Версии зафиксированы в соответствии с dev-extras backend/pyproject.toml
+          # чтобы CI был детерминированным на всех Python 3.10-3.12
+          pip install \
+            "ruff>=0.6,<1" \
+            "mypy>=1.11,<2" \
+            "pytest>=7,<9" \
+            "pytest-asyncio>=0.23,<1" \
+            "types-PyYAML"
           # Editable installs — строго по порядку, чтобы ingest увидел backend
           pip install -e backend
           pip install -e bridge
           pip install -e ingest
+
+      - name: Show installed versions
+        run: pip show ruff mypy pytest pytest-asyncio | grep -E "^(Name|Version)"
 
       - name: Ruff (lint)
         run: ruff check .
