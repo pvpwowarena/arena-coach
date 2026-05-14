@@ -83,7 +83,11 @@ class ArenaCoachBot(commands.Bot):
             await self.load_extension(module)
             logger.info("Loaded cog: %s", module)
 
-        # 4. Sync commands to guild (private server → instant registration)
+        # 4. Wire tree error handler explicitly (discord.py tree.on_error does NOT
+        #    dispatch to bot.on_app_command_error by default when method-overridden).
+        self.tree.on_error = self._tree_error_handler  # type: ignore[method-assign]
+
+        # 5. Sync commands to guild (private server → instant registration)
         guild_id = self.settings.discord_guild_id
         if guild_id:
             guild_obj = discord.Object(id=guild_id)
@@ -107,12 +111,16 @@ class ArenaCoachBot(commands.Bot):
 
     # ── Error handler ─────────────────────────────────────────────────────
 
-    async def on_app_command_error(  # type: ignore[override]
+    async def _tree_error_handler(
         self,
         interaction: discord.Interaction,
         error: discord.app_commands.AppCommandError,
     ) -> None:
-        """Централизованная обработка ошибок app commands."""
+        """Обработчик ошибок, явно привязанный к tree.on_error в setup_hook.
+
+        discord.py не вызывает bot.on_app_command_error для method-override,
+        поэтому используем прямую привязку через self.tree.on_error.
+        """
         if isinstance(error, discord.app_commands.CheckFailure):
             if not interaction.response.is_done():
                 await interaction.response.send_message(
@@ -134,6 +142,14 @@ class ArenaCoachBot(commands.Bot):
 
             with contextlib.suppress(Exception):
                 await interaction.followup.send(msg, ephemeral=True)
+
+    async def on_app_command_error(  # type: ignore[override]
+        self,
+        interaction: discord.Interaction,
+        error: discord.app_commands.AppCommandError,
+    ) -> None:
+        """Fallback — на случай если dispatch всё же дойдёт через bot event."""
+        await self._tree_error_handler(interaction, error)
 
 
 def create_bot(cfg: Settings | None = None) -> ArenaCoachBot:

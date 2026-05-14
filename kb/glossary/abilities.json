@@ -1,529 +1,480 @@
 {
+  "dr": {
+    "slug": "dr",
+    "en_name": "Diminishing Returns",
+    "description": "Система уменьшения эффектов CC. После первого применения эффект уменьшается: 100% → 50% → 25% → иммун. Сброс DR — 15 секунд после окончания последнего эффекта. Stun, fear, incapacitate, root, disorientation — все свои отдельные DR-категории.",
+    "duration": null,
+    "dr": null,
+    "cd": null,
+    "id": null,
+    "aliases": ["dr", "diminishing returns", "diminishing"]
+  },
   "ambush": {
     "slug": "ambush",
     "en_name": "Ambush",
+    "description": "Opener из стелса (требует Subtlety). ~400% урон оружия + бонус. Ключевой опенер для Sub-рога.",
     "icon": "ability_rogue_ambush",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 8676,
+    "dr": null,
     "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "ambush"
-    ]
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["ambush"]
   },
   "blind": {
     "slug": "blind",
-    "en_name": "Blinds",
+    "en_name": "Blind",
+    "description": "Incapacitate на 8/4/2 сек (с DR). Цель теряет управление и нельзя атаковать. Снимается любым уроном. Melee-range. Основной off-CC рога.",
     "icon": "spell_shadow_mindsteal",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "Blind",
-      "blind",
-      "blinded and",
-      "blinds"
-    ]
+    "id": 2094,
+    "dr": "incapacitate",
+    "duration": "8с (1st) / 4с (2nd) / 2с (3rd)",
+    "cd": "60с",
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["Blind", "blind", "blinded and", "blinds"]
   },
   "cheap-shot": {
     "slug": "cheap-shot",
     "en_name": "Cheap Shot",
+    "description": "Stun на 4/2/1 сек (с DR) из стелса, даёт 2 combo points. Главный опенер рога. DR: stun.",
     "icon": "ability_cheapshot",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "cheap shot",
-      "cheap shotting"
-    ]
+    "id": 1833,
+    "dr": "stun",
+    "duration": "4с (1st) / 2с (2nd) / 1с (3rd)",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["cheap shot", "cheap shotting"]
   },
   "cloak": {
     "slug": "cloak",
-    "en_name": "Cloak",
+    "en_name": "Cloak of Shadows",
+    "description": "Alias для cloak-of-shadows. Мгновенный иммун ко всем магическим эффектам на 5 сек, снимает существующие DoT'ы и дебаффы.",
     "icon": "spell_shadow_nethercloak",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
+    "id": 31224,
+    "dr": null,
+    "duration": "5с",
+    "cd": "90с",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "cloak"
-    ]
+    "class_": "rogue",
+    "aliases": ["cloak"]
   },
   "cloak-of-shadows": {
     "slug": "cloak-of-shadows",
-    "en_name": "Cloak Of Shadows",
+    "en_name": "Cloak of Shadows",
+    "description": "Мгновенный иммун ко всем магическим эффектам на 5 сек, снимает существующие DoT'ы и дебаффы. Не защищает от физических атак.",
     "icon": "spell_shadow_nethercloak",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
+    "id": 31224,
+    "dr": null,
+    "duration": "5с",
+    "cd": "90с",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "cloak of shadows"
-    ]
+    "class_": "rogue",
+    "aliases": ["cloak of shadows"]
   },
   "counterspell": {
     "slug": "counterspell",
     "en_name": "Counterspell",
+    "description": "Прерывает каст и блокирует школу магии на 8 сек, само заклинание прерывается на 4 сек. Ключевой interrupt мага против хилеров.",
     "icon": "spell_frost_iceshock",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "counterspell",
-      "counterspells"
-    ]
+    "id": 2139,
+    "dr": null,
+    "duration": "8с (lockout школы)",
+    "cd": "24с",
+    "school": "arcane",
+    "class_": "mage",
+    "aliases": ["counterspell", "counterspells"]
   },
   "cyclone": {
     "slug": "cyclone",
     "en_name": "Cyclone",
+    "description": "Incapacitate на 6/3/1.5 сек (с DR). Собственная DR-категория (не делится с другими incapacitate). Цель неуязвима, но не получает хила. Друид.",
     "icon": "spell_nature_earthbind",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "cyclone"
-    ]
+    "id": 33786,
+    "dr": "cyclone",
+    "duration": "6с (1st) / 3с (2nd) / 1.5с (3rd)",
+    "cd": null,
+    "school": "nature",
+    "class_": "druid",
+    "aliases": ["cyclone"]
   },
   "deadly-throw": {
     "slug": "deadly-throw",
     "en_name": "Deadly Throw",
+    "description": "Метательное оружие наносит урон и: при 5 CP прерывает кастование на 3 сек + замедляет на 50%. Дополнительный interrupt рога на дистанции.",
     "icon": "inv_throwingknife_06",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "deadly throw"
-    ]
+    "id": 26679,
+    "dr": null,
+    "duration": "6с (slow) / 3с (interrupt)",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["deadly throw"]
   },
   "death-coil": {
     "slug": "death-coil",
     "en_name": "Death Coil",
+    "description": "Fear на 3/1.5/0.75 сек (с DR) + drain HP. DR: fear. Варлок. Используется для дополнительного fear chain совместно с основным Fear.",
     "icon": "spell_shadow_deathcoil",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "death coil"
-    ]
+    "id": 6789,
+    "dr": "fear",
+    "duration": "3с (1st) / 1.5с (2nd) / 0.75с (3rd)",
+    "cd": "120с",
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": ["death coil"]
   },
   "evasion": {
     "slug": "evasion",
     "en_name": "Evasion",
+    "description": "+50% dodge на 15 сек. Жёсткий physical-defensive CD рога. Используется превентивно против воина/рога в радиусе ближнего боя.",
     "icon": "spell_shadow_shadowward",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
+    "id": 26669,
+    "dr": null,
+    "duration": "15с",
+    "cd": "5 мин",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "evasion"
-    ]
+    "class_": "rogue",
+    "aliases": ["evasion"]
   },
   "evisc": {
     "slug": "evisc",
-    "en_name": "Evisc",
+    "en_name": "Eviscerate",
+    "description": "Финишер-удар рога, наносит физический урон масштабируясь с AP и количеством CP. Основной burst-финишер в Assassination/Combat.",
     "icon": "ability_rogue_eviscerate",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 2098,
+    "dr": null,
     "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "evisc"
-    ]
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["evisc", "eviscerate"]
   },
   "expose-armor": {
     "slug": "expose-armor",
     "en_name": "Expose Armor",
+    "description": "Снижает броню цели на 3075 (5 CP) на 30 сек. Часто используется вместо Sunder Armor для повышения физического урона команды.",
     "icon": "ability_warrior_riposte",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "Expose armor",
-      "expose armor"
-    ]
+    "id": 8647,
+    "dr": null,
+    "duration": "30с",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["Expose armor", "expose armor"]
   },
   "fear": {
     "slug": "fear",
     "en_name": "Fear",
+    "description": "Fear на 8/4/2 сек (с DR). DR-категория: fear (делится с Death Coil, WotF, Howl of Terror). Варлок: Spell ID 5782. Священник (Psychic Scream): Spell ID 8122.",
     "icon": "spell_shadow_psychicscream",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "Fear",
-      "fear",
-      "fears"
-    ]
+    "id": 5782,
+    "dr": "fear",
+    "duration": "8с (1st) / 4с (2nd) / 2с (3rd)",
+    "cd": null,
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": ["Fear", "fear", "fears"]
   },
   "garrote": {
     "slug": "garrote",
     "en_name": "Garrote",
+    "description": "DoT из стелса: 18 сек кровотечение + 3 сек тишина при применении. Альтернативный opener вместо Cheap Shot когда нужен silence.",
     "icon": "ability_rogue_garrote",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "garrote"
-    ]
+    "id": 703,
+    "dr": null,
+    "duration": "18с (DoT) / 3с (silence)",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["garrote"]
   },
   "gouge": {
     "slug": "gouge",
     "en_name": "Gouge",
+    "description": "Incapacitate на 4/2/1 сек (с DR), даёт 1 CP, требует цель стоит лицом. DR: incapacitate. Используется для разрыва связи и реstealth.",
     "icon": "ability_gouge",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "gouge"
-    ]
+    "id": 1776,
+    "dr": "incapacitate",
+    "duration": "4с (1st) / 2с (2nd) / 1с (3rd)",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["gouge"]
   },
   "hammer-of-justice": {
     "slug": "hammer-of-justice",
-    "en_name": "Hammer Of Justice",
+    "en_name": "Hammer of Justice",
+    "description": "Stun на 6/3/1.5 сек (с DR). DR: stun. Melee-range. Основной CC паладина.",
     "icon": "spell_holy_sealofmight",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "hammer of justice"
-    ]
+    "id": 853,
+    "dr": "stun",
+    "duration": "6с (1st) / 3с (2nd) / 1.5с (3rd)",
+    "cd": "40с",
+    "school": "holy",
+    "class_": "paladin",
+    "aliases": ["hammer of justice", "hoj"]
   },
   "hemo": {
     "slug": "hemo",
-    "en_name": "Hemo Twice",
+    "en_name": "Hemorrhage",
+    "description": "Дебаф: следующие N атак по цели наносят +X физического урона (bleed). Ключевой builder для Combat/Hemo рогов, создаёт давление через DoT.",
     "icon": "spell_shadow_lifedrain",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 16511,
+    "dr": null,
     "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "hemo",
-      "hemo once",
-      "hemo twice"
-    ]
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["hemo", "hemo once", "hemo twice", "hemorrhage"]
   },
   "ice-block": {
     "slug": "ice-block",
-    "en_name": "Ice Blocks It",
+    "en_name": "Ice Block",
+    "description": "Полный иммун на 10 сек: маг неуязвим и не может действовать. Снимает все дебаффы и DoT'ы. Форс-использование для ожидания хила или сброса CC.",
     "icon": "spell_frost_frost",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
+    "id": 45438,
+    "dr": null,
+    "duration": "10с",
+    "cd": "5 мин",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "ice block",
-      "ice blocks it"
-    ]
+    "class_": "mage",
+    "aliases": ["ice block", "ice blocks it"]
   },
   "icy-veins": {
     "slug": "icy-veins",
     "en_name": "Icy Veins",
+    "description": "+20% скорость каста, предотвращает прерывание от урона на 20 сек. Ключевой DPS-CD мага для burst-окна после трикета врага.",
     "icon": "spell_frost_coldhearted",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
+    "id": 12472,
+    "dr": null,
+    "duration": "20с",
+    "cd": "3 мин",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "icy veins"
-    ]
+    "class_": "mage",
+    "aliases": ["icy veins"]
   },
   "kidney": {
     "slug": "kidney",
-    "en_name": "Kidney",
+    "en_name": "Kidney Shot",
+    "description": "Alias для kidney-shot.",
     "icon": "ability_rogue_kidneyshot",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "kidney"
-    ]
+    "id": 408,
+    "dr": "stun",
+    "duration": "2-6с в зависимости от CP (5 CP = 6с)",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["kidney"]
   },
   "kidney-shot": {
     "slug": "kidney-shot",
     "en_name": "Kidney Shot",
+    "description": "Stun-финишер: 2/4/6 сек при 1/3/5 CP (с DR: 50%/25%). DR: stun. Главный CC финишер рога. Идеально — 5 CP + burst окно после gouge.",
     "icon": "ability_rogue_kidneyshot",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "Kidney shot",
-      "kidney shot",
-      "kidney shots",
-      "kidney shots with big burst along with your priest"
-    ]
+    "id": 408,
+    "dr": "stun",
+    "duration": "6с при 5 CP (1st) / 3с (2nd) / 1.5с (3rd)",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["Kidney shot", "kidney shot", "kidney shots"]
   },
   "mana-burn": {
     "slug": "mana-burn",
     "en_name": "Mana Burn",
+    "description": "Канал 3 сек: сжигает до 1155 маны цели и наносит урон равный половине сожжённой маны. Priest. Высокий приоритет против мана-зависимых хилеров.",
     "icon": "spell_shadow_manaburn",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "mana burn",
-      "mana burning him early",
-      "mana burns on the shaman if you manage to restealth or if the paladin has no HoJ",
-      "mana burns whenever convenient"
-    ]
+    "id": 8129,
+    "dr": null,
+    "duration": "3с (канал)",
+    "cd": null,
+    "school": "shadow",
+    "class_": "priest",
+    "aliases": ["mana burn", "mana burning him early", "mana burns whenever convenient"]
   },
   "nova": {
     "slug": "nova",
-    "en_name": "Nova",
+    "en_name": "Frost Nova",
+    "description": "Root вокруг мага на 8/4/2 сек (с DR). DR: root. Используется для кайтинга — nova → blink → sheep/burst. Radius: melee.",
     "icon": "spell_frost_frostnova",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "nova"
-    ]
+    "id": 122,
+    "dr": "root",
+    "duration": "8с (1st) / 4с (2nd) / 2с (3rd)",
+    "cd": "25с",
+    "school": "frost",
+    "class_": "mage",
+    "aliases": ["nova", "frost nova"]
   },
   "pain-suppression": {
     "slug": "pain-suppression",
     "en_name": "Pain Suppression",
+    "description": "Снижает весь входящий урон по цели на 40% на 8 сек + threat reduction. Priest (Disc). Реактивный defensive CD для спасения союзника под burst'ом.",
     "icon": "spell_holy_painsupression",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "pain suppression"
-    ]
+    "id": 33206,
+    "dr": null,
+    "duration": "8с",
+    "cd": "3 мин",
+    "school": "holy",
+    "class_": "priest",
+    "aliases": ["pain suppression"]
   },
   "premed": {
     "slug": "premed",
-    "en_name": "Premed",
+    "en_name": "Premeditation",
+    "description": "Добавляет 2 combo points пока рог в stealth. Позволяет открыть с 2 CP и сразу выйти на 4-5 CP после cheap-shot + 2 удара. Требует: target в радиусе.",
     "icon": "spell_shadow_possession",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 14183,
+    "dr": null,
     "duration": null,
+    "cd": "20с",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "Premed",
-      "premed"
-    ]
+    "class_": "rogue",
+    "aliases": ["Premed", "premed", "premeditation"]
   },
   "preparation": {
     "slug": "preparation",
     "en_name": "Preparation",
+    "description": "Мгновенно сбрасывает кулдаун Evasion, Vanish, Cold Blood, Blind, Sprint. Позволяет использовать Evasion дважды в одной арене при правильном тайминге.",
     "icon": "spell_shadow_antishadow",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 14185,
+    "dr": null,
     "duration": null,
+    "cd": "10 мин",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "Preparation",
-      "preparation"
-    ]
+    "class_": "rogue",
+    "aliases": ["Preparation", "preparation", "prep"]
   },
   "rupture": {
     "slug": "rupture",
     "en_name": "Rupture",
+    "description": "DoT-финишер: кровотечение на 14 сек при 5 CP. Создаёт долгосрочное давление и не снимается Cloak of Shadows (физический DoT).",
     "icon": "ability_rogue_rupture",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "rupture"
-    ]
+    "id": 1943,
+    "dr": null,
+    "duration": "14с при 5 CP",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["rupture"]
   },
   "sap": {
     "slug": "sap",
     "en_name": "Sap",
+    "description": "Incapacitate вне боя на 45 сек (собственная DR-категория — не делится с другими эффектами). Цель не должна быть в бою. Снимается любым уроном. Pre-opener CC.",
     "icon": "ability_sap",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "Sap",
-      "sap"
-    ]
+    "id": 6770,
+    "dr": "sap (own category)",
+    "duration": "45с (1st) / 15с (2nd) / 7.5с (3rd)",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["Sap", "sap"]
   },
   "scatter-shot": {
     "slug": "scatter-shot",
     "en_name": "Scatter Shot",
+    "description": "Disorient на 4/2/1 сек (с DR). DR: incapacitate. Дальнобойный. Охотник — используется для входа в trap или break-CC на себя.",
     "icon": "ability_golemstormbolt",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "scatter shot"
-    ]
+    "id": 19503,
+    "dr": "incapacitate",
+    "duration": "4с (1st) / 2с (2nd) / 1с (3rd)",
+    "cd": "30с",
+    "school": "physical",
+    "class_": "hunter",
+    "aliases": ["scatter shot"]
   },
   "shadowstep": {
     "slug": "shadowstep",
     "en_name": "Shadowstep",
+    "description": "Мгновенный телепорт за спину цели (25 ярдов). Следующая атака/способность +20% урон и +30% скорость. 30 сек CD. Ключевой gap-closer Sub-рога.",
     "icon": "ability_rogue_shadowstep",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 36554,
+    "dr": null,
     "duration": null,
+    "cd": "30с",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "shadowstep"
-    ]
+    "class_": "rogue",
+    "aliases": ["shadowstep"]
   },
   "sheep": {
     "slug": "sheep",
-    "en_name": "Sheep",
+    "en_name": "Polymorph",
+    "description": "Incapacitate 10/5/2.5 сек (с DR). DR: incapacitate. Снимается любым уроном. Маг может resheep при каждом DR-окне. Spell school: Arcane — блокируется Counterspell.",
     "icon": "spell_nature_polymorph",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "sheep"
-    ]
+    "id": 118,
+    "dr": "incapacitate",
+    "duration": "10с (1st) / 5с (2nd) / 2.5с (3rd)",
+    "cd": null,
+    "school": "arcane",
+    "class_": "mage",
+    "aliases": ["sheep", "polymorph", "poly"]
   },
   "shiv": {
     "slug": "shiv",
     "en_name": "Shiv",
+    "description": "Мгновенная атака с оружием в левой руке (Off-hand), гарантированно применяет яд с оружия. Используется для нанесения Crippling Poison для kiting.",
     "icon": "inv_throwingknife_04",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 5938,
+    "dr": null,
     "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "shiv",
-      "shiv crippling",
-      "shiv twice"
-    ]
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["shiv", "shiv crippling", "shiv twice"]
   },
   "slice-and-dice": {
     "slug": "slice-and-dice",
-    "en_name": "Slice And Dice",
+    "en_name": "Slice and Dice",
+    "description": "+40% скорость атаки на 21 сек (5 CP). Поддерживается как можно дольше для максимального DPS и яд-прока.",
     "icon": "ability_rogue_slicedice",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
-    "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "Slice and dice",
-      "slice and dice"
-    ]
+    "id": 5171,
+    "dr": null,
+    "duration": "21с при 5 CP",
+    "cd": null,
+    "school": "physical",
+    "class_": "rogue",
+    "aliases": ["Slice and dice", "slice and dice", "snd"]
   },
   "step": {
     "slug": "step",
-    "en_name": "Step",
+    "en_name": "Shadowstep",
+    "description": "Alias для shadowstep. Мгновенный телепорт за спину цели (25 ярдов).",
     "icon": "ability_rogue_shadowstep",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 36554,
+    "dr": null,
     "duration": null,
+    "cd": "30с",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "step"
-    ]
+    "class_": "rogue",
+    "aliases": ["step"]
   },
   "vanish": {
     "slug": "vanish",
     "en_name": "Vanish",
+    "description": "Мгновенный вход в stealth, снимает все taunt-эффекты и позволяет re-opener. 3 мин CD. Ключевой survival CD рога — используется для сброса CC и второго опенера.",
     "icon": "ability_vanish",
-    "spell_id": null,
-    "dr_category": null,
+    "id": 1856,
+    "dr": null,
     "duration": null,
+    "cd": "3 мин",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "vanish"
-    ]
+    "class_": "rogue",
+    "aliases": ["vanish"]
   },
   "will-of-the-forsaken": {
     "slug": "will-of-the-forsaken",
-    "en_name": "Will Of The Forsaken",
+    "en_name": "Will of the Forsaken",
+    "description": "Расовая способность нежити: снимает fear/sleep/charm и даёт иммун к этим эффектам на 5 сек. DR: own category (WotF). 2 мин CD. Сильнейший racial против fear-heavy comp.",
     "icon": "spell_shadow_raisedead",
-    "spell_id": null,
-    "dr_category": null,
-    "duration": null,
+    "id": 7744,
+    "dr": "fear (own DR — WotF)",
+    "duration": "5с (иммун)",
+    "cd": "2 мин",
     "school": null,
-    "ru_name": null,
-    "class_": null,
-    "aliases": [
-      "will of the forsaken"
-    ]
+    "class_": "undead racial",
+    "aliases": ["will of the forsaken", "wotf"]
   }
 }
