@@ -81,20 +81,24 @@ module = ["discord.*", "yt_dlp.*", "mss.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-# Phase 2/4 stub-модули — пока пустые. Strict-typing включим когда реализуем.
-# KB-схема и loader (Phase 1 real-code) остаются под --strict.
+# Phase 2 — расслабленная проверка для модулей с discord.py и sqlalchemy.
+# KB-схема и loader остаются под --strict (не перечислены здесь).
 module = [
   "arena_coach.api.*",
   "arena_coach.bot.*",
   "arena_coach.access.*",
   "arena_coach.orchestrator.*",
   "arena_coach.shared.*",
+  "arena_coach.kb.render",
   "arena_bridge.*",
 ]
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+disallow_untyped_decorators = false
 warn_return_any = false
 check_untyped_defs = false
+# discord.py typed stubs генерируют misc/arg-type шум — подавляем в relaxed модулях
+warn_unused_ignores = false
 
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -110,6 +114,7 @@ norecursedirs = [
   "venv",
   "__pycache__",
 ]
+asyncio_mode = "auto"
 addopts = [
   "--strict-markers",
   "--strict-config",
@@ -119,4 +124,11 @@ markers = [
   "integration: тесты с внешними зависимостями (Discord/Anthropic)",
   "slow: > 1 сек",
 ]
-filterwarnings = ["error"]
+filterwarnings = [
+  "error",
+  # pytest-asyncio 0.23+ emits PytestUnraisableExceptionWarning on some teardowns
+  "ignore::pytest.PytestUnraisableExceptionWarning",
+  # SQLAlchemy 2.x / aiosqlite — known DeprecationWarnings in test env
+  "ignore::DeprecationWarning:sqlalchemy",
+  "ignore::DeprecationWarning:aiosqlite",
+]
