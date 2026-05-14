@@ -22,16 +22,16 @@ rsync -av --delete \
   "$REPO_ROOT/" \
   "$VPS_HOST:/opt/arena-coach/"
 
-echo "==> reinstall deps + restart"
+echo "==> reinstall deps + migrate + restart"
 ssh "$VPS_HOST" 'bash -s' <<'REMOTE'
 set -euo pipefail
 cd /opt/arena-coach
 source .venv/bin/activate
 pip install --upgrade pip
 pip install -e backend
-sudo systemctl restart arena-coach-api.service
+# Применяем миграции (idempotent — если уже на head, ничего не делает)
+cd backend && alembic upgrade head && cd ..
 sudo systemctl restart arena-coach-bot.service
-sudo systemctl status arena-coach-api.service --no-pager | head -20
 sudo systemctl status arena-coach-bot.service --no-pager | head -20
 REMOTE
 

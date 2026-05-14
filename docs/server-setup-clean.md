@@ -274,11 +274,129 @@ df -h /
 
 ---
 
-## Шаг K — Acceptance check (что прислать в новый Cowork)
+## Шаг K — Конфигурация .env и запуск бота
 
-Под arenacoach в `/opt/arena-coach`:
+### K1 — Сгенерировать Fernet-ключ
 
 ```bash
+# Под arenacoach
+source /opt/arena-coach/.venv/bin/activate
+cd /opt/arena-coach
+python -m arena_coach gen-key
+# Вывод: случайная строка вида gAAAAAB...
+# Скопируй её — вставишь ниже как ARENA_COACH_FERNET_KEY
+```
+
+### K2 — Создать /etc/arena-coach/bot.env
+
+```bash
+# Под root (файл с секретами — только root создаёт, arenacoach читает через systemd)
+cat > /etc/arena-coach/bot.env <<'EOF'
+# ── Discord ──────────────────────────────────────────────────────────
+DISCORD_BOT_TOKEN=СЮДА_ВСТАВЬ_ТОКЕН_БОТА
+DISCORD_GUILD_ID=СЮДА_ID_ТВОЕГО_СЕРВЕРА
+
+# ── Владелец (твой Discord user ID, получить: Discord → Settings → Advanced → Developer Mode → ПКМ на себе → Copy ID) ──
+ARENA_COACH_OWNER_DISCORD_IDS=СЮДА_ТВОЙ_DISCORD_ID
+
+# ── Шифрование whitelist ─────────────────────────────────────────────
+ARENA_COACH_FERNET_KEY=СЮДА_КЛЮЧ_ИЗ_gen-key
+
+# ── Пути ────────────────────────────────────────────────────────────
+DATABASE_URL=sqlite+aiosqlite:////var/lib/arena-coach/coach.db
+AUDIT_LOG_DIR=/var/lib/arena-coach/audit
+KB_PATH=/opt/arena-coach/kb
+EOF
+
+chmod 600 /etc/arena-coach/bot.env
+chown root:arenacoach /etc/arena-coach/bot.env
+# Только root и arenacoach могут читать; systemd запускает от arenacoach → OK
+```
+
+Проверь что заполнил все 4 обязательных поля (TOKEN, GUILD_ID, OWNER_IDS, FERNET_KEY).
+
+### K3 — Создать директории для БД и audit
+
+```bash
+# Под root
+mkdir -p /var/lib/arena-coach/audit
+chown -R arenacoach:arenacoach /var/lib/arena-coach
+chmod 750 /var/lib/arena-coach
+```
+
+### K4 — Применить миграцию Alembic (создать таблицы в SQLite)
+
+```bash
+# Под arenacoach
+source /opt/arena-coach/.venv/bin/activate
+cd /opt/arena-coach/backend
+
+# Нужны переменные из bot.env (alembic читает settings → settings читает env)
+export $(grep -v '^#' /etc/arena-coach/bot.env | xargs)
+
+alembic upgrade head
+# Ожидаем:
+# INFO  [alembic.runtime.migration] Running upgrade  -> 0001, create whitelist_entries
+```
+
+### K5 — Установить systemd-сервис
+
+```bash
+# Под root
+cp /opt/arena-coach/ops/systemd/arena-coach-bot.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable arena-coach-bot.service
+```
+
+### K6 — Первый запуск (форграунд, для проверки)
+
+```bash
+# Под arenacoach — убеждаемся что бот стартует без ошибок
+source /opt/arena-coach/.venv/bin/activate
+export $(grep -v '^#' /etc/arena-coach/bot.env | xargs)
+cd /opt/arena-coach
+python -m arena_coach run-bot
+```
+
+В логах должно быть:
+```
+HH:MM:SS INFO     discord.client: logging in using static token
+HH:MM:SS INFO     discord.gateway: Shard ID None has connected to Gateway
+HH:MM:SS INFO     arena_coach.bot.client: KB loaded: N docs
+HH:MM:SS INFO     arena_coach.bot.client: Synced N commands to guild XXXXXXX
+HH:MM:SS INFO     discord.client: ArenaCoachBot#XXXX is now ready
+```
+
+Если ошибки — смотри секцию Troubleshooting ниже. Останови Ctrl+C.
+
+### K7 — Запустить через systemd
+
+```bash
+# Под root
+systemctl start arena-coach-bot.service
+systemctl status arena-coach-bot.service --no-pager
+# State: active (running)
+
+# Логи
+journalctl -u arena-coach-bot.service -f --no-pager | head -30
+```
+
+### K8 — Проверить в Discord
+
+В твоём Guild набери `/` — должны появиться команды: `/matchup`, `/opener`, `/glossary`, `/list_comps`, `/source`, `/access`, `/coach`.
+
+Проверь что бот тебя знает как owner (bypass whitelist):
+```
+/list_comps
+```
+Должен ответить (даже если KB пуста — покажет «KB пуста»).
+
+---
+
+## Шаг L — Acceptance check
+
+```bash
+# Под arenacoach в /opt/arena-coach
 echo "── OS + Python ──"
 cat /etc/os-release | grep PRETTY_NAME
 python3 --version
@@ -289,27 +407,40 @@ free -h
 swapon --show
 
 echo "── Firewall ──"
-sudo ufw status 2>/dev/null || ufw status 2>/dev/null
-# (если нет sudo — спроси команду через ssh root@... или временно sudo дать)
+ufw status 2>/dev/null || echo "UFW not available (check as root)"
 
 echo "── User + venv ──"
 whoami
-ls -la /opt/arena-coach/ | head -10
-ls -la /opt/arena-coach/.venv/bin/ | head -5
+ls /opt/arena-coach/ | head -10
 
-echo "── Tests + validate ──"
+echo "── DB + Audit dir ──"
+ls -la /var/lib/arena-coach/
+ls -la /var/lib/arena-coach/audit/ 2>/dev/null || echo "(audit dir пустой — норма до первого deny)"
+
+echo "── Tests ──"
+source /opt/arena-coach/.venv/bin/activate && cd /opt/arena-coach
+python -m pytest -q --tb=line 2>&1 | tail -5
+
+echo "── Git ──"
+git log --oneline | head -3
+
+echo "── Systemd ──"
+systemctl is-active arena-coach-bot.service
+```
+
+---
+
+## (Устарело) Шаг K — Pre-Phase 2 acceptance check
+
+> Этот блок актуален только если ты проходишь шаги A-J впервые и ещё не дошёл до шага K выше (Phase 2 deploy). Если бот уже запущен — используй Шаг L вместо этого.
+
+```bash
 source /opt/arena-coach/.venv/bin/activate
 cd /opt/arena-coach
 python -m arena_coach validate-kb kb/drafts
 python -m pytest -q --tb=line 2>&1 | tail -5
-
-echo "── Git ──"
-cd /opt/arena-coach
-git remote -v
-git log --oneline | head -5
+git log --oneline | head -3
 ```
-
-Пришли вывод этого блока в новый Cowork-сеанс. Дальше — Phase 2 implementation (Discord-бот).
 
 ---
 
