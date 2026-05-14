@@ -135,4 +135,7 @@ filterwarnings = [
   # SQLAlchemy 2.x / aiosqlite — known DeprecationWarnings in test env
   "ignore::DeprecationWarning:sqlalchemy",
   "ignore::DeprecationWarning:aiosqlite",
+  # discord.py <2.5 импортирует audioop, который deprecated в Python 3.11+
+  # (удалён в 3.13). Нас не касается — мы не используем voice features.
+  "ignore:.*audioop.*:DeprecationWarning",
 ]
