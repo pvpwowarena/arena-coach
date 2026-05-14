@@ -1,0 +1,10 @@
+## Interface: 20400
+## Title: ArenaCoach
+## Notes: Arena tracker — records enemy CDs, trinkets, CC to SavedVariables for post-game analysis
+## Author: ArenaCoachDev
+## Version: 0.1.0
+## SavedVariables: ArenaCoachDB
+
+Core.lua
+Tracker.lua
+UI.lua
