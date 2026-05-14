@@ -143,7 +143,9 @@ class AccessCog(commands.Cog, name="access"):
                 char_str = "*(ошибка расшифровки)*"
 
             # Пытаемся получить упоминание пользователя
-            member = interaction.guild.get_member(int(entry.discord_id)) if interaction.guild else None
+            member = (
+                interaction.guild.get_member(int(entry.discord_id)) if interaction.guild else None
+            )
             user_str = member.mention if member else f"`{entry.discord_id}`"
 
             rows.append(f"{user_str} — {char_str} — `{entry.role.value}`")

@@ -21,7 +21,7 @@ from arena_coach.kb.schema import Difficulty, KBDoc, Source
 # ── Цвета по difficulty ───────────────────────────────────────────────
 _DIFFICULTY_COLORS: dict[Difficulty, discord.Color] = {
     Difficulty.EASY: discord.Color.green(),
-    Difficulty.MODERATE: discord.Color.from_rgb(255, 200, 0),   # жёлтый
+    Difficulty.MODERATE: discord.Color.from_rgb(255, 200, 0),  # жёлтый
     Difficulty.HARD: discord.Color.orange(),
     Difficulty.VERY_HARD: discord.Color.red(),
     Difficulty.MIRROR: discord.Color.purple(),

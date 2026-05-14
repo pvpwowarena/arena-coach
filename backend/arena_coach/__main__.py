@@ -75,15 +75,11 @@ def _cmd_gen_key() -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        prog="arena-coach", description="Arena Coach backend CLI"
-    )
+    parser = argparse.ArgumentParser(prog="arena-coach", description="Arena Coach backend CLI")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     # validate-kb
-    p_validate = sub.add_parser(
-        "validate-kb", help="Прогнать все .md в директории через KB-схему"
-    )
+    p_validate = sub.add_parser("validate-kb", help="Прогнать все .md в директории через KB-схему")
     p_validate.add_argument("path", type=Path, help="Директория с .md-документами")
 
     # run-bot

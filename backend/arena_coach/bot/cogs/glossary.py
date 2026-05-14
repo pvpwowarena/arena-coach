@@ -32,9 +32,7 @@ def _load_glossary(kb_path: Path) -> dict[str, dict[str, object]]:
     if not abilities_file.exists():
         return {}
     try:
-        data: dict[str, dict[str, object]] = json.loads(
-            abilities_file.read_text(encoding="utf-8")
-        )
+        data: dict[str, dict[str, object]] = json.loads(abilities_file.read_text(encoding="utf-8"))
         return data
     except Exception as exc:
         logger.warning("Failed to load abilities.json: %s", exc)

@@ -123,9 +123,7 @@ class ArenaCoachBot(commands.Bot):
         """
         if isinstance(error, discord.app_commands.CheckFailure):
             if not interaction.response.is_done():
-                await interaction.response.send_message(
-                    embed=access_denied_embed(), ephemeral=True
-                )
+                await interaction.response.send_message(embed=access_denied_embed(), ephemeral=True)
             return
 
         # Внутренняя ошибка

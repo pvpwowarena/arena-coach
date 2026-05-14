@@ -5,6 +5,7 @@ Revises:
 Create Date: 2026-05-13
 
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -46,7 +47,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index(
-        op.f("ix_whitelist_entries_discord_id"), table_name="whitelist_entries"
-    )
+    op.drop_index(op.f("ix_whitelist_entries_discord_id"), table_name="whitelist_entries")
     op.drop_table("whitelist_entries")

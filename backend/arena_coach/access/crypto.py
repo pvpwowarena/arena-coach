@@ -19,7 +19,7 @@ def _build_fernet() -> MultiFernet:
     if not key:
         raise RuntimeError(
             "ARENA_COACH_FERNET_KEY не задан. "
-            "Сгенерируй: python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
+            'Сгенерируй: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"'
         )
 
     keys: list[Fernet] = [Fernet(key.encode())]

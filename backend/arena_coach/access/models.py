@@ -62,9 +62,7 @@ class WhitelistEntry(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
     # Discord user ID хранится как строка (избегаем потери точности 64-bit int)
-    discord_id: Mapped[str] = mapped_column(
-        String(64), unique=True, index=True, nullable=False
-    )
+    discord_id: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
 
     # Зашифрованные игровые данные
     character_enc: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
