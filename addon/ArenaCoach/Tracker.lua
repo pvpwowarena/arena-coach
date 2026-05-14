@@ -94,6 +94,34 @@ local function AppendEvent(session, eventType, source, target, abilityId, abilit
     table.insert(session.events, ev)
 end
 
+-- ── Bridge-канал: whisper-to-self → Logs/Chat-*.txt ─────────────────────────
+-- WoW TBC не имеет прямого API для записи в файл, но SendChatMessage("WHISPER")
+-- к самому игроку пишется в Logs/Chat-YYYY-MM-DD.txt мгновенно.
+-- Формат: [AC|TYPE|field1|field2|...]  (символы | и ] в именах игроков не встречаются)
+-- Bridge (Python) читает файл каждые ~0.5с и фильтрует строки с [AC|.
+
+local bridgeEnabled = true   -- выключается через /ac coach pause
+
+function AC.EmitToChat(eventType, ...)
+    if not bridgeEnabled then return end
+    local parts = { "[AC", eventType }
+    for i = 1, select("#", ...) do
+        local v = select(i, ...)
+        table.insert(parts, tostring(v or ""))
+    end
+    local msg = table.concat(parts, "|") .. "]"
+    -- Whisper к самому игроку: не виден другим, попадает в Chat-лог
+    local playerName = UnitName("player")
+    if playerName then
+        SendChatMessage(msg, "WHISPER", nil, playerName)
+    end
+end
+
+function AC.SetBridgeEnabled(val)
+    bridgeEnabled = val
+    AC.Print("Bridge: " .. (val and "активен" or "пауза"))
+end
+
 -- ── Сканирование врагов при старте ───────────────────────────────────────────
 
 local function ScanEnemies(session)
@@ -135,11 +163,20 @@ local function OnArenaStart()
     ScanEnemies(session)
     AC.currentSession = session
     AC.Print("Арена началась (" .. session.bracket .. ") — трекинг активен.")
+
+    -- Сообщаем bridge о старте и составе врагов
+    local enemyParts = {}
+    for _, e in ipairs(session.enemies) do
+        -- Формат: CLASS/RACE (напр. ROGUE/HUMAN)
+        table.insert(enemyParts, (e.class or "UNKNOWN") .. "/" .. (e.race or "UNKNOWN"))
+    end
+    AC.EmitToChat("ARENA_START", session.bracket, table.concat(enemyParts, ","))
 end
 
 local function OnArenaEnd()
     if not AC.currentSession then return end
     AC.currentSession.ended_at = AC.Now()
+    AC.EmitToChat("ARENA_END", tostring(#AC.currentSession.events))
     table.insert(ArenaCoachDB.sessions, AC.currentSession)
     AC.TrimSessions()
     AC.Print("Арена завершена. Событий записано: " .. #AC.currentSession.events)
@@ -178,6 +215,9 @@ local function OnCombatLog(timestamp, subevent, sourceGUID, sourceName, sourceFl
         )
         if isEnemy then
             AC.Print("ТРИКЕТ: " .. (sourceName or "?") .. " использовал " .. (spellName or "?"))
+            -- Сообщаем bridge — это самый важный real-time сигнал
+            AC.EmitToChat("TRINKET", sourceName or "", tostring(spellId),
+                AC.TRINKET_IDS[spellId] or "pvp_trinket")
         end
         return
     end
@@ -193,6 +233,9 @@ local function OnCombatLog(timestamp, subevent, sourceGUID, sourceName, sourceFl
             spellName,
             { spell_key = AC.TRACKED_SPELLS[spellId] }
         )
+        -- Сообщаем bridge о CD врага
+        AC.EmitToChat("ABILITY", sourceName or "", tostring(spellId),
+            AC.TRACKED_SPELLS[spellId])
     end
 end
 

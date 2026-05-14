@@ -94,6 +94,10 @@ SlashCmdList["ARENACOACH"] = function(msg)
     local cmd = strtrim(msg or ""):lower()
     if cmd == "ui" then
         AC.ToggleUI()
+    elseif cmd == "coach pause" then
+        AC.SetBridgeEnabled(false)
+    elseif cmd == "coach resume" then
+        AC.SetBridgeEnabled(true)
     else
         _origSlash(msg)
     end

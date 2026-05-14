@@ -215,6 +215,26 @@ class AccessService:
             )
             return result.scalar_one_or_none()
 
+    async def find_by_character(self, character: str) -> WhitelistEntry | None:
+        """Найти активную запись по имени персонажа (case-insensitive).
+
+        Персонажи хранятся зашифрованными, поэтому сравниваем после расшифровки.
+        Whitelist небольшой (< 50 человек), O(n) приемлемо.
+        """
+        character_lower = character.lower()
+        async with self._sf() as session:
+            result = await session.execute(
+                select(WhitelistEntry).where(WhitelistEntry.active.is_(True))
+            )
+            for entry in result.scalars().all():
+                try:
+                    decrypted = decrypt_field(entry.character_enc).lower()
+                    if decrypted == character_lower:
+                        return entry
+                except Exception:
+                    continue
+        return None
+
     # ── decrypt helpers ──────────────────────────────────────────────────
 
     def decrypt_character(self, entry: WhitelistEntry) -> str:
