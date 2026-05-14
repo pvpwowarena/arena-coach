@@ -14,7 +14,7 @@ import asyncio
 import logging
 import re
 from collections.abc import AsyncIterator
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 log = logging.getLogger(__name__)
@@ -144,4 +144,4 @@ def parse_ac_line(raw: str) -> list[str] | None:
 
 def get_bridge_timestamp() -> str:
     """ISO8601 UTC timestamp для envelope события."""
-    return datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
