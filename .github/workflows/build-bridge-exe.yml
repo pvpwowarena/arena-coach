@@ -1,0 +1,92 @@
+name: Build arena-bridge.exe
+
+# Триггеры:
+# - Push тега v* (v0.1.0, v0.2.0 ...) → создаёт GitHub Release с .exe
+# - workflow_dispatch → ручная сборка из любой ветки (для тестирования)
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch / tag / SHA для сборки"
+        required: false
+        default: "main"
+
+permissions:
+  contents: write   # Нужно для создания Release
+
+jobs:
+  build-windows:
+    name: Windows .exe (PyInstaller)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install bridge package + PyInstaller
+        working-directory: bridge
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pyinstaller
+
+      - name: Build .exe
+        working-directory: bridge
+        run: pyinstaller arena-bridge.spec --clean --noconfirm
+
+      - name: Smoke-test .exe (--check-config без config → exit 1 ожидается)
+        working-directory: bridge
+        shell: pwsh
+        run: |
+          # --check-config без настроек должен вернуть код 1 (ошибки конфига)
+          # Главное что .exe запускается и не падает с segfault/ImportError
+          $proc = Start-Process -FilePath "dist\arena-bridge.exe" `
+                    -ArgumentList "--check-config" `
+                    -Wait -PassThru -NoNewWindow
+          if ($proc.ExitCode -eq 0 -or $proc.ExitCode -eq 1) {
+            Write-Host "Smoke-test passed (exit $($proc.ExitCode))"
+          } else {
+            Write-Error "Unexpected exit code: $($proc.ExitCode)"
+            exit 1
+          }
+
+      - name: Upload .exe as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arena-bridge-windows
+          path: bridge/dist/arena-bridge.exe
+          retention-days: 30
+
+      # Шаг ниже выполняется только при push тега — создаёт GitHub Release
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bridge/dist/arena-bridge.exe
+          name: Arena Bridge ${{ github.ref_name }}
+          body: |
+            ## Установка для игроков (Windows)
+
+            1. Скачать `arena-bridge.exe`
+            2. Положить рядом `bridge.env` (получить у админа):
+               ```
+               WOW_INSTALL_PATH=C:\Program Files (x86)\World of Warcraft\_classic_era_
+               BACKEND_URL=https://<адрес сервера>
+               BRIDGE_BEARER_TOKEN=<твой токен>
+               BRIDGE_PLAYER_NAME=<имя персонажа>
+               ```
+            3. Запустить `arena-bridge.exe --check-config` — проверить конфиг
+            4. Запустить `arena-bridge.exe` — оставить работать во время игры
+          draft: false
+          prerelease: false

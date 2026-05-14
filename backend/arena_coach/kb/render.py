@@ -48,6 +48,16 @@ _OPENER_SECTIONS = {"opener", "strategy", "stealth game", "general"}
 
 _ABILITY_REF_RE = re.compile(r"\[\[ability:([a-z0-9-]+)\]\]")
 
+# Человекочитаемые лейблы для числовых/технических полей glossary embed
+_GLOSSARY_FIELD_LABELS: dict[str, str] = {
+    "duration": "⏱ Длительность",
+    "cd": "🔄 Кулдаун",
+    "dr": "📉 DR-категория",
+    "id": "🆔 Spell ID",
+    "class_": "🧙 Класс",
+    "school": "💥 Школа магии",
+}
+
 
 def _clean_ability_refs(text: str) -> str:
     """Заменить [[ability:slug]] на `slug` для отображения в Discord."""
@@ -184,16 +194,43 @@ def render_no_matchup_embed(our_comp: str, vs_comp: str, suggestions: list[str])
 
 
 def render_glossary_embed(term: str, definition: dict[str, object]) -> discord.Embed:
-    """Embed для /glossary <term>."""
+    """Embed для /glossary <term>.
+
+    Поля с None-значениями пропускаются — Discord не принимает пустые field values,
+    а str(None) = "None" уродует embed.
+    """
+    # Предпочитаем en_name из записи, иначе показываем ключ поиска
+    en_name = definition.get("en_name")
+    title_term = str(en_name) if en_name is not None else term
     embed = discord.Embed(
-        title=f"📖  {term}",
+        title=f"📖  {title_term}",
         color=discord.Color.blurple(),
     )
-    if "description" in definition:
-        embed.description = str(definition["description"])
-    for key in ("duration", "dr", "cd", "id"):
-        if key in definition:
-            embed.add_field(name=key, value=str(definition[key]), inline=True)
+
+    # Slug как subtitle если он отличается от ключа
+    slug = definition.get("slug")
+    if slug is not None and str(slug) != term:
+        embed.description = f"`{slug}`"
+
+    if "description" in definition and definition["description"] is not None:
+        desc_text = str(definition["description"])
+        # Добавляем к description, если slug-строка уже есть
+        if embed.description:
+            embed.description = f"{embed.description}\n\n{desc_text}"
+        else:
+            embed.description = desc_text
+
+    for key, label in _GLOSSARY_FIELD_LABELS.items():
+        val = definition.get(key)
+        if val is not None:
+            embed.add_field(name=label, value=str(val), inline=True)
+
+    # Aliases в footer если есть
+    aliases = definition.get("aliases")
+    if aliases and isinstance(aliases, list) and len(aliases) > 0:
+        alias_str = ", ".join(f"`{a}`" for a in aliases[:6])
+        embed.set_footer(text=f"Aliases: {alias_str}")
+
     return embed
 
 

@@ -10,12 +10,19 @@
                  --backend-url https://coach.example.com \\
                  --token <bearer_token> --player-name Vladislav
 
-Или через .env (рекомендуется):
-    WOW_INSTALL_PATH="C:/WoW"
-    ACCOUNT_NAME="MyAccount"
-    BACKEND_URL="https://coach.example.com"
-    BRIDGE_BEARER_TOKEN="<token>"
-    BRIDGE_PLAYER_NAME="Vladislav"
+Или через bridge.env рядом с .exe (рекомендуется для игроков):
+    WOW_INSTALL_PATH=C:/Program Files (x86)/World of Warcraft/_classic_era_
+    BACKEND_URL=https://coach.example.com
+    BRIDGE_BEARER_TOKEN=<токен из /access add>
+    BRIDGE_PLAYER_NAME=Vladislav
+
+Или явно указать файл:
+    arena-bridge --env-file bridge.env
+
+Порядок приоритетов (от высшего к низшему):
+    1. Аргументы CLI  (--wow-path, --token, ...)
+    2. Переменные среды системы (os.environ до загрузки файла)
+    3. --env-file / авто-детект bridge.env рядом с .exe
 """
 
 from __future__ import annotations
@@ -38,6 +45,23 @@ def _setup_logging(level: str = "INFO") -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
         level=getattr(logging, level.upper(), logging.INFO),
     )
+
+
+def _exe_dir() -> Path:
+    """Папка рядом с запущенным файлом (работает и для PyInstaller .exe, и для Python).
+
+    При сборке PyInstaller: sys.frozen=True, sys.executable — путь к .exe.
+    При запуске через Python: берём папку пакета.
+    """
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).parent
+    return Path(__file__).parent
+
+
+def _find_default_env_file() -> Path | None:
+    """Автоматически найти bridge.env рядом с исполняемым файлом."""
+    candidate = _exe_dir() / "bridge.env"
+    return candidate if candidate.exists() else None
 
 
 def _load_config_from_env() -> dict[str, str]:
@@ -109,11 +133,44 @@ async def _run_bridge(
 
 
 def main() -> int:
+    # ── Предварительный парсинг --env-file / авто-детект ────────────────────
+    # Нужно сделать это ДО основного argparse, чтобы переменные из файла
+    # были доступны как defaults, но системные env-переменные имели приоритет.
+    _pre = argparse.ArgumentParser(add_help=False)
+    _pre.add_argument("--env-file", default=None)
+    _pre_args, _ = _pre.parse_known_args()
+
+    env_file_path: Path | None = None
+    if _pre_args.env_file:
+        env_file_path = Path(_pre_args.env_file)
+        if not env_file_path.exists():
+            print(f"⚠️  Файл не найден: {env_file_path}", file=sys.stderr)
+    else:
+        env_file_path = _find_default_env_file()
+
+    if env_file_path is not None:
+        from .env_loader import apply_env_file
+
+        applied = apply_env_file(env_file_path, override=False)
+        # Логируем после setup_logging, поэтому сохраняем для отложенного вывода
+        _env_file_info = (env_file_path, applied)
+    else:
+        _env_file_info = None
+
     env = _load_config_from_env()
 
     parser = argparse.ArgumentParser(
         prog="arena-bridge",
         description="Arena Coach local bridge — tail Chat-log → POST events → backend",
+    )
+    parser.add_argument(
+        "--env-file",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Путь к .env файлу с настройками (KEY=VALUE). "
+            "По умолчанию: bridge.env рядом с .exe (если существует)."
+        ),
     )
     parser.add_argument(
         "--wow-path",
@@ -156,6 +213,11 @@ def main() -> int:
     args = parser.parse_args()
     _setup_logging(args.log_level)
 
+    # Теперь можно залогировать что загрузили из файла
+    if _env_file_info is not None:
+        _ef_path, _ef_keys = _env_file_info
+        log.info("Загружен env-файл: %s (ключи: %s)", _ef_path, ", ".join(_ef_keys) or "нет новых")
+
     # ── Валидация ────────────────────────────────────────────────────────────
     errors: list[str] = []
 
@@ -182,6 +244,10 @@ def main() -> int:
 
     if args.check_config:
         print("=== Arena Bridge — конфигурация ===")
+        if _env_file_info is not None:
+            print(f"  Config file : {_env_file_info[0]}")
+        else:
+            print("  Config file : не найден (bridge.env не обнаружен рядом с .exe)")
         print(f"  WoW path    : {wow_path or 'НЕ ЗАДАН'}")
         print(f"  Logs dir    : {log_dir or 'НЕ НАЙДЕНА'}")
         print(f"  Backend URL : {args.backend_url or 'НЕ ЗАДАН'}")

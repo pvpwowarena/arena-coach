@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arena Coach — Скачать Bridge</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      max-width: 640px;
+      width: 100%;
+      padding: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #1f6feb33;
+      color: #58a6ff;
+      border: 1px solid #1f6feb;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #8b949e;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #238636;
+      color: #fff;
+      border: 1px solid #2ea043;
+      border-radius: 8px;
+      padding: 0.85rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s;
+      margin-bottom: 0.75rem;
+      width: fit-content;
+    }
+    .download-btn:hover { background: #2ea043; }
+    .download-btn svg { flex-shrink: 0; }
+
+    .alt-link {
+      font-size: 0.85rem;
+      color: #8b949e;
+      margin-bottom: 2.5rem;
+    }
+    .alt-link a { color: #58a6ff; text-decoration: none; }
+    .alt-link a:hover { text-decoration: underline; }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f0f6fc;
+      margin-bottom: 0.75rem;
+    }
+
+    ol {
+      padding-left: 1.25rem;
+      color: #c9d1d9;
+      font-size: 0.9rem;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+    ol li { margin-bottom: 0.25rem; }
+
+    .code-block {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.82rem;
+      color: #c9d1d9;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .code-block .comment { color: #6e7681; }
+    .code-block .key     { color: #79c0ff; }
+    .code-block .value   { color: #a5d6ff; }
+    .code-block .cmd     { color: #7ee787; }
+
+    .note {
+      background: #161b2299;
+      border-left: 3px solid #f0883e;
+      border-radius: 0 6px 6px 0;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: #e3b341;
+      line-height: 1.5;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #21262d;
+      margin: 2rem 0;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #484f58;
+      text-align: center;
+    }
+    footer a { color: #58a6ff; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">WoW TBC Arena</div>
+    <h1>⚔️ Arena Coach Bridge</h1>
+    <p class="subtitle">
+      Локальный демон для Windows. Читает WoW chat-log и отправляет события на сервер —
+      ты получаешь подсказки прямо в Discord DM во время арены.
+    </p>
+
+    <a class="download-btn"
+       href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/arena-bridge.exe"
+       download>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
+      </svg>
+      Скачать arena-bridge.exe
+    </a>
+
+    <p class="alt-link">
+      Все версии:
+      <a href="https://github.com/pvpwowarena/arena-coach/releases" target="_blank" rel="noopener">
+        GitHub Releases →
+      </a>
+    </p>
+
+    <hr class="divider">
+
+    <h2>🚀 Установка за 4 шага</h2>
+    <ol>
+      <li>Скачать <strong>arena-bridge.exe</strong> и положить в удобную папку (например <code>C:\ArenaCoach\</code>)</li>
+      <li>Создать файл <strong>bridge.env</strong> в той же папке (токен получить у администратора в Discord)</li>
+      <li>Запустить <code>arena-bridge.exe --check-config</code> для проверки</li>
+      <li>Запустить <code>arena-bridge.exe</code> перед игрой — оставить окно открытым</li>
+    </ol>
+
+    <h2>📄 Пример bridge.env</h2>
+    <div class="code-block"><span class="comment"># Скопируй в bridge.env рядом с arena-bridge.exe</span>
+
+<span class="key">WOW_INSTALL_PATH</span>=<span class="value">C:\Program Files (x86)\World of Warcraft\_classic_era_</span>
+<span class="key">BACKEND_URL</span>=<span class="value">https://pvpwowarena.surprise4you.dev</span>
+<span class="key">BRIDGE_BEARER_TOKEN</span>=<span class="value">вставить-токен-от-администратора</span>
+<span class="key">BRIDGE_PLAYER_NAME</span>=<span class="value">ИмяПерсонажа</span></div>
+
+    <h2>✅ Проверка</h2>
+    <div class="code-block"><span class="comment"># В cmd или PowerShell из папки с .exe:</span>
+<span class="cmd">arena-bridge.exe --check-config</span>
+
+<span class="comment"># Ожидаемый вывод:</span>
+<span class="comment"># ✓ Конфигурация корректна</span></div>
+
+    <div class="note">
+      ⚠️ Токен выдаёт администратор командой <strong>/access add</strong> в Discord-сервере.
+      Не передавай токен другим игрокам — он привязан к твоему персонажу.
+    </div>
+
+    <footer>
+      Arena Coach — read-only телеметрия, не нарушает Blizzard ToS &nbsp;·&nbsp;
+      <a href="https://github.com/pvpwowarena/arena-coach" target="_blank" rel="noopener">GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>
