@@ -115,7 +115,6 @@ norecursedirs = [
   "__pycache__",
 ]
 asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"
 addopts = [
   "--strict-markers",
   "--strict-config",
@@ -129,6 +128,10 @@ filterwarnings = [
   "error",
   # pytest-asyncio 0.23+ emits PytestUnraisableExceptionWarning on some teardowns
   "ignore::pytest.PytestUnraisableExceptionWarning",
+  # pytest-asyncio 0.23+ warns when asyncio_default_fixture_loop_scope is unset.
+  # The option itself is not recognized by 0.23.x (only 0.24+), so we cannot set
+  # it in ini_options without breaking --strict-config. Filter the warning instead.
+  "ignore:.*asyncio_default_fixture_loop_scope.*:pytest.PytestDeprecationWarning",
   # SQLAlchemy 2.x / aiosqlite — known DeprecationWarnings in test env
   "ignore::DeprecationWarning:sqlalchemy",
   "ignore::DeprecationWarning:aiosqlite",
