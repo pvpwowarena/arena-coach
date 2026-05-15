@@ -91,27 +91,5 @@ jobs:
           draft: false
           prerelease: false
 
-      # Деплой .exe на VPS — выполняется при любом теге
-      # Требует секрет VPS_SSH_KEY в настройках репозитория
-      - name: Deploy .exe to VPS
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: 77.239.120.150
-          username: root
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "bridge/dist/arena-bridge.exe"
-          target: "/var/www/arena-coach/"
-          strip_components: 2   # убираем bridge/dist/ из пути
-
-      - name: Reload nginx after deploy
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 77.239.120.150
-          username: root
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            chown www-data:www-data /var/www/arena-coach/arena-bridge.exe
-            chmod 644 /var/www/arena-coach/arena-bridge.exe
-            echo "arena-bridge.exe deployed: $(ls -lh /var/www/arena-coach/arena-bridge.exe)"
+      # Репо публичный → Release ассеты доступны без авторизации.
+      # Страница /download ведёт на GitHub Releases напрямую.
