@@ -144,12 +144,33 @@
 <body>
   <div class="card">
     <div class="badge">WoW TBC Arena</div>
-    <h1>⚔️ Arena Coach Bridge</h1>
+    <h1>⚔️ Arena Coach</h1>
     <p class="subtitle">
-      Локальный демон для Windows. Читает WoW chat-log и отправляет события на сервер —
-      ты получаешь подсказки прямо в Discord DM во время арены.
+      Реал-тайм подсказки для арены прямо в Discord DM.
+      Нужно установить два компонента: аддон в WoW и bridge на Windows.
     </p>
 
+    <!-- Аддон -->
+    <h2>📦 Шаг 1 — Аддон для WoW</h2>
+    <a class="download-btn"
+       href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/ArenaCoach.zip"
+       download="ArenaCoach.zip">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
+      </svg>
+      Скачать ArenaCoach.zip
+    </a>
+
+    <ol style="margin-top:0.75rem">
+      <li>Распаковать архив — внутри папка <code>ArenaCoach</code></li>
+      <li>Скопировать её в <code>World of Warcraft\_classic_era_\Interface\AddOns\</code></li>
+      <li>Перезапустить WoW или ввести <code>/reload</code> — аддон появится в списке</li>
+    </ol>
+
+    <hr class="divider">
+
+    <!-- Bridge -->
+    <h2>🔌 Шаг 2 — Bridge (фоновая программа)</h2>
     <a class="download-btn"
        href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/arena-bridge.exe"
        download="arena-bridge.exe">
@@ -159,11 +180,8 @@
       Скачать arena-bridge.exe
     </a>
 
-    <hr class="divider">
-
-    <h2>🚀 Установка за 4 шага</h2>
-    <ol>
-      <li>Скачать <strong>arena-bridge.exe</strong> и положить в удобную папку (например <code>C:\ArenaCoach\</code>)</li>
+    <ol style="margin-top:0.75rem">
+      <li>Положить <strong>arena-bridge.exe</strong> в удобную папку (например <code>C:\ArenaCoach\</code>)</li>
       <li>Создать файл <strong>bridge.env</strong> в той же папке (токен получить у администратора в Discord)</li>
       <li>Запустить <code>arena-bridge.exe --check-config</code> для проверки</li>
       <li>Запустить <code>arena-bridge.exe</code> перед игрой — оставить окно открытым</li>
