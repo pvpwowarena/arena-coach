@@ -34,6 +34,7 @@ repos:
     hooks:
       - id: no-saved-variables
         name: запретить коммит SavedVariables.lua
-        entry: bash -c 'if git diff --cached --name-only | grep -i "SavedVariables"; then echo "ОТКАЗ: SavedVariables.lua не должен попадать в репо"; exit 1; fi'
+        entry: |
+          bash -c 'if git diff --cached --name-only | grep -i "SavedVariables"; then echo "ОТКАЗ — SavedVariables.lua не должен попадать в репо"; exit 1; fi'
         language: system
         pass_filenames: false
