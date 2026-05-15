@@ -82,7 +82,7 @@ jobs:
             2. Положить рядом `bridge.env` (получить у админа):
                ```
                WOW_INSTALL_PATH=C:\Program Files (x86)\World of Warcraft\_classic_era_
-               BACKEND_URL=https://<адрес сервера>
+               BACKEND_URL=https://pvpwowarena.surprise4you.dev
                BRIDGE_BEARER_TOKEN=<твой токен>
                BRIDGE_PLAYER_NAME=<имя персонажа>
                ```
@@ -90,3 +90,28 @@ jobs:
             4. Запустить `arena-bridge.exe` — оставить работать во время игры
           draft: false
           prerelease: false
+
+      # Деплой .exe на VPS — выполняется при любом теге
+      # Требует секрет VPS_SSH_KEY в настройках репозитория
+      - name: Deploy .exe to VPS
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 77.239.120.150
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "bridge/dist/arena-bridge.exe"
+          target: "/var/www/arena-coach/"
+          strip_components: 2   # убираем bridge/dist/ из пути
+
+      - name: Reload nginx after deploy
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 77.239.120.150
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            chown www-data:www-data /var/www/arena-coach/arena-bridge.exe
+            chmod 644 /var/www/arena-coach/arena-bridge.exe
+            echo "arena-bridge.exe deployed: $(ls -lh /var/www/arena-coach/arena-bridge.exe)"
