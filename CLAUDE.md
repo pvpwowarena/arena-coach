@@ -9,31 +9,40 @@
 
 **WoW Arena Assistant** — система реал-тайм подсказок для 2v2/3v3 арены в **WoW: Burning Crusade Classic Anniversary** (клиент 2.4.3).
 
-Игроки из вайтлиста получают советы прямо в Discord DM во время боя. Источник знаний — KB (база матчапов в Markdown), наполненная вручную из стримов/гайдов.
+Игроки из вайтлиста получают советы в Discord DM во время боя. Источник знаний — KB (база матчапов в Markdown), наполненная вручную из стримов/гайдов.
+
+**Репо:** https://github.com/pvpwowarena/arena-coach — **публичный** (с 2026-05-15).
 
 ---
 
-## Архитектура (текущая)
+## Архитектура (актуальная)
 
 ```
-[WoW client + ArenaCoach addon (Lua)]
-        │ пишет события в chat-frame с префиксом [AC]
+[WoW client + ArenaCoach addon (Lua 2.4.3)]
+        │ пишет события в chat-frame с префиксом [AC|TYPE|f1|f2|...]
         ▼
-[arena-bridge.exe (Windows, Python → PyInstaller)]
-        │ читает WoW chat log, нормализует события
-        │ POST /v1/events  Bearer-токен
+[arena-bridge.exe (Windows, PyInstaller onefile)]
+        │ tail WoW Logs/Chat-YYYY-MM-DD.txt → нормализация → HTTPS POST /v1/events
+        │ Bearer-токен аутентификация
         ▼
-[FastAPI backend (uvicorn, 127.0.0.1:8000)]
-        ├── KB store (Markdown файлы + SQLite индекс)
-        ├── Whitelist + Audit log (SQLite + Fernet шифрование)
-        ├── LLM orchestrator (Anthropic API — опционально)
-        └── Discord bot (discord.py slash-команды)
+[Backend VPS: pvpwowarena.surprise4you.dev]
+        ├── FastAPI (uvicorn, 127.0.0.1:8000) — systemd arena-coach-api
+        ├── Discord bot (discord.py)           — systemd arena-coach-bot
+        ├── KB store (Markdown matchups + in-memory KBIndex)
+        ├── Whitelist + Audit log (SQLite + Fernet шифрование, append-only JSONL)
+        └── LLM orchestrator (Anthropic API — опционально, сейчас заглушка)
         ▼
-[Discord DM / channel — подсказки игрокам]
-
-Nginx (443 SSL) → proxy → FastAPI
-                → static → /download страница + arena-bridge.exe
+[Nginx 1.18 + TLS (Let's Encrypt)]
+        ├── /              → /var/www/arena-coach/index.html
+        ├── /download      → download.html (аддон + arena-bridge.exe)
+        ├── /how-it-works  → how-it-works.html
+        ├── /v1/           → FastAPI
+        └── /health        → FastAPI
+        ▼
+[Discord DM — текстовые подсказки игрокам]
 ```
+
+**Канал addon ⇄ bridge:** chat-frame с префиксом `[AC|...]` (см. ADR-0003). SavedVariables как realtime-канал отвергнут — пишутся только при /reload и logout.
 
 ---
 
@@ -46,16 +55,16 @@ Nginx (443 SSL) → proxy → FastAPI
 | ОС | Ubuntu 22.04 LTS |
 | Python на VPS | **3.10** (не 3.11!) |
 | Systemd сервисы | `arena-coach-api` (uvicorn :8000) + `arena-coach-bot` |
-| Nginx | 1.18.0 — `listen 443 ssl;` без `http2` (не поддерживает `http2 on;`) |
+| Nginx | 1.18.0 — `listen 443 ssl;` без `http2 on;` |
 | TLS | Let's Encrypt, certbot --nginx, автообновление через certbot.timer |
 | Данные | `/var/lib/arena-coach/coach.db` (SQLite) |
 | Конфиг | `/etc/arena-coach/api.env` (секреты) |
 | Репо на VPS | `/opt/arena-coach/` |
 | Venv | `/opt/arena-coach/.venv/` |
-| Статика nginx | `/var/www/arena-coach/` (download.html, arena-bridge.exe) |
+| Статика nginx | `/var/www/arena-coach/` (index.html, download.html, how-it-works.html, arena-bridge.exe) |
 | Webmin | порт 10000, правило UFW открыто |
 
-### Проверка работоспособности VPS
+### Проверка работоспособности
 ```bash
 curl -s https://pvpwowarena.surprise4you.dev/health
 # → {"status":"ok","uptime_s":...}
@@ -63,13 +72,22 @@ curl -s https://pvpwowarena.surprise4you.dev/health
 systemctl status arena-coach-api arena-coach-bot --no-pager
 ```
 
-### Деплой на VPS
+### Деплой
 ```bash
-cd /path/to/arena-coach
+# Через Webmin terminal на VPS:
+cd /opt/arena-coach
+sudo -u arenacoach git pull --ff-only
+cp ops/nginx/html/*.html /var/www/arena-coach/   # если статика менялась
+cd backend && sudo -u arenacoach /opt/arena-coach/.venv/bin/alembic -c alembic.ini upgrade head
+sudo systemctl restart arena-coach-api arena-coach-bot
+```
+
+Альтернатива с локальной машины:
+```bash
 ARENA_VPS_HOST=root@77.239.120.150 ./ops/scripts/deploy.sh
 ```
 
-### api.env на VPS (структура)
+### api.env на VPS
 ```
 DISCORD_BOT_TOKEN=...
 DISCORD_GUILD_ID=...
@@ -87,16 +105,13 @@ KB_PATH=/opt/arena-coach/kb
 
 ### ✅ Phase 0 — Дизайн и скелет (DONE)
 - Архитектурная диаграмма, data-model, OpenAPI sketch
-- Layout репозитория, `.env.example`, список Discord-команд
-- ADR-документы в `docs/decisions/`
+- ADR в `docs/decisions/`
 
-### ✅ Phase 1 — База знаний + ingestion (DONE)
-- Каноническая Markdown-схема KB-документа
+### ✅ Phase 1 — KB + ingestion (DONE)
+- Каноническая Markdown-схема, Pydantic-валидация
 - Глоссарий: `kb/glossary/abilities.json` + `kb/glossary/terms.md`
-- Драфты матчапов в `kb/drafts/` (21 файл — RM и RP составы)
+- 22 драфта в `kb/drafts/` (RM + RP составы)
 - Ingest CLI: `python -m arena_ingest paste --from-paste`
-- Парсер глоссария: `ingest/arena_ingest/glossary_extract.py`
-- **ВАЖНО: драфты в `kb/drafts/` не одобрены** — нет ни одного файла в `kb/matchups/`. Команда `/matchup` возвращает «нет данных» пока драфты не смёрджены.
 
 ### ✅ Phase 2 — Discord бот (DONE, работает на VPS)
 Slash-команды:
@@ -107,138 +122,55 @@ Slash-команды:
 - `/source <slug>` — источники
 - `/access add/remove/audit` — управление вайтлистом (только admin)
 
-Баг исправлен: `/glossary` больше не показывает "None" для пустых полей.
-
 ### ✅ Phase 3 — Lua аддон (DONE, код есть)
-Файлы в `addon/ArenaCoach/`:
-- `Core.lua` — инициализация, namespace AC
-- `Tracker.lua` — ARENA_OPPONENT_UPDATE, UNIT_AURA, COMBAT_LOG_EVENT_UNFILTERED
-- `UI.lua` — StatusFrame (connected/idle)
-- `ArenaCoach.toc` — TOC для TBC 2.4.3
+Файлы — **только `addon/ArenaCoach/`**:
+- `ArenaCoach.toc` — TOC для TBC 2.4.3 (Interface 20400)
+- `Core.lua` — namespace, SavedVariables-схема
+- `Tracker.lua` — ARENA_OPPONENT_UPDATE, UNIT_AURA, COMBAT_LOG_EVENT_UNFILTERED, трекинг трикетов и CC
+- `UI.lua` — StatusFrame
 
-Также дублирующие файлы в `addon/core/` и `addon/ui/` — надо разобрать дублирование.
+Канал в bridge: chat-frame с префиксом `[AC|...]`.
 
-**Статус аддона:** Код написан, но не тестировался в живой игре. Канал аддон→bridge: chat-frame с префиксом `[AC]`.
+**Статус:** код написан, не тестировался в живой игре.
 
 ### 🔄 Phase 4 — Bridge + реал-тайм подсказки (ЧАСТИЧНО)
 - `bridge/arena_bridge/` — пакет готов:
-  - `chat_tail.py` — tail WoW chat log
-  - `sv_tail.py` — tail SavedVariables (альтернатива)
-  - `normalizer.py` — нормализация событий
-  - `ws_client.py` — WebSocket клиент
+  - `chat_tail.py` — tail `WoW/Logs/Chat-YYYY-MM-DD.txt`, парсит `[AC|...]`
+  - `sv_tail.py` — tail SavedVariables (резервный канал)
+  - `normalizer.py` — нормализация событий в CanonicalEnvelope
+  - `ws_client.py` / HTTPS-клиент — отправка на `/v1/events`
   - `env_loader.py` — dotenv без зависимостей
   - `__main__.py` — CLI с `--env-file`, `--check-config`, авто-детект `bridge.env`
 - `arena-bridge.spec` — PyInstaller onefile spec
-- **НЕ собран** `arena-bridge.exe` — нужен первый тег `v0.1.0`
+- **Pipeline на бэке:** `backend/arena_coach/orchestrator/pipeline.py` (подключён к `/v1/events`) — KB lookup → LLM hint (опционально) → Discord DM через REST
+- **НЕ собран** `arena-bridge.exe` — нужен первый тег `v0.1.0` для запуска GitHub Actions
 
 ### ⏳ Phase 5 — CV/OCR (не начата)
 
 ---
 
-## GitHub Actions
+## KB — как устроена и как работает
 
-### `build-bridge-exe.yml`
-- Триггер: `push tags v*` или `workflow_dispatch`
-- Собирает `arena-bridge.exe` на `windows-latest` через PyInstaller
-- Создаёт GitHub Release с бинарником
-- **Деплоит `.exe` на VPS** (`/var/www/arena-coach/arena-bridge.exe`) по SSH
-- Требует секрет `VPS_SSH_KEY` в настройках репозитория
-
-### Секреты GitHub (нужно настроить)
-- `VPS_SSH_KEY` — приватный ключ `/root/.ssh/id_ed25519` с VPS
-- Публичный ключ должен быть в `/root/.ssh/authorized_keys` на VPS
-
-### Выпустить первый релиз
-```bash
-cd arena-coach
-git tag v0.1.0
-git push origin v0.1.0
-# → Actions соберёт .exe → задеплоит на VPS → /download/arena-bridge.exe заработает
+**Структура:**
+```
+kb/
+├── matchups/      ← одобренные гайды (production-канон)
+├── drafts/        ← черновики после ingest, до review (22 файла)
+├── glossary/
+│   ├── abilities.json   ← spell-id → {icon, duration, DR-category}
+│   └── terms.md         ← опенер, шаттер, sap-stall, etc.
+└── compositions.json
 ```
 
----
+**Поведение индекса (`KBIndex.load`):**
 
-## Структура репозитория
+`indexer.py` сканирует обе директории — `matchups/` и `drafts/` — и грузит их в один in-memory индекс. То есть `/matchup` и `/opener` **отвечают и по черновикам тоже**. Это намеренное решение для Phase 2: иначе бот стоял бы пустой, пока не одобришь руками 22 файла.
 
-```
-arena-coach/
-├── addon/                      # Lua аддон (TBC 2.4.3)
-│   ├── ArenaCoach/             # Основная папка аддона
-│   │   ├── ArenaCoach.toc
-│   │   ├── Core.lua
-│   │   ├── Tracker.lua
-│   │   └── UI.lua
-│   ├── core/                   # Дубль — разобрать!
-│   └── ui/                     # Дубль — разобрать!
-├── backend/                    # FastAPI + discord.py
-│   ├── arena_coach/
-│   │   ├── __main__.py         # CLI: run-bot, gen-key, validate-kb
-│   │   ├── api/app.py          # FastAPI create_app()
-│   │   ├── bot/                # Discord бот
-│   │   │   └── cogs/           # glossary, matchup, access, coach
-│   │   ├── kb/                 # KB loader, render, retriever, schema
-│   │   ├── access/             # Whitelist, audit, crypto (Fernet)
-│   │   ├── orchestrator/       # Anthropic LLM клиент (Phase 4+)
-│   │   └── shared/settings.py  # Pydantic Settings (env vars)
-│   └── tests/unit/
-├── bridge/                     # Windows bridge (.exe)
-│   ├── arena_bridge/
-│   ├── arena-bridge.spec       # PyInstaller
-│   └── bridge.env.example
-├── ingest/                     # KB ingestion CLI
-│   └── arena_ingest/
-├── kb/                         # База знаний
-│   ├── drafts/                 # НЕ одобренные матчапы (21 файл)
-│   ├── matchups/               # ПУСТО — нет одобренных матчапов!
-│   ├── glossary/
-│   │   ├── abilities.json
-│   │   └── terms.md
-│   └── compositions.json
-├── ops/
-│   ├── nginx/
-│   │   ├── pvpwowarena.surprise4you.dev.conf
-│   │   └── html/download.html
-│   ├── systemd/
-│   │   ├── arena-coach-api.service
-│   │   └── arena-coach-bot.service
-│   └── scripts/
-│       ├── server-setup.sh     # Idempotent VPS setup
-│       └── deploy.sh           # rsync + restart
-├── docs/
-│   ├── architecture.md
-│   ├── decisions/              # ADR 0001-0003
-│   └── phase-*.md
-└── .github/workflows/
-    ├── ci.yml                  # ruff + mypy + pytest
-    └── build-bridge-exe.yml    # PyInstaller + VPS deploy
-```
+Когда придёт время разделить: или ввести `KB_INCLUDE_DRAFTS` env-flag, или явно промотировать драфты в `kb/matchups/` (перемещение файла + поле `last_reviewed`).
 
----
+Loader корректно работает на пустом `matchups/` — `if matchups_dir.exists()` и graceful fallback.
 
-## Ключевые технические детали
-
-### Python версии
-- **Локально / CI:** Python 3.11
-- **На VPS:** Python **3.10** (apt-installed). Код должен быть совместим с 3.10!
-
-### CLI команды backend
-```bash
-python -m arena_coach run-bot        # запуск Discord бота
-python -m arena_coach gen-key        # генерация Fernet ключа
-python -m arena_coach validate-kb <path>  # валидация KB документов
-# НЕТ команды db upgrade — Alembic запускается напрямую
-```
-
-### Alembic (БД миграции)
-```bash
-cd backend
-alembic upgrade head
-# или через env:
-source /etc/arena-coach/api.env
-alembic -c alembic.ini upgrade head
-```
-
-### KB документ — канонический формат
+**Канонический формат документа:**
 ```markdown
 ---
 slug: rm-vs-warrior-rdruid
@@ -249,26 +181,141 @@ difficulty: easy
 kill_target: druid
 sources:
   - { type: web, url: "https://..." }
+last_reviewed: 2026-05-12
+reviewer: <discord-id>
 ---
 
 ## Opener
-...
-## Alternative opener
-...
-## If enemy trinkets
-...
-## Common mistakes
-...
-## Key cooldowns to track
+Prose с inline [[ability:cheap-shot]].
+
+## Alternative opener / If enemy trinkets / Common mistakes / Key cooldowns to track
 ...
 ```
+
+---
+
+## GitHub Actions
+
+### `ci.yml`
+Matrix `[3.10, 3.11, 3.12]`, ruff + mypy --strict + pytest. Job `kb-validation` валидирует `kb/drafts/*.md` против схемы на Python 3.10.
+
+### `build-bridge-exe.yml`
+- Триггер: `push tags v*` или `workflow_dispatch`
+- Собирает `arena-bridge.exe` на `windows-latest` через PyInstaller
+- Создаёт GitHub Release с бинарником
+- Деплоит `.exe` на VPS (`/var/www/arena-coach/arena-bridge.exe`) по SSH
+
+### Секреты GitHub
+- `VPS_SSH_KEY` — приватный ключ для деплоя .exe на VPS
+
+### Выпустить первый релиз
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+# → Actions соберут .exe → задеплоят на VPS → /download/arena-bridge.exe заработает
+```
+
+---
+
+## Структура репозитория
+
+```
+arena-coach/
+├── addon/
+│   ├── ArenaCoach/               # ← ЕДИНСТВЕННАЯ актуальная папка аддона
+│   │   ├── ArenaCoach.toc
+│   │   ├── Core.lua
+│   │   ├── Tracker.lua
+│   │   └── UI.lua
+│   ├── INSTALL.md
+│   └── README.md
+├── backend/
+│   ├── arena_coach/
+│   │   ├── __main__.py           # CLI: validate-kb, run-bot, gen-key (НЕТ db upgrade!)
+│   │   ├── api/                  # FastAPI app, routes/events.py
+│   │   ├── bot/cogs/             # glossary, matchup, access, coach
+│   │   ├── kb/                   # loader, indexer, retriever, schema, render
+│   │   ├── access/               # whitelist, audit, Fernet crypto
+│   │   ├── orchestrator/
+│   │   │   ├── pipeline.py       # ← live, подключён к /v1/events
+│   │   │   └── client.py         # placeholder, нигде не используется
+│   │   └── shared/settings.py
+│   └── alembic.ini, alembic/
+├── bridge/
+│   ├── arena_bridge/             # chat_tail, sv_tail, normalizer, ws_client
+│   └── arena-bridge.spec         # PyInstaller
+├── ingest/
+│   └── arena_ingest/             # paste-parser, glossary-extract, CLI
+├── kb/
+│   ├── matchups/                 # одобренные (сейчас пусто)
+│   ├── drafts/                   # 22 черновика — индекс грузит их тоже
+│   ├── glossary/
+│   └── compositions.json
+├── tests/                        # ← единственный test-набор (113 тестов)
+├── conftest.py                   # общие фикстуры
+├── ops/
+│   ├── nginx/
+│   │   ├── pvpwowarena.surprise4you.dev.conf   # ⚠ НЕ копировать поверх VPS!
+│   │   └── html/                 # index, download, how-it-works
+│   ├── systemd/
+│   └── scripts/
+│       ├── server-setup.sh       # Idempotent VPS setup (Python 3.10, alembic напрямую)
+│       ├── deploy.sh             # rsync + restart
+│       └── cleanup-legacy.sh     # safety net (легаси уже удалён)
+├── docs/
+│   ├── architecture.md
+│   ├── decisions/                # ADR 0001-0003
+│   ├── phase-0-design.md
+│   ├── phase-1.5-translation-plan.md   # [PLANNED]
+│   ├── phase-4.5-voice.md              # [PLANNED]
+│   ├── investor-brief.md               # [ARCHIVED — pitch deck]
+│   └── strategy-data-acquisition.md
+├── pyproject.toml                # workspace marker + ruff/mypy/pytest config
+└── .github/workflows/            # ci.yml, build-bridge-exe.yml
+```
+
+**Легаси удалён (май 2026):** Phase 0 stub-папки `addon/core/`, `addon/ui/`, корневые `addon/ArenaCoach.{lua,toc}`, легаси `backend/tests/`, `bridge/tests/`, `ingest/tests/` — физически снесены. Скрипт `ops/scripts/cleanup-legacy.sh` оставлен как safety net (идемпотентный, если запустить ещё раз — ничего не найдёт).
+
+---
+
+## Ключевые технические детали
+
+### Python версии
+- **Локально / CI:** matrix 3.10, 3.11, 3.12
+- **На VPS:** Python **3.10** (apt-installed Ubuntu 22.04). Код должен работать на 3.10!
+- Использовать `from __future__ import annotations` для PEP-604 синтаксиса.
+
+### CLI команды backend
+```bash
+python -m arena_coach run-bot            # Discord-бот
+python -m arena_coach gen-key            # Fernet-ключ
+python -m arena_coach validate-kb <path> # валидация KB-документов
+# НЕТ команды db upgrade — alembic запускается напрямую (см. ниже)
+```
+
+### Alembic (БД миграции)
+```bash
+cd backend
+alembic -c alembic.ini upgrade head
+# на VPS:
+cd /opt/arena-coach/backend
+sudo -u arenacoach /opt/arena-coach/.venv/bin/alembic -c alembic.ini upgrade head
+```
+
+### Тесты
+```bash
+# Из корня репо:
+python -m pytest tests/ -v
+# 113 passed in ~1s
+```
+Конфиг в `pyproject.toml` (`testpaths=tests`, `asyncio_mode=auto`). `conftest.py` в корне даёт общие фикстуры (`kb_dir`, `fixtures_dir`, `mirlol_rm_file`, etc.).
 
 ### Whitelist роли
 - `viewer` — только KB read
 - `player` — реал-тайм подсказки
 - `admin` — мутация вайтлиста + аудит
 
-### Критические ограничения
+### Жёсткие правила
 - Никакой автоматизации нажатий / input injection (ToS Blizzard)
 - Только read-only телеметрия (chat log)
 - Все матчап-советы только из KB со ссылкой на источник
@@ -276,35 +323,11 @@ sources:
 
 ---
 
-## Что нужно сделать (backlog)
+## Nginx — критическое правило
 
-### Срочно (блокирует игроков)
-1. **Выпустить v0.1.0** — `git tag v0.1.0 && git push origin v0.1.0`
-   - Actions соберёт .exe → задеплоит на VPS → `/download/arena-bridge.exe` заработает
-2. **Одобрить хотя бы один матчап-драфт** — переместить из `kb/drafts/` в `kb/matchups/`
-   - `/matchup` сейчас возвращает пустой результат
-3. **Применить nginx патч на VPS** — корень (`/`) редиректит на `/download`, добавлен эндпоинт `/download/arena-bridge.exe`
+⚠ **НЕ копировать `ops/nginx/pvpwowarena.surprise4you.dev.conf` поверх `/etc/nginx/sites-available/*` на VPS!**
 
-### Среднесрочно
-4. **Протестировать аддон в игре** — скопировать `addon/ArenaCoach/` в WoW Interface/AddOns/
-5. **Разобрать дублирование аддона** — `addon/core/` vs `addon/ArenaCoach/`
-6. **Phase 4 bridge интеграция** — проверить что bridge корректно читает chat-frame события от аддона
-7. **Добавить ANTHROPIC_API_KEY** — сейчас заглушка `sk-ant-placeholder`
-
-### Технический долг
-8. `backend/__main__.py` не имеет команды `db upgrade` — добавить или задокументировать что использовать alembic напрямую
-9. CI workflow `ci.yml` — проверить что работает с Python 3.10 (VPS версия)
-
----
-
-## Nginx — важные нюансы
-
-Текущий конфиг на VPS отличается от локального (certbot дописал SSL строки).
-**Никогда не копировать локальный конфиг поверх VPS без проверки certbot-блоков.**
-
-Для обновления nginx на VPS использовать `deploy.sh` + вручную добавлять только изменённые location-блоки, или патчить Python-скриптом.
-
-Строки которые certbot добавил на VPS (не трогать):
+Certbot уже вписал в боевой конфиг SSL-блоки:
 ```nginx
 ssl_certificate     /etc/letsencrypt/live/pvpwowarena.surprise4you.dev/fullchain.pem;
 ssl_certificate_key /etc/letsencrypt/live/pvpwowarena.surprise4you.dev/privkey.pem;
@@ -312,12 +335,30 @@ include             /etc/letsencrypt/options-ssl-nginx.conf;
 ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
 ```
 
+В локальной версии файла они закомментированы (чтобы `nginx -t` локально не падал). Прямое `cp` затрёт SSL и сайт ляжет.
+
+Безопасный путь: обновлять только location-блоки руками, либо `deploy.sh` rsync-ает только статику в `/var/www/arena-coach/`, не трогая `/etc/nginx/`.
+
+---
+
+## Что нужно сделать (backlog)
+
+### Срочно (блокирует игроков)
+1. **Выпустить v0.1.0** — `git tag v0.1.0 && git push origin v0.1.0`
+   - Actions соберут .exe → задеплоят на VPS → `/download/arena-bridge.exe` заработает
+2. **Протестировать аддон в живой игре** — скопировать `addon/ArenaCoach/` в WoW Interface/AddOns/, зайти на арену, проверить что в `Logs/Chat-*.txt` появляются `[AC|...]` строки.
+3. **Phase 4 интеграция end-to-end** — bridge запустить против аддона, проверить что POST /v1/events доходят и Discord DM приходит.
+
+### Среднесрочно
+4. Добавить настоящий `ANTHROPIC_API_KEY` (сейчас заглушка `sk-ant-placeholder` — LLM-hint не работает, pipeline отправляет KB-текст напрямую).
+5. Промотировать драфты в `matchups/` или ввести `KB_INCLUDE_DRAFTS` env-flag.
+
 ---
 
 ## Ссылки
 
 - Сайт: https://pvpwowarena.surprise4you.dev
-- Страница скачивания: https://pvpwowarena.surprise4you.dev/download
-- Health check: https://pvpwowarena.surprise4you.dev/health
-- GitHub repo: https://github.com/pvpwowarena/arena-coach (приватный)
+- Скачать: https://pvpwowarena.surprise4you.dev/download
+- Health: https://pvpwowarena.surprise4you.dev/health
+- GitHub: https://github.com/pvpwowarena/arena-coach (публичный)
 - GitHub Secrets: https://github.com/pvpwowarena/arena-coach/settings/secrets/actions

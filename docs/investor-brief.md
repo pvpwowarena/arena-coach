@@ -1,5 +1,7 @@
 # Arena Coach — Investor / Stakeholder Brief
 
+**Статус (2026-05-15):** `[ARCHIVED — pitch deck]`. Маркетинговое описание для внешних читателей; не источник правды по архитектуре. Текущий стек: см. [`../CLAUDE.md`](../CLAUDE.md). Голосовые подсказки описаны как «vision» — в Phase 2-4 реализованы только текстовые DM.
+
 **One-liner:** Arena Coach turns high-level WoW PvP matchup knowledge into live tactical voice guidance during arena matches.
 
 *RU подпись:* AI-коуч для 2v2/3v3 арены **WoW: Burning Crusade Classic Anniversary**, превращающий гайды топ-стримеров в персональные голосовые подсказки по ходу матча.

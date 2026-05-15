@@ -39,9 +39,11 @@ $VENV/bin/pip install --upgrade pip --quiet
 $VENV/bin/pip install -e backend --quiet
 
 # Применяем DB миграции (idempotent)
+# ВАЖНО: `python -m arena_coach` НЕ имеет команды `db upgrade` — Alembic вызываем напрямую.
 cd backend
-$VENV/bin/python -m arena_coach db upgrade 2>/dev/null || \
-  (source /etc/arena-coach/api.env 2>/dev/null && $VENV/bin/python -m arena_coach db upgrade)
+$VENV/bin/alembic -c alembic.ini upgrade head 2>/dev/null || \
+  (set -a; source /etc/arena-coach/api.env 2>/dev/null; set +a; \
+   $VENV/bin/alembic -c alembic.ini upgrade head)
 cd ..
 
 # Обновляем статические HTML-страницы

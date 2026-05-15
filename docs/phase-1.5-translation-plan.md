@@ -1,6 +1,6 @@
 # Phase 1.5 — Russian prose translation
 
-**Статус:** planned, after Phase 1 push to GitHub.
+**Статус (2026-05-15):** `[PLANNED]` — после стабильной интеграции Phase 4 (bridge ⇄ backend ⇄ Discord DM). Не блокирует текущую работу. Документ актуален как план.
 **Why:** тестеры играют на русском, английская проза из Mirlol мешает быстрому чтению hint'а в матче. Нужен русский язык для прозы, но **не** для ability/spell-имён (они в EN везде — в игре, в Lua-API, в spell-database).
 
 ## Принципы перевода

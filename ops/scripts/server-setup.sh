@@ -16,7 +16,7 @@ DATA_DIR="/var/lib/arena-coach"
 CONF_DIR="/etc/arena-coach"
 NGINX_HTML_DIR="/var/www/arena-coach"
 SERVICE_USER="arenacoach"
-PYTHON="python3.11"
+PYTHON="python3.10"   # Ubuntu 22.04 LTS default — без deadsnakes PPA
 REPO_URL="https://github.com/pvpwowarena/arena-coach.git"
 
 GREEN="\033[0;32m"; YELLOW="\033[1;33m"; RED="\033[0;31m"; NC="\033[0m"
@@ -34,9 +34,9 @@ apt-get install -y --no-install-recommends \
     nginx \
     certbot \
     python3-certbot-nginx \
-    python3.11 \
-    python3.11-venv \
-    python3.11-dev \
+    python3.10 \
+    python3.10-venv \
+    python3.10-dev \
     python3-pip \
     git \
     curl \
@@ -93,13 +93,16 @@ sudo -u "$SERVICE_USER" "$VENV/bin/pip" install -e "$REPO_DIR/backend" --quiet
 info "Python зависимости установлены"
 
 # ── 7. База данных (первый запуск Alembic) ───────────────────────────────────
+# ВАЖНО: `python -m arena_coach` НЕ имеет команды `db upgrade` —
+# Alembic вызывается напрямую через бинарь venv.
 info "Применяю DB миграции (если нужны)..."
-# Нужен DATABASE_URL из env-файла — делаем только если файл уже есть
 if [[ -f "$CONF_DIR/api.env" ]]; then
     sudo -u "$SERVICE_USER" env "$(grep -v '^#' "$CONF_DIR/api.env" | xargs)" \
-        "$VENV/bin/python" -m arena_coach db upgrade || warn "alembic уже на head или api.env не полный"
+        bash -c "cd $REPO_DIR/backend && $VENV/bin/alembic -c alembic.ini upgrade head" \
+        || warn "alembic upgrade head упал — проверь DATABASE_URL и схему"
 else
-    warn "$CONF_DIR/api.env не найден — пропускаю миграции. Создай файл и запусти: sudo -u $SERVICE_USER $VENV/bin/python -m arena_coach db upgrade"
+    warn "$CONF_DIR/api.env не найден — пропускаю миграции. Создай файл и запусти:"
+    warn "  cd $REPO_DIR/backend && sudo -u $SERVICE_USER $VENV/bin/alembic -c alembic.ini upgrade head"
 fi
 
 # ── 8. Env-файлы (шаблоны, если не существуют) ───────────────────────────────
@@ -199,7 +202,7 @@ if grep -q "REPLACE_ME" "$CONF_DIR/api.env" 2>/dev/null; then
     echo -e "${YELLOW}  НУЖНО СДЕЛАТЬ:${NC}"
     echo "  1. Заполнить $CONF_DIR/api.env (токены Discord, Anthropic, Fernet)"
     echo "  2. Запустить:"
-    echo "     sudo -u $SERVICE_USER $VENV/bin/python -m arena_coach db upgrade"
+    echo "     cd $REPO_DIR/backend && sudo -u $SERVICE_USER $VENV/bin/alembic -c alembic.ini upgrade head"
     echo "     sudo systemctl start arena-coach-api arena-coach-bot"
     echo "     sudo systemctl status arena-coach-api arena-coach-bot"
     echo ""

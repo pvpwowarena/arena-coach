@@ -17,13 +17,6 @@ authors = [{ name = "Arena Coach Dev" }]
 target-version = "py310"
 line-length = 100
 src = ["backend", "bridge", "ingest"]
-# Legacy tests/ под-папки внутри backend/bridge/ingest остались как placeholder'ы
-# (sandbox-сессия не дала их удалить). Реальные тесты — в корневом tests/.
-extend-exclude = [
-  "backend/tests",
-  "bridge/tests",
-  "ingest/tests",
-]
 
 [tool.ruff.lint]
 select = [
@@ -67,13 +60,6 @@ warn_unreachable = true
 namespace_packages = true
 explicit_package_bases = true
 mypy_path = "backend:bridge:ingest"
-# Легаси одноимённые tests-пакеты в backend/bridge/ingest — placeholder'ы,
-# sandbox-сессия не дала их удалить. Реальные тесты — в корневом tests/.
-exclude = [
-  "backend/tests/",
-  "bridge/tests/",
-  "ingest/tests/",
-]
 
 [[tool.mypy.overrides]]
 # Сторонние пакеты без стабов
@@ -103,13 +89,7 @@ warn_unused_ignores = false
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = ["tests"]
-# Старые backend/tests и ingest/tests оставлены как scaffolding-маркеры (sandbox не даёт
-# удалить); реальный тест-набор лежит в корневом arena-coach/tests/. norecursedirs
-# не даёт pytest подобрать их обратно через discovery.
 norecursedirs = [
-  "backend/tests",
-  "bridge/tests",
-  "ingest/tests",
   ".venv",
   "venv",
   "__pycache__",

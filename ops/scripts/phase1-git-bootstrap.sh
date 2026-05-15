@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
-# Phase 1 git bootstrap — запусти у себя на Mac'е из корня arena-coach/.
+# Phase 1 git bootstrap — ARCHIVED one-shot скрипт.
 #
-# Что делает:
-# 1. Очищает любой полу-инициализированный .git/ от sandbox-сессии.
-# 2. git init -b main + конфиг автора.
-# 3. Делает 5 осмысленных коммитов по логическим частям Phase 1.
-# 4. Печатает инструкции для git remote add + push на твой GitHub.
+# Использовался один раз для создания первых 5 осмысленных коммитов Phase 1.
+# Репо уже инициализирован и опубликован — НЕ запускать повторно (затрёт git history).
+# Оставлен как исторический артефакт.
 #
-# Запуск:
-#   cd /Users/surprise/Downloads/Claude/PVP\ WOW\ Arena/PVP\ WoW\ Arena/arena-coach
-#   bash ops/scripts/phase1-git-bootstrap.sh
-#
-# Если ругается на `bash: bash: command not found` — сначала `chmod +x ops/scripts/*.sh`.
+# Если нужно реально пересоздать историю (форсированный rebase) — копировать руками
+# в новый файл с явным `--force` подтверждением, не использовать этот скрипт.
 
 set -euo pipefail
 
@@ -122,8 +117,6 @@ git add \
   backend/arena_coach/access/ \
   backend/arena_coach/orchestrator/ \
   backend/arena_coach/shared/ \
-  backend/tests/ \
-  ingest/tests/ \
   tests/ \
   ops/ \
   || true  # некоторые пути могут не существовать на ровном месте, ок

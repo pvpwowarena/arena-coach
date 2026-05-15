@@ -1,7 +1,7 @@
-"""Корневой conftest — общие фикстуры для всех test-наборов (backend, ingest).
+"""Корневой conftest — общие фикстуры для test-набора.
 
-Расположен на корне `arena-coach/`, чтобы избежать конфликта одноимённых `tests/`
-пакетов в backend/ и ingest/.
+Расположен на корне `arena-coach/`, чтобы pytest конфиг (`testpaths=["tests"]`)
+видел тот же набор фикстур во всех модулях.
 """
 
 from __future__ import annotations
@@ -39,8 +39,8 @@ def matchups_dir(kb_dir: Path) -> Path:
 
 @pytest.fixture
 def fixtures_dir(repo_root: Path) -> Path:
-    """Тестовые фикстуры backend'а."""
-    return repo_root / "backend" / "tests" / "fixtures"
+    """Тестовые фикстуры — лежат в tests/fixtures/."""
+    return repo_root / "tests" / "fixtures"
 
 
 @pytest.fixture

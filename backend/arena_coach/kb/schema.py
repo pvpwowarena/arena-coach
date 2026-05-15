@@ -2,7 +2,7 @@
 
 Канон: см. `docs/phase-0-design.md` §3. Любое изменение схемы обязано:
 1. Бампнуть `schema_version` и добавить миграционный скрипт в `kb/migrations/`.
-2. Обновить тесты `backend/tests/unit/test_kb_schema.py`.
+2. Обновить тесты `tests/test_kb_schema.py`.
 """
 
 from __future__ import annotations

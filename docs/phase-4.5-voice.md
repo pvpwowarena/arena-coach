@@ -1,6 +1,6 @@
 # Phase 4.5 — Voice hints в Discord voice channel
 
-**Статус:** planned, после стабильной работы text-hint'ов в Phase 4.
+**Статус (2026-05-15):** `[PLANNED, NOT STARTED]` — после Phase 4 (text-hints в DM). Документ актуален как план будущей фичи. Не блокирует основную поставку.
 **Why:** в арена-матче читать Discord-embed физически некогда — глаза на цели. Голосовая подсказка («Druid trinket → kidney up») воспринимается без отрыва от боя.
 
 ## Принципы

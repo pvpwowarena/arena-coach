@@ -3,9 +3,15 @@
 from __future__ import annotations
 
 import asyncio
+import datetime
 from pathlib import Path
 
 from arena_bridge.chat_tail import ChatTailer, get_bridge_timestamp, parse_ac_line
+
+
+def _today_chat_filename() -> str:
+    """Имя файла, который ChatTailer ожидает увидеть «на сегодня»."""
+    return f"Chat-{datetime.date.today().strftime('%Y-%m-%d')}.txt"
 
 # ── parse_ac_line ─────────────────────────────────────────────────────────────
 
@@ -50,7 +56,7 @@ class TestGetBridgeTimestamp:
 class TestChatTailer:
     async def test_picks_up_ac_lines(self, tmp_path: Path) -> None:
         """Tailer находит [AC|...] строки в файле написанном после старта."""
-        log_file = tmp_path / "Chat-2026-05-14.txt"
+        log_file = tmp_path / _today_chat_filename()
         log_file.write_text(
             "[12:00:00] OldLine: ignored\n",
             encoding="utf-8",
@@ -81,7 +87,7 @@ class TestChatTailer:
 
     async def test_ignores_lines_before_start(self, tmp_path: Path) -> None:
         """Строки в файле до запуска tailer должны быть пропущены."""
-        log_file = tmp_path / "Chat-2026-05-14.txt"
+        log_file = tmp_path / _today_chat_filename()
         # Уже есть [AC|...] строки — они должны быть пропущены
         log_file.write_text(
             "[11:00:00] To Player: [AC|ARENA_START|2v2|ROGUE/HUMAN]\n"
@@ -110,10 +116,7 @@ class TestChatTailer:
 
     async def test_waits_for_file(self, tmp_path: Path) -> None:
         """Tailer ждёт пока файл появится (создаём файл с текущей датой)."""
-        import datetime
-
-        today_str = datetime.date.today().strftime("%Y-%m-%d")
-        log_file = tmp_path / f"Chat-{today_str}.txt"
+        log_file = tmp_path / _today_chat_filename()
 
         results: list[str] = []
         tailer = ChatTailer(log_dir=tmp_path, poll_interval=0.05)
