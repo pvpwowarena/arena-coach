@@ -13,6 +13,7 @@ def _today_chat_filename() -> str:
     """Имя файла, который ChatTailer ожидает увидеть «на сегодня»."""
     return f"Chat-{datetime.date.today().strftime('%Y-%m-%d')}.txt"
 
+
 # ── parse_ac_line ─────────────────────────────────────────────────────────────
 
 
