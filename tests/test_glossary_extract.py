@@ -74,6 +74,6 @@ class TestExtractFromMirlolFiles:
         self, mirlol_rm_file: Path, mirlol_rp_file: Path
     ) -> None:
         result = extract_from_files([mirlol_rm_file, mirlol_rp_file])
-        assert not any(
-            "classicon" in slug for slug in result
-        ), "Класс-иконки не должны попадать в abilities-глоссарий"
+        assert not any("classicon" in slug for slug in result), (
+            "Класс-иконки не должны попадать в abilities-глоссарий"
+        )
