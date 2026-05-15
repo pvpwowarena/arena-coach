@@ -18,17 +18,13 @@ repos:
         args: [--fix]
       - id: ruff-format
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - pydantic>=2.7
-          - types-PyYAML
-        args: ["--config-file=pyproject.toml"]
-        pass_filenames: false
-        # mypy запускается на всех корневых пакетах через mypy_path в pyproject
-        entry: mypy backend bridge ingest
+  # NB: mypy сознательно НЕ в pre-commit — у проекта много runtime-зависимостей
+  # (sqlalchemy, fastapi, httpx, anthropic, discord.py, pydantic-settings, cryptography,
+  # alembic), которые надо иметь установленными в локальном venv. На CI это работает
+  # из коробки (`pip install -e backend -e bridge -e ingest` перед mypy). Если хочешь
+  # mypy локально — поставь зависимости и запускай руками:
+  #   python -m pip install -e backend -e bridge -e ingest "mypy>=1.11,<2" types-PyYAML
+  #   mypy backend bridge ingest
 
   - repo: local
     hooks:
