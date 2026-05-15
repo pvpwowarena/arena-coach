@@ -45,12 +45,13 @@ apt-get install -y --no-install-recommends \
 
 # ── 2. Firewall ───────────────────────────────────────────────────────────────
 info "Настраиваю UFW..."
-ufw --force reset
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow ssh        # 22/tcp
-ufw allow http       # 80/tcp (ACME challenge + redirect)
-ufw allow https      # 443/tcp
+# НЕ делаем reset — сохраняем существующие правила (Webmin и др.)
+ufw default deny incoming  2>/dev/null || true
+ufw default allow outgoing 2>/dev/null || true
+ufw allow ssh              # 22/tcp
+ufw allow http             # 80/tcp (ACME challenge + redirect)
+ufw allow https            # 443/tcp
+ufw allow 10000/tcp        # Webmin
 # FastAPI слушает только на 127.0.0.1 — снаружи НЕ открываем 8000
 ufw --force enable
 ufw status verbose

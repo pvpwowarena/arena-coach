@@ -3,214 +3,517 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arena Coach — Скачать Bridge</title>
+  <title>Скачать — Arena Coach</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg:        #0b0e14;
+      --surface:   #13181f;
+      --surface2:  #1a2030;
+      --border:    #252d3a;
+      --border2:   #2e3a4e;
+      --text:      #dde4ee;
+      --text-dim:  #7a8799;
+      --text-mute: #4a5568;
+      --gold:      #c8980a;
+      --gold-soft: #e8b84b;
+      --gold-glow: #c8980a22;
+      --blue:      #4a9eff;
+      --green:     #3fb950;
+      --orange:    #f0883e;
+    }
+
     body {
-      background: #0d1117;
-      color: #e6edf3;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 14, 20, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--gold-soft);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--surface); }
+
+    .nav-cta {
+      background: var(--gold);
+      color: #0b0e14;
+      font-weight: 600;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: background 0.15s;
+      margin-left: 0.5rem;
+    }
+    .nav-cta:hover { background: var(--gold-soft); }
+
+    /* ── Layout ── */
+    .page-header {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 4rem 2rem 2rem;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+
+    .page-header h1 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      color: #f0f6fc;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .page-header p {
+      font-size: 1rem;
+      color: var(--text-dim);
+      max-width: 520px;
+      line-height: 1.7;
+    }
+
+    /* ── Steps container ── */
+    .steps-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 2rem 5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Step card ── */
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .step-card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-num-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gold-glow);
+      border: 1.5px solid var(--gold);
+      color: var(--gold-soft);
+      font-weight: 700;
+      font-size: 0.8rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
+      flex-shrink: 0;
     }
 
-    .card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      max-width: 640px;
-      width: 100%;
-      padding: 2.5rem;
-    }
-
-    .badge {
-      display: inline-block;
-      background: #1f6feb33;
-      color: #58a6ff;
-      border: 1px solid #1f6feb;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 2px 10px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-    }
-
-    h1 {
-      font-size: 1.75rem;
+    .step-card-header h2 {
+      font-size: 1rem;
       font-weight: 700;
       color: #f0f6fc;
-      margin-bottom: 0.5rem;
+      flex: 1;
     }
 
-    .subtitle {
-      color: #8b949e;
-      font-size: 0.95rem;
-      margin-bottom: 2rem;
+    .os-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 100px;
+      letter-spacing: 0.04em;
+      background: var(--surface2);
+      color: var(--text-dim);
+      border: 1px solid var(--border2);
+    }
+
+    .step-card-body {
+      padding: 1.5rem;
+    }
+
+    /* ── Download button ── */
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--green);
+      color: #0b0e14;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 1.4rem;
+      font-size: 0.975rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s;
+      margin-bottom: 1rem;
+    }
+    .download-btn:hover { background: #56d364; transform: translateY(-1px); }
+
+    .download-meta {
+      font-size: 0.8rem;
+      color: var(--text-mute);
+      margin-bottom: 1.5rem;
+    }
+    .download-meta a { color: var(--blue); text-decoration: none; }
+    .download-meta a:hover { text-decoration: underline; }
+
+    /* ── Install steps ── */
+    .install-steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0;
+    }
+
+    .install-step {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      font-size: 0.9rem;
+      color: var(--text-dim);
       line-height: 1.5;
     }
 
-    .download-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: #238636;
-      color: #fff;
-      border: 1px solid #2ea043;
-      border-radius: 8px;
-      padding: 0.85rem 1.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: background 0.15s;
-      margin-bottom: 0.75rem;
-      width: fit-content;
-    }
-    .download-btn:hover { background: #2ea043; }
-    .download-btn svg { flex-shrink: 0; }
-
-    .alt-link {
-      font-size: 0.85rem;
-      color: #8b949e;
-      margin-bottom: 2.5rem;
-    }
-    .alt-link a { color: #58a6ff; text-decoration: none; }
-    .alt-link a:hover { text-decoration: underline; }
-
-    h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #f0f6fc;
-      margin-bottom: 0.75rem;
+    .install-step-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-mute);
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 0 5px;
+      line-height: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
 
-    ol {
-      padding-left: 1.25rem;
-      color: #c9d1d9;
-      font-size: 0.9rem;
-      line-height: 1.8;
-      margin-bottom: 2rem;
+    code {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.82em;
+      color: #79c0ff;
     }
-    ol li { margin-bottom: 0.25rem; }
 
+    /* ── Code block ── */
     .code-block {
-      background: #0d1117;
-      border: 1px solid #30363d;
+      background: var(--bg);
+      border: 1px solid var(--border);
       border-radius: 8px;
       padding: 1rem 1.25rem;
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       font-size: 0.82rem;
       color: #c9d1d9;
-      line-height: 1.7;
-      margin-bottom: 1.5rem;
+      line-height: 1.8;
       overflow-x: auto;
       white-space: pre;
+      margin-top: 1.25rem;
     }
-    .code-block .comment { color: #6e7681; }
-    .code-block .key     { color: #79c0ff; }
-    .code-block .value   { color: #a5d6ff; }
-    .code-block .cmd     { color: #7ee787; }
+    .code-block .cm  { color: #6e7681; }
+    .code-block .key { color: #79c0ff; }
+    .code-block .val { color: #a5d6ff; }
+    .code-block .cmd { color: #7ee787; }
+    .code-block .dim { color: #4a5568; }
 
+    /* ── Divider ── */
+    .inner-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    /* ── Sub-section heading ── */
+    .sub-heading {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #f0f6fc;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Warning note ── */
     .note {
-      background: #161b2299;
-      border-left: 3px solid #f0883e;
-      border-radius: 0 6px 6px 0;
+      background: #9e6a0311;
+      border-left: 3px solid var(--orange);
+      border-radius: 0 8px 8px 0;
       padding: 0.75rem 1rem;
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       color: #e3b341;
       line-height: 1.5;
+      margin-top: 1.25rem;
+    }
+    .note strong { font-weight: 700; }
+
+    /* ── Check section ── */
+    .check-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
     }
 
-    .divider {
-      border: none;
-      border-top: 1px solid #21262d;
-      margin: 2rem 0;
+    .check-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      margin-bottom: 0.4rem;
     }
 
+    .check-card p {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Footer ── */
     footer {
-      margin-top: 2rem;
+      border-top: 1px solid var(--border);
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
       font-size: 0.8rem;
-      color: #484f58;
-      text-align: center;
+      color: var(--text-mute);
     }
-    footer a { color: #58a6ff; text-decoration: none; }
+
+    footer a {
+      color: var(--text-mute);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer a:hover { color: var(--text-dim); }
+
+    .footer-links { display: flex; gap: 1.25rem; }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1.25rem; }
+      .page-header { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .steps-container { padding-left: 1.25rem; padding-right: 1.25rem; }
+      footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="badge">WoW TBC Arena</div>
-    <h1>⚔️ Arena Coach</h1>
-    <p class="subtitle">
-      Реал-тайм подсказки для арены прямо в Discord DM.
-      Нужно установить два компонента: аддон в WoW и bridge на Windows.
-    </p>
 
-    <!-- Аддон -->
-    <h2>📦 Шаг 1 — Аддон для WoW</h2>
-    <a class="download-btn"
-       href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/ArenaCoach.zip"
-       download="ArenaCoach.zip">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
+  <!-- ── Nav ── -->
+  <nav>
+    <a class="nav-logo" href="/">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+        <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+        <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+        <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+        <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/>
+        <path d="M15.5 9H17v1.5c0 .83-.67 1.5-1.5 1.5S14 11.33 14 10.5 14.67 9 15.5 9z"/>
+        <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/>
+        <path d="M8.5 15H7v-1.5c0-.83.67-1.5 1.5-1.5S10 12.67 10 13.5 9.33 15 8.5 15z"/>
       </svg>
-      Скачать ArenaCoach.zip
+      Arena Coach
     </a>
+    <div class="nav-links">
+      <a class="nav-link" href="/how-it-works">Как работает</a>
+      <a class="nav-cta" href="/download">Скачать</a>
+    </div>
+  </nav>
 
-    <ol style="margin-top:0.75rem">
-      <li>Распаковать архив — внутри папка <code>ArenaCoach</code></li>
-      <li>Скопировать её в <code>World of Warcraft\_classic_era_\Interface\AddOns\</code></li>
-      <li>Перезапустить WoW или ввести <code>/reload</code> — аддон появится в списке</li>
-    </ol>
+  <!-- ── Header ── -->
+  <header class="page-header">
+    <div class="section-label">Установка</div>
+    <h1>Скачать Arena Coach</h1>
+    <p>Два компонента: аддон в папку WoW и bridge.exe на Windows. Следуй инструкции — займёт 5 минут.</p>
+  </header>
 
-    <hr class="divider">
+  <!-- ── Steps ── -->
+  <main class="steps-container">
 
-    <!-- Bridge -->
-    <h2>🔌 Шаг 2 — Bridge (фоновая программа)</h2>
-    <a class="download-btn"
-       href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/arena-bridge.exe"
-       download="arena-bridge.exe">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
-      </svg>
-      Скачать arena-bridge.exe
-    </a>
+    <!-- Шаг 1: Аддон -->
+    <div class="step-card">
+      <div class="step-card-header">
+        <div class="step-num-badge">1</div>
+        <h2>Аддон для WoW</h2>
+        <span class="os-badge">WoW TBC 2.4.3</span>
+      </div>
+      <div class="step-card-body">
 
-    <ol style="margin-top:0.75rem">
-      <li>Положить <strong>arena-bridge.exe</strong> в удобную папку (например <code>C:\ArenaCoach\</code>)</li>
-      <li>Создать файл <strong>bridge.env</strong> в той же папке (токен получить у администратора в Discord)</li>
-      <li>Запустить <code>arena-bridge.exe --check-config</code> для проверки</li>
-      <li>Запустить <code>arena-bridge.exe</code> перед игрой — оставить окно открытым</li>
-    </ol>
+        <a class="download-btn"
+           href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/ArenaCoach.zip">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
+          </svg>
+          Скачать ArenaCoach.zip
+        </a>
 
-    <h2>📄 Пример bridge.env</h2>
-    <div class="code-block"><span class="comment"># Скопируй в bridge.env рядом с arena-bridge.exe</span>
+        <div class="download-meta">
+          GitHub Releases ·
+          <a href="https://github.com/pvpwowarena/arena-coach/releases/latest" target="_blank" rel="noopener">
+            посмотреть все версии
+          </a>
+        </div>
 
-<span class="key">WOW_INSTALL_PATH</span>=<span class="value">C:\Program Files (x86)\World of Warcraft\_classic_era_</span>
-<span class="key">BACKEND_URL</span>=<span class="value">https://pvpwowarena.surprise4you.dev</span>
-<span class="key">BRIDGE_BEARER_TOKEN</span>=<span class="value">вставить-токен-от-администратора</span>
-<span class="key">BRIDGE_PLAYER_NAME</span>=<span class="value">ИмяПерсонажа</span></div>
+        <ul class="install-steps">
+          <li class="install-step">
+            <span class="install-step-num">1</span>
+            Распаковать архив — внутри папка <code>ArenaCoach</code>
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">2</span>
+            Скопировать её в <code>World of Warcraft\_classic_era_\Interface\AddOns\</code>
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">3</span>
+            Запустить WoW (или <code>/reload</code> в игре) — аддон появится в списке аддонов
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">4</span>
+            Убедиться что аддон включён — маленький значок «connected» появится в правом углу экрана
+          </li>
+        </ul>
 
-    <h2>✅ Проверка</h2>
-    <div class="code-block"><span class="comment"># В cmd или PowerShell из папки с .exe:</span>
-<span class="cmd">arena-bridge.exe --check-config</span>
-
-<span class="comment"># Ожидаемый вывод:</span>
-<span class="comment"># ✓ Конфигурация корректна</span></div>
-
-    <div class="note">
-      ⚠️ Токен выдаёт администратор командой <strong>/access add</strong> в Discord-сервере.
-      Не передавай токен другим игрокам — он привязан к твоему персонажу.
+      </div>
     </div>
 
-    <footer>
-      Arena Coach — read-only телеметрия, не нарушает Blizzard ToS &nbsp;·&nbsp;
+    <!-- Шаг 2: Bridge -->
+    <div class="step-card">
+      <div class="step-card-header">
+        <div class="step-num-badge">2</div>
+        <h2>Bridge — фоновая программа</h2>
+        <span class="os-badge">Windows x64</span>
+      </div>
+      <div class="step-card-body">
+
+        <a class="download-btn"
+           href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/arena-bridge.exe">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
+          </svg>
+          Скачать arena-bridge.exe
+        </a>
+
+        <div class="download-meta">
+          GitHub Releases ·
+          <a href="https://github.com/pvpwowarena/arena-coach/releases/latest" target="_blank" rel="noopener">
+            посмотреть все версии
+          </a>
+        </div>
+
+        <ul class="install-steps">
+          <li class="install-step">
+            <span class="install-step-num">1</span>
+            Положить <code>arena-bridge.exe</code> в удобную папку, например <code>C:\ArenaCoach\</code>
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">2</span>
+            Создать файл <code>bridge.env</code> в той же папке — токен получить у администратора в Discord
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">3</span>
+            Проверить конфигурацию: запустить <code>arena-bridge.exe --check-config</code>
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">4</span>
+            Перед игрой запустить <code>arena-bridge.exe</code> и оставить окно открытым
+          </li>
+        </ul>
+
+        <hr class="inner-divider">
+
+        <div class="sub-heading">Пример bridge.env</div>
+        <div class="code-block"><span class="cm"># Скопируй в bridge.env рядом с arena-bridge.exe</span>
+<span class="dim">#</span>
+<span class="key">WOW_INSTALL_PATH</span>    = <span class="val">C:\Program Files (x86)\World of Warcraft\_classic_era_</span>
+<span class="key">BACKEND_URL</span>         = <span class="val">https://pvpwowarena.surprise4you.dev</span>
+<span class="key">BRIDGE_BEARER_TOKEN</span> = <span class="val">вставить-токен-от-администратора</span>
+<span class="key">BRIDGE_PLAYER_NAME</span>  = <span class="val">ИмяПерсонажа</span></div>
+
+        <div class="note">
+          ⚠ Токен выдаёт администратор командой <strong>/access add</strong> в Discord-сервере.
+          Не передавай токен другим — он привязан к твоему персонажу и реалму.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Проверка -->
+    <div class="check-card">
+      <h2>✅ Проверка</h2>
+      <p>Запусти в cmd или PowerShell из папки с .exe — должен увидеть зелёное подтверждение.</p>
+      <div class="code-block"><span class="cm"># В cmd / PowerShell:</span>
+<span class="cmd">arena-bridge.exe --check-config</span>
+
+<span class="cm"># Ожидаемый вывод:</span>
+<span class="cmd">✓ WoW install path: found</span>
+<span class="cmd">✓ Backend reachable: 200 OK</span>
+<span class="cmd">✓ Token accepted</span>
+<span class="cmd">✓ Конфигурация корректна</span></div>
+    </div>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <span>Arena Coach — read-only телеметрия, не нарушает Blizzard ToS</span>
+    <div class="footer-links">
+      <a href="/">Главная</a>
+      <a href="/how-it-works">Как работает</a>
       <a href="https://github.com/pvpwowarena/arena-coach" target="_blank" rel="noopener">GitHub</a>
-    </footer>
-  </div>
+    </div>
+  </footer>
+
 </body>
 </html>

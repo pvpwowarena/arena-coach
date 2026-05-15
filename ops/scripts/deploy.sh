@@ -44,9 +44,11 @@ $VENV/bin/python -m arena_coach db upgrade 2>/dev/null || \
   (source /etc/arena-coach/api.env 2>/dev/null && $VENV/bin/python -m arena_coach db upgrade)
 cd ..
 
-# Обновляем /download страницу
-sudo cp /opt/arena-coach/ops/nginx/html/download.html /var/www/arena-coach/download.html
-sudo chown www-data:www-data /var/www/arena-coach/download.html
+# Обновляем статические HTML-страницы
+sudo cp /opt/arena-coach/ops/nginx/html/download.html     /var/www/arena-coach/download.html
+sudo cp /opt/arena-coach/ops/nginx/html/index.html        /var/www/arena-coach/index.html
+sudo cp /opt/arena-coach/ops/nginx/html/how-it-works.html /var/www/arena-coach/how-it-works.html
+sudo chown www-data:www-data /var/www/arena-coach/*.html
 
 # Перезапускаем оба сервиса
 sudo systemctl restart arena-coach-api.service arena-coach-bot.service

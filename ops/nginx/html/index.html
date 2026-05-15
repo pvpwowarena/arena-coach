@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arena Coach — Реал-тайм подсказки для TBC арены</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0e14;
+      --surface:   #13181f;
+      --surface2:  #1a2030;
+      --border:    #252d3a;
+      --border2:   #2e3a4e;
+      --text:      #dde4ee;
+      --text-dim:  #7a8799;
+      --text-mute: #4a5568;
+      --gold:      #c8980a;
+      --gold-soft: #e8b84b;
+      --gold-glow: #c8980a22;
+      --blue:      #4a9eff;
+      --green:     #3fb950;
+      --red:       #f85149;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 14, 20, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--gold-soft);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .nav-logo svg { opacity: 0.9; }
+
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--surface); }
+
+    .nav-cta {
+      background: var(--gold);
+      color: #0b0e14;
+      font-weight: 600;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: background 0.15s;
+      margin-left: 0.5rem;
+    }
+    .nav-cta:hover { background: var(--gold-soft); }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 6rem 2rem 5rem;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--gold-glow);
+      border: 1px solid var(--gold);
+      color: var(--gold-soft);
+      border-radius: 100px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+      color: #f0f6fc;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--gold-soft) 0%, #f0c040 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.125rem;
+      color: var(--text-dim);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--gold);
+      color: #0b0e14;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: var(--gold-soft); transform: translateY(-1px); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--text-dim);
+      background: var(--surface);
+      transform: translateY(-1px);
+    }
+
+    /* ── Divider ── */
+    .section-divider {
+      width: 100%;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Features ── */
+    .features {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #f0f6fc;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    .section-sub {
+      color: var(--text-dim);
+      font-size: 0.975rem;
+      margin-bottom: 3rem;
+      max-width: 520px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .feature-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gold-glow);
+      border: 1px solid var(--gold)44;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .feature-card h3 {
+      font-size: 0.975rem;
+      font-weight: 600;
+      color: #f0f6fc;
+      margin-bottom: 0.4rem;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── How it works preview ── */
+    .hiw-preview {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .flow-strip {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .flow-node-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .flow-node-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .flow-arrow {
+      color: var(--text-mute);
+      font-size: 1.25rem;
+      margin: 0 0.25rem;
+      flex-shrink: 0;
+      padding-bottom: 1.4rem;
+    }
+
+    .flow-cta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .flow-cta-link {
+      font-size: 0.875rem;
+      color: var(--blue);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .flow-cta-link:hover { text-decoration: underline; }
+
+    /* ── CTA strip ── */
+    .cta-strip {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cta-strip-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-strip h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      margin-bottom: 0.35rem;
+    }
+
+    .cta-strip p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-mute);
+    }
+
+    footer a {
+      color: var(--text-mute);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer a:hover { color: var(--text-dim); }
+
+    .footer-links {
+      display: flex;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 600px) {
+      .hero { padding: 4rem 1.25rem 3.5rem; }
+      .features, .hiw-preview { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .cta-strip-inner { padding-left: 1.25rem; padding-right: 1.25rem; }
+      footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav>
+    <a class="nav-logo" href="/">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+        <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+        <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+        <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+        <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/>
+        <path d="M15.5 9H17v1.5c0 .83-.67 1.5-1.5 1.5S14 11.33 14 10.5 14.67 9 15.5 9z"/>
+        <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/>
+        <path d="M8.5 15H7v-1.5c0-.83.67-1.5 1.5-1.5S10 12.67 10 13.5 9.33 15 8.5 15z"/>
+      </svg>
+      Arena Coach
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="/how-it-works">Как работает</a>
+      <a class="nav-cta" href="/download">Скачать</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="hero-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+      WoW Burning Crusade Classic · 2v2 / 3v3
+    </div>
+    <h1>Арена на <span>другом уровне</span></h1>
+    <p>
+      Реал-тайм подсказки по матчапам прямо в Discord DM — пока идёт бой.
+      Аддон читает combat log, bridge передаёт события, бот отвечает советом.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="/download">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
+        </svg>
+        Скачать
+      </a>
+      <a class="btn-secondary" href="/how-it-works">
+        Как это работает
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ── Features ── -->
+  <section class="features">
+    <div class="section-label">Возможности</div>
+    <h2 class="section-title">Всё, что нужно команде арены</h2>
+    <p class="section-sub">Система собрана из трёх компонентов, которые работают вместе без лишних действий с вашей стороны.</p>
+
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Реал-тайм подсказки</h3>
+        <p>Бот присылает советы по матчапу прямо в Discord DM в момент начала боя — опенер, post-trinket плей, ключевые CD.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📖</div>
+        <h3>База знаний TBC</h3>
+        <p>Матчапы 2v2/3v3 из топ-источников: Mirlol, tbcpvp.com, стримы. Каждый совет со ссылкой на оригинал.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Вайтлист-доступ</h3>
+        <p>Только игроки из вашего списка. Доступ выдаётся через Discord-команду и привязывается к персонажу.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🛡</div>
+        <h3>Не нарушает ToS</h3>
+        <p>Только read-only телеметрия chat log. Никакого input injection, никакой автоматизации действий за игрока.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>Discord-бот</h3>
+        <p>Slash-команды: <code>/matchup</code>, <code>/opener</code>, <code>/glossary</code> — можно спросить совет вне боя тоже.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🪟</div>
+        <h3>Простая установка</h3>
+        <p>Аддон в папку WoW, bridge.exe рядом с bridge.env — и готово. Никаких драйверов и сложных настроек.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ── How it works preview ── -->
+  <section class="hiw-preview" style="padding-top: 5rem;">
+    <div class="section-label">Архитектура</div>
+    <h2 class="section-title">Как это работает</h2>
+    <p class="section-sub" style="margin-bottom: 1.75rem;">Пять звеньев одной цепи — от combat log до сообщения в Discord.</p>
+
+    <div class="flow-strip">
+      <div class="flow-node">
+        <div class="flow-node-icon">🎮</div>
+        <div class="flow-node-label">WoW Client</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">🔌</div>
+        <div class="flow-node-label">Lua Addon</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">📄</div>
+        <div class="flow-node-label">Chat Log</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">🪟</div>
+        <div class="flow-node-label">bridge.exe</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">⚙️</div>
+        <div class="flow-node-label">FastAPI</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">💬</div>
+        <div class="flow-node-label">Discord DM</div>
+      </div>
+    </div>
+
+    <div class="flow-cta">
+      <a class="flow-cta-link" href="/how-it-works">
+        Подробная диаграмма и описание каждого шага
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── CTA strip ── -->
+  <div style="padding: 0 0 5rem; max-width: 960px; margin: 0 auto; padding: 5rem 2rem;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap;">
+      <div>
+        <h2 style="font-size: 1.3rem; font-weight: 700; color: #f0f6fc; margin-bottom: 0.35rem;">Готов попробовать?</h2>
+        <p style="font-size: 0.9rem; color: var(--text-dim);">Скачай аддон и bridge, запроси токен у администратора — и в бой.</p>
+      </div>
+      <a class="btn-primary" href="/download" style="white-space: nowrap;">Перейти к скачиванию →</a>
+    </div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <hr class="section-divider">
+  <footer>
+    <span>© 2026 Arena Coach — WoW TBC 2.4.3</span>
+    <div class="footer-links">
+      <a href="/how-it-works">Как работает</a>
+      <a href="/download">Скачать</a>
+      <a href="https://github.com/pvpwowarena/arena-coach" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </footer>
+
+</body>
+</html>

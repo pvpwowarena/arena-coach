@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Как это работает — Arena Coach</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0e14;
+      --surface:   #13181f;
+      --surface2:  #1a2030;
+      --border:    #252d3a;
+      --border2:   #2e3a4e;
+      --text:      #dde4ee;
+      --text-dim:  #7a8799;
+      --text-mute: #4a5568;
+      --gold:      #c8980a;
+      --gold-soft: #e8b84b;
+      --gold-glow: #c8980a22;
+      --blue:      #4a9eff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 14, 20, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--gold-soft);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--surface); }
+    .nav-link.active { color: var(--text); }
+
+    .nav-cta {
+      background: var(--gold);
+      color: #0b0e14;
+      font-weight: 600;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: background 0.15s;
+      margin-left: 0.5rem;
+    }
+    .nav-cta:hover { background: var(--gold-soft); }
+
+    /* ── Page header ── */
+    .page-header {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 4rem 2rem 2.5rem;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+
+    .page-header h1 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      color: #f0f6fc;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .page-header p {
+      font-size: 1rem;
+      color: var(--text-dim);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* ── Diagram section ── */
+    .diagram-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    .diagram-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      overflow-x: auto;
+    }
+
+    .diagram-wrap .mermaid {
+      display: flex;
+      justify-content: center;
+      min-width: 600px;
+    }
+
+    /* Override Mermaid colours for dark theme */
+    .mermaid svg {
+      background: transparent !important;
+    }
+
+    /* ── Steps ── */
+    .steps-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .steps-section h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      margin-bottom: 2rem;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.25rem;
+      position: relative;
+    }
+
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--gold);
+      color: var(--gold-soft);
+      font-weight: 700;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      margin: 0.4rem 0;
+    }
+
+    .step:last-child .step-line {
+      display: none;
+    }
+
+    .step-body {
+      padding-bottom: 2rem;
+      flex: 1;
+    }
+
+    .step:last-child .step-body {
+      padding-bottom: 0;
+    }
+
+    .step-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f0f6fc;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding-top: 0.4rem;
+    }
+
+    .step-title .step-icon {
+      font-size: 1rem;
+    }
+
+    .step-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 1px 8px;
+      border-radius: 100px;
+      letter-spacing: 0.04em;
+    }
+    .tag-lua    { background: #1f6feb22; color: #79c0ff; border: 1px solid #1f6feb55; }
+    .tag-win    { background: #23863633; color: #7ee787; border: 1px solid #23863666; }
+    .tag-http   { background: #9e6a0322; color: #f0883e; border: 1px solid #9e6a0355; }
+    .tag-python { background: #c8980a22; color: var(--gold-soft); border: 1px solid var(--gold)55; }
+    .tag-discord{ background: #5865f222; color: #a5b4fc; border: 1px solid #5865f255; }
+
+    .step-desc {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin-bottom: 0.6rem;
+    }
+
+    .step-detail {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      color: #8b949e;
+      line-height: 1.6;
+    }
+    .step-detail .hl { color: #79c0ff; }
+    .step-detail .gr { color: #7ee787; }
+    .step-detail .gd { color: var(--gold-soft); }
+
+    /* ── Footer ── */
+    .page-footer {
+      border-top: 1px solid var(--border);
+    }
+
+    footer {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-mute);
+    }
+
+    footer a {
+      color: var(--text-mute);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer a:hover { color: var(--text-dim); }
+
+    .footer-links { display: flex; gap: 1.25rem; }
+
+    @media (max-width: 600px) {
+      .page-header, .diagram-section, .steps-section { padding-left: 1.25rem; padding-right: 1.25rem; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav>
+    <a class="nav-logo" href="/">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+        <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+        <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+        <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+        <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/>
+        <path d="M15.5 9H17v1.5c0 .83-.67 1.5-1.5 1.5S14 11.33 14 10.5 14.67 9 15.5 9z"/>
+        <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/>
+        <path d="M8.5 15H7v-1.5c0-.83.67-1.5 1.5-1.5S10 12.67 10 13.5 9.33 15 8.5 15z"/>
+      </svg>
+      Arena Coach
+    </a>
+    <div class="nav-links">
+      <a class="nav-link active" href="/how-it-works">Как работает</a>
+      <a class="nav-cta" href="/download">Скачать</a>
+    </div>
+  </nav>
+
+  <!-- ── Page header ── -->
+  <header class="page-header">
+    <div class="section-label">Архитектура</div>
+    <h1>Как это работает</h1>
+    <p>Полный путь от события в игре до подсказки в Discord — шесть звеньев, каждое со своей ролью.</p>
+  </header>
+
+  <!-- ── Diagram ── -->
+  <section class="diagram-section">
+    <div class="diagram-wrap">
+      <div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant WoW as 🎮 WoW Client
+    participant Addon as 🔌 ArenaCoach<br/>Addon (Lua)
+    participant Log as 📄 Chat Log<br/>(Windows файл)
+    participant Bridge as 🪟 arena-bridge.exe
+    participant API as ⚙️ FastAPI Backend
+    participant Discord as 💬 Discord DM
+
+    WoW->>Addon: ARENA_OPPONENT_UPDATE<br/>COMBAT_LOG_EVENT_UNFILTERED
+    Addon->>Log: Пишет [AC] событие<br/>в chat-frame
+    Bridge->>Log: tail — читает новые строки
+    Bridge->>API: HTTPS POST /v1/events<br/>Bearer токен
+    API->>API: Ищет матчап в KB<br/>(SQLite + Markdown)
+    API->>Discord: Ephemeral DM<br/>с советом и источником
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Step-by-step ── -->
+  <section class="steps-section">
+    <h2>Каждый шаг подробнее</h2>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">
+            <span class="step-icon">🎮</span>
+            WoW клиент генерирует события
+            <span class="step-tag tag-lua">TBC 2.4.3</span>
+          </div>
+          <p class="step-desc">
+            Когда начинается арена, WoW Client посылает Lua-аддону события: <code>ARENA_OPPONENT_UPDATE</code> (определение врага),
+            <code>UNIT_AURA</code> (баффы/дебаффы), <code>COMBAT_LOG_EVENT_UNFILTERED</code> (трекинг способностей — трикет, CD, CC).
+          </p>
+          <div class="step-detail">
+            <span class="hl">COMBAT_LOG_EVENT_UNFILTERED</span> → spellId <span class="gd">42292</span> <span class="gr">-- PvP Trinket</span><br>
+            <span class="hl">ARENA_OPPONENT_UPDATE</span>        → spec, race, unitId
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">
+            <span class="step-icon">🔌</span>
+            Lua аддон пишет события в chat-frame
+            <span class="step-tag tag-lua">Lua</span>
+          </div>
+          <p class="step-desc">
+            ArenaCoach.toc загружается WoW при старте. Аддон слушает события и записывает их
+            в системный чат с префиксом <code>[AC]</code> — это единственный легитимный канал вывода
+            данных из WoW 2.4.3 без нарушения ToS.
+          </p>
+          <div class="step-detail">
+            <span class="gr">-- Tracker.lua</span><br>
+            DEFAULT_CHAT_FRAME:AddMessage(<span class="gd">"[AC] trinket:enemy:Arena1:42292"</span>)
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">
+            <span class="step-icon">📄</span>
+            Bridge читает chat log
+            <span class="step-tag tag-win">Windows</span>
+          </div>
+          <p class="step-desc">
+            WoW сохраняет системный чат в файл <code>Logs\WoWChatLog.txt</code> в директории игры.
+            arena-bridge.exe непрерывно читает этот файл (tail), фильтрует строки с префиксом <code>[AC]</code>
+            и нормализует их в JSON-событие.
+          </p>
+          <div class="step-detail">
+            <span class="gr"># chat_tail.py</span><br>
+            <span class="hl">WOW_INSTALL_PATH</span>=<span class="gd">C:\WoW\_classic_era_</span><br>
+            <span class="gr">→ tail Logs\WoWChatLog.txt, filter "[AC]"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">4</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">
+            <span class="step-icon">🪟</span>
+            Bridge отправляет событие на backend
+            <span class="step-tag tag-http">HTTPS</span>
+          </div>
+          <p class="step-desc">
+            Нормализованное событие отправляется POST-запросом на FastAPI backend с Bearer-токеном.
+            Токен привязан к конкретному игроку — несанкционированный запрос отклоняется с 401.
+          </p>
+          <div class="step-detail">
+            POST <span class="hl">https://pvpwowarena.surprise4you.dev</span>/v1/events<br>
+            Authorization: Bearer <span class="gd">&lt;BRIDGE_BEARER_TOKEN&gt;</span><br>
+            <span class="gr">{"event":"trinket","source":"Arena1","spell":42292}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">5</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">
+            <span class="step-icon">⚙️</span>
+            Backend ищет матчап в базе знаний
+            <span class="step-tag tag-python">Python / FastAPI</span>
+          </div>
+          <p class="step-desc">
+            Сервер определяет текущий матчап из накопленных событий (наши спеки vs вражеские спеки),
+            ищет подходящий документ в KB (Markdown + SQLite индекс) и формирует ответ.
+            Каждый совет содержит ссылку на источник — стрим или гайд.
+          </p>
+          <div class="step-detail">
+            <span class="gr"># kb/matchups/rm-vs-warrior-rdruid.md</span><br>
+            <span class="hl">composition:</span> <span class="gd">rogue+mage</span><br>
+            <span class="hl">vs:</span>          <span class="gd">warrior+resto-druid</span><br>
+            <span class="hl">kill_target:</span> <span class="gd">druid</span><br>
+            <span class="gr">→ "Opener: CS → sheep druid, open warrior..."</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">6</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">
+            <span class="step-icon">💬</span>
+            Discord DM с подсказкой
+            <span class="step-tag tag-discord">Discord</span>
+          </div>
+          <p class="step-desc">
+            Discord-бот отправляет ephemeral-сообщение (видно только игроку) в DM с советом,
+            источником и ключевыми CD для отслеживания. Если матчап не найден в KB —
+            сообщение не отправляется, бот молчит.
+          </p>
+          <div class="step-detail">
+            <span class="gd">⚔ RM vs Warrior+RDruid</span><br>
+            <span class="gr">Opener:</span> CS → sheep druid, open warrior<br>
+            <span class="gr">Track:</span>  enemy trinket ✓ used 0:32<br>
+            <span class="hl">Source:</span> mirlol.pro/rm-guide · 14:25
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section style="max-width: 800px; margin: 0 auto; padding: 0 2rem 5rem;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+      <div>
+        <div style="font-weight: 600; color: #f0f6fc; margin-bottom: 0.25rem;">Готов установить?</div>
+        <div style="font-size: 0.875rem; color: var(--text-dim);">Аддон + bridge — всего два файла.</div>
+      </div>
+      <a href="/download" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--gold); color: #0b0e14; font-weight: 700; font-size: 0.95rem; padding: 0.65rem 1.4rem; border-radius: 8px; text-decoration: none; white-space: nowrap; transition: background 0.15s;">
+        Перейти к скачиванию →
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <div class="page-footer">
+    <footer>
+      <span>© 2026 Arena Coach — WoW TBC 2.4.3</span>
+      <div class="footer-links">
+        <a href="/">Главная</a>
+        <a href="/download">Скачать</a>
+        <a href="https://github.com/pvpwowarena/arena-coach" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Mermaid dark theme config — must run before DOMContentLoaded
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background:        '#13181f',
+        primaryColor:      '#1a2030',
+        primaryTextColor:  '#dde4ee',
+        primaryBorderColor:'#2e3a4e',
+        lineColor:         '#4a9eff',
+        secondaryColor:    '#1a2030',
+        tertiaryColor:     '#13181f',
+        noteBkgColor:      '#1a2030',
+        noteTextColor:     '#dde4ee',
+        activationBkgColor:'#1a2030',
+        activationBorderColor: '#c8980a',
+        sequenceNumberColor: '#0b0e14',
+        actorBkg:          '#1a2030',
+        actorBorder:       '#2e3a4e',
+        actorTextColor:    '#dde4ee',
+        actorLineColor:    '#4a5568',
+        signalColor:       '#4a9eff',
+        signalTextColor:   '#dde4ee',
+        labelBoxBkgColor:  '#1a2030',
+        labelBoxBorderColor:'#2e3a4e',
+        labelTextColor:    '#dde4ee',
+        loopTextColor:     '#dde4ee',
+      },
+      sequence: {
+        diagramMarginX: 30,
+        diagramMarginY: 20,
+        actorMargin: 60,
+        width: 160,
+        height: 52,
+        boxMargin: 10,
+        boxTextMargin: 5,
+        noteMargin: 10,
+        messageMargin: 35,
+        mirrorActors: false,
+        useMaxWidth: true,
+      }
+    });
+  </script>
+
+</body>
+</html>
