@@ -26,19 +26,17 @@ git clone git@github.com:pvpwowarena/arena-coach.git
 
 ## 2. Найти папку AddOns в WoW клиенте
 
-Стандартные пути (Windows):
-
-| Лаунчер | Путь |
-|---|---|
-| Battle.net (TBC Classic Anniversary) | `C:\Program Files (x86)\World of Warcraft\_classic_era_\Interface\AddOns\` |
-| Альтернативный клиент | Смотри настройки пути установки |
-
-На **macOS**:
+**Windows (Battle.net, TBC Classic Anniversary):**
 ```
-/Applications/World of Warcraft/_classic_era_/Interface/AddOns/
+C:\Program Files (x86)\World of Warcraft\_anniversary_\Interface\AddOns\
 ```
 
-> **Важно:** папка `_classic_era_` может называться иначе в зависимости от версии лаунчера — главное, что внутри есть `Interface/AddOns/`.
+**macOS:**
+```
+/Applications/World of Warcraft/_anniversary_/Interface/AddOns/
+```
+
+> **Важно:** имя папки клиента (`_anniversary_`, `_classic_era_`, и т.п.) может отличаться в зависимости от версии лаунчера — главное, что внутри есть `Interface/AddOns/`.
 
 ---
 
@@ -122,10 +120,11 @@ Interface/
 SavedVariables пишутся при `/reload` или выходе из игры:
 
 ```
-WoW/_classic_era_/WTF/Account/<AccountName>/SavedVariables/ArenaCoachDB.lua
+WoW/_anniversary_/WTF/Account/<AccountName>/SavedVariables/ArenaCoachDB.lua
 ```
 
 Этот файл будет читать **Phase 4 bridge** (Python-демон) для передачи событий в backend.
+На macOS — `/Applications/World of Warcraft/_anniversary_/WTF/...`.
 
 > SavedVariables.lua **не попадают в git** (прописаны в `.gitignore`).
 

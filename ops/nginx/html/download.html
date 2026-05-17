@@ -376,7 +376,7 @@
   <header class="page-header">
     <div class="section-label">Установка</div>
     <h1>Скачать Arena Coach</h1>
-    <p>Два компонента: аддон в папку WoW и bridge.exe на Windows. Следуй инструкции — займёт 5 минут.</p>
+    <p>Два компонента: аддон в папку WoW и bridge (Windows или macOS). Следуй инструкции — займёт 5 минут.</p>
   </header>
 
   <!-- ── Steps ── -->
@@ -413,7 +413,9 @@
           </li>
           <li class="install-step">
             <span class="install-step-num">2</span>
-            Скопировать её в <code>World of Warcraft\_classic_era_\Interface\AddOns\</code>
+            Скопировать её в <code>Interface/AddOns/</code> внутри папки WoW:
+            <br>· <strong>Windows:</strong> <code>C:\Program Files (x86)\World of Warcraft\_anniversary_\Interface\AddOns\</code>
+            <br>· <strong>macOS:</strong> <code>/Applications/World of Warcraft/_anniversary_/Interface/AddOns/</code>
           </li>
           <li class="install-step">
             <span class="install-step-num">3</span>
@@ -428,11 +430,11 @@
       </div>
     </div>
 
-    <!-- Шаг 2: Bridge -->
+    <!-- Шаг 2: Bridge — Windows -->
     <div class="step-card">
       <div class="step-card-header">
         <div class="step-num-badge">2</div>
-        <h2>Bridge — фоновая программа</h2>
+        <h2>Bridge — фоновая программа (Windows)</h2>
         <span class="os-badge">Windows x64</span>
       </div>
       <div class="step-card-body">
@@ -473,10 +475,10 @@
 
         <hr class="inner-divider">
 
-        <div class="sub-heading">Пример bridge.env</div>
+        <div class="sub-heading">Пример bridge.env (Windows)</div>
         <div class="code-block"><span class="cm"># Скопируй в bridge.env рядом с arena-bridge.exe</span>
 <span class="dim">#</span>
-<span class="key">WOW_INSTALL_PATH</span>    = <span class="val">C:\Program Files (x86)\World of Warcraft\_classic_era_</span>
+<span class="key">WOW_INSTALL_PATH</span>    = <span class="val">C:\Program Files (x86)\World of Warcraft\_anniversary_</span>
 <span class="key">BACKEND_URL</span>         = <span class="val">https://pvpwowarena.surprise4you.dev</span>
 <span class="key">BRIDGE_BEARER_TOKEN</span> = <span class="val">вставить-токен-от-администратора</span>
 <span class="key">BRIDGE_PLAYER_NAME</span>  = <span class="val">ИмяПерсонажа</span></div>
@@ -489,12 +491,82 @@
       </div>
     </div>
 
+    <!-- Шаг 2: Bridge — macOS -->
+    <div class="step-card">
+      <div class="step-card-header">
+        <div class="step-num-badge">2</div>
+        <h2>Bridge — фоновая программа (macOS)</h2>
+        <span class="os-badge">macOS · Apple Silicon</span>
+      </div>
+      <div class="step-card-body">
+
+        <a class="download-btn"
+           href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/arena-bridge-macos-arm64.tar.gz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
+          </svg>
+          Скачать arena-bridge-macos-arm64.tar.gz
+        </a>
+
+        <div class="download-meta">
+          M1 / M2 / M3 / M4 · GitHub Releases ·
+          <a href="https://github.com/pvpwowarena/arena-coach/releases/latest" target="_blank" rel="noopener">
+            посмотреть все версии
+          </a>
+        </div>
+
+        <ul class="install-steps">
+          <li class="install-step">
+            <span class="install-step-num">1</span>
+            Распаковать архив (например в <code>~/ArenaCoach/</code>) — внутри будут <code>arena-bridge</code>, <code>bridge.env.example</code>, <code>README.txt</code>
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">2</span>
+            Скопировать <code>bridge.env.example</code> → <code>bridge.env</code>, заполнить значения (токен — у администратора в Discord)
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">3</span>
+            <strong>Первый запуск — обход Gatekeeper</strong> (бинарь не подписан, делается один раз):<br>
+            в Finder правый клик на <code>arena-bridge</code> → <strong>Open</strong> → <strong>Open</strong> в диалоге.<br>
+            Или в терминале: <code>xattr -d com.apple.quarantine ./arena-bridge</code>
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">4</span>
+            Проверить конфиг: <code>./arena-bridge --check-config</code>
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">5</span>
+            Перед игрой запустить <code>./arena-bridge</code> и оставить терминал открытым
+          </li>
+        </ul>
+
+        <hr class="inner-divider">
+
+        <div class="sub-heading">Пример bridge.env (macOS)</div>
+        <div class="code-block"><span class="cm"># Скопируй в bridge.env рядом с arena-bridge</span>
+<span class="dim">#</span>
+<span class="key">WOW_INSTALL_PATH</span>    = <span class="val">/Applications/World of Warcraft/_anniversary_</span>
+<span class="key">BACKEND_URL</span>         = <span class="val">https://pvpwowarena.surprise4you.dev</span>
+<span class="key">BRIDGE_BEARER_TOKEN</span> = <span class="val">вставить-токен-от-администратора</span>
+<span class="key">BRIDGE_PLAYER_NAME</span>  = <span class="val">ИмяПерсонажа</span></div>
+
+        <div class="note">
+          ⚠ Бинарь не подписан Apple Developer ID (MVP). Это нормально — Gatekeeper нужно пропустить только при первом запуске.
+          Если макбук на Intel — напиши администратору, нужна отдельная сборка.
+        </div>
+
+      </div>
+    </div>
+
     <!-- Проверка -->
     <div class="check-card">
       <h2>✅ Проверка</h2>
-      <p>Запусти в cmd или PowerShell из папки с .exe — должен увидеть зелёное подтверждение.</p>
-      <div class="code-block"><span class="cm"># В cmd / PowerShell:</span>
+      <p>Запусти из папки с bridge — должен увидеть зелёное подтверждение.</p>
+      <div class="code-block"><span class="cm"># Windows (cmd / PowerShell):</span>
 <span class="cmd">arena-bridge.exe --check-config</span>
+
+<span class="cm"># macOS (Terminal):</span>
+<span class="cmd">./arena-bridge --check-config</span>
 
 <span class="cm"># Ожидаемый вывод:</span>
 <span class="cmd">✓ WoW install path: found</span>

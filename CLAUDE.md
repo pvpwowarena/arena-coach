@@ -1,6 +1,6 @@
 # Arena Coach — CLAUDE.md (контекст проекта для новых чатов)
 
-> Последнее обновление: 2026-05-15
+> Последнее обновление: 2026-05-17
 > Читай этот файл в начале каждого нового чата перед любой работой.
 
 ---
@@ -141,9 +141,10 @@ Slash-команды:
   - `ws_client.py` / HTTPS-клиент — отправка на `/v1/events`
   - `env_loader.py` — dotenv без зависимостей
   - `__main__.py` — CLI с `--env-file`, `--check-config`, авто-детект `bridge.env`
-- `arena-bridge.spec` — PyInstaller onefile spec
+- `arena-bridge.spec` — PyInstaller onefile spec, **кросс-платформенный** (Windows .exe + macOS arm64 binary, см. секцию GitHub Actions ниже).
 - **Pipeline на бэке:** `backend/arena_coach/orchestrator/pipeline.py` (подключён к `/v1/events`) — KB lookup → LLM hint (опционально) → Discord DM через REST
-- **НЕ собран** `arena-bridge.exe` — нужен первый тег `v0.1.0` для запуска GitHub Actions
+- **НЕ собран** ни `arena-bridge.exe`, ни macOS-бандл — нужен первый тег `v0.1.0` для запуска GitHub Actions
+- **macOS поддержка (MVP, май 2026):** Apple Silicon arm64 unsigned binary, .tar.gz с sample env-файлом и инструкцией по обходу Gatekeeper. Apple Developer signing/notarization отложены — добавим если выйдем за пределы 5-10 юзеров. Intel-mac сборка пока не делается.
 
 ### ⏳ Phase 5 — CV/OCR (не начата)
 
@@ -201,18 +202,22 @@ Matrix `[3.10, 3.11, 3.12]`, ruff + mypy --strict + pytest. Job `kb-validation` 
 
 ### `build-bridge-exe.yml`
 - Триггер: `push tags v*` или `workflow_dispatch`
-- Собирает `arena-bridge.exe` на `windows-latest` через PyInstaller
-- Создаёт GitHub Release с бинарником
-- Деплоит `.exe` на VPS (`/var/www/arena-coach/arena-bridge.exe`) по SSH
+- **Две параллельные джобы:**
+  - `build-windows` (windows-latest) → `arena-bridge.exe`
+  - `build-macos` (macos-latest, Apple Silicon arm64) → `arena-bridge-macos-arm64.tar.gz` (unsigned + sample bridge.env + README.txt с инструкцией по Gatekeeper)
+- Финальная джоба `release` подтягивает оба артефакта + `ArenaCoach.zip` и публикует GitHub Release.
+- `arena-bridge.spec` теперь кросс-платформенный: hiddenimports и UPX-сжатие включаются условно через `sys.platform`.
+- Intel-mac сборка пока не делается — если понадобится, добавить `macos-13` runner.
 
 ### Секреты GitHub
-- `VPS_SSH_KEY` — приватный ключ для деплоя .exe на VPS
+- `VPS_SSH_KEY` — приватный ключ для деплоя на VPS (сейчас не используется в workflow, артефакты раздаются через GitHub Releases).
 
 ### Выпустить первый релиз
 ```bash
 git tag v0.1.0
 git push origin v0.1.0
-# → Actions соберут .exe → задеплоят на VPS → /download/arena-bridge.exe заработает
+# → Actions параллельно соберут .exe и .tar.gz → создадут Release
+# → /download страница ссылается на assets latest release
 ```
 
 ---
@@ -345,9 +350,9 @@ ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
 
 ### Срочно (блокирует игроков)
 1. **Выпустить v0.1.0** — `git tag v0.1.0 && git push origin v0.1.0`
-   - Actions соберут .exe → задеплоят на VPS → `/download/arena-bridge.exe` заработает
-2. **Протестировать аддон в живой игре** — скопировать `addon/ArenaCoach/` в WoW Interface/AddOns/, зайти на арену, проверить что в `Logs/Chat-*.txt` появляются `[AC|...]` строки.
-3. **Phase 4 интеграция end-to-end** — bridge запустить против аддона, проверить что POST /v1/events доходят и Discord DM приходит.
+   - Actions параллельно соберут `arena-bridge.exe` (Windows) и `arena-bridge-macos-arm64.tar.gz` (macOS) → опубликуют в GitHub Release → кнопки на `/download` заработают
+2. **Протестировать аддон в живой игре (Mac, Anniversary)** — скопировать `addon/ArenaCoach/` в `/Applications/World of Warcraft/_anniversary_/Interface/AddOns/`, зайти на арену, проверить что в `Logs/Chat-*.txt` появляются `[AC|...]` строки.
+3. **Phase 4 интеграция end-to-end на маке** — распаковать `arena-bridge-macos-arm64.tar.gz`, обойти Gatekeeper (`xattr -d com.apple.quarantine ./arena-bridge`), запустить против аддона, проверить что POST /v1/events доходят и Discord DM приходит.
 
 ### Среднесрочно
 4. Добавить настоящий `ANTHROPIC_API_KEY` (сейчас заглушка `sk-ant-placeholder` — LLM-hint не работает, pipeline отправляет KB-текст напрямую).

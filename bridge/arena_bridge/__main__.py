@@ -5,13 +5,21 @@
 2. normalizer — raw string → CanonicalEnvelope + обновление SessionState.
 3. ws_client (EventClient) — POST /v1/events на backend с bearer-auth.
 
-Запуск:
-    arena-bridge --wow-path "C:/WoW" --account MyAccount \\
-                 --backend-url https://coach.example.com \\
-                 --token <bearer_token> --player-name Vladislav
+Запуск (Windows):
+    arena-bridge.exe --wow-path "C:/Program Files (x86)/World of Warcraft/_anniversary_" \\
+                     --backend-url https://coach.example.com \\
+                     --token <bearer_token> --player-name Vladislav
 
-Или через bridge.env рядом с .exe (рекомендуется для игроков):
-    WOW_INSTALL_PATH=C:/Program Files (x86)/World of Warcraft/_classic_era_
+Запуск (macOS):
+    ./arena-bridge --wow-path "/Applications/World of Warcraft/_anniversary_" \\
+                   --backend-url https://coach.example.com \\
+                   --token <bearer_token> --player-name Vladislav
+
+Или через bridge.env рядом с бинарём (рекомендуется для игроков):
+    # Windows:
+    WOW_INSTALL_PATH=C:/Program Files (x86)/World of Warcraft/_anniversary_
+    # macOS:
+    WOW_INSTALL_PATH=/Applications/World of Warcraft/_anniversary_
     BACKEND_URL=https://coach.example.com
     BRIDGE_BEARER_TOKEN=<токен из /access add>
     BRIDGE_PLAYER_NAME=Vladislav
@@ -22,7 +30,7 @@
 Порядок приоритетов (от высшего к низшему):
     1. Аргументы CLI  (--wow-path, --token, ...)
     2. Переменные среды системы (os.environ до загрузки файла)
-    3. --env-file / авто-детект bridge.env рядом с .exe
+    3. --env-file / авто-детект bridge.env рядом с бинарём
 """
 
 from __future__ import annotations

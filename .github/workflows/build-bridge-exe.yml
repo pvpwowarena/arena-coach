@@ -1,7 +1,7 @@
-name: Build arena-bridge.exe
+name: Build arena-bridge
 
 # Триггеры:
-# - Push тега v* (v0.1.0, v0.2.0 ...) → создаёт GitHub Release с .exe
+# - Push тега v* (v0.1.0, v0.2.0 ...) → создаёт GitHub Release с .exe и .tar.gz (macOS)
 # - workflow_dispatch → ручная сборка из любой ветки (для тестирования)
 on:
   push:
@@ -18,6 +18,7 @@ permissions:
   contents: write   # Нужно для создания Release
 
 jobs:
+  # ─────────────────────────────────────────────────────────────────────────
   build-windows:
     name: Windows .exe (PyInstaller)
     runs-on: windows-latest
@@ -75,35 +76,196 @@ jobs:
           Compress-Archive -Path "addon\ArenaCoach" -DestinationPath "ArenaCoach.zip" -Force
           Write-Host "ArenaCoach.zip created"
 
-      # Шаг ниже выполняется только при push тега — создаёт GitHub Release
+      - name: Upload addon zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arena-coach-addon
+          path: ArenaCoach.zip
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────
+  build-macos:
+    name: macOS arm64 binary (PyInstaller, unsigned)
+    runs-on: macos-latest   # macos-latest = Apple Silicon (arm64)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install bridge package + PyInstaller
+        working-directory: bridge
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pyinstaller
+
+      - name: Build binary
+        working-directory: bridge
+        run: pyinstaller arena-bridge.spec --clean --noconfirm
+
+      - name: Smoke-test binary (--check-config без config → exit 1 ожидается)
+        working-directory: bridge
+        shell: bash
+        run: |
+          chmod +x dist/arena-bridge
+          set +e
+          ./dist/arena-bridge --check-config
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ] || [ "$code" -eq 1 ]; then
+            echo "Smoke-test passed (exit $code)"
+          else
+            echo "Unexpected exit code: $code"
+            exit 1
+          fi
+
+      # Готовим bundle: binary + sample bridge.env + README с инструкцией по Gatekeeper
+      - name: Assemble macOS bundle
+        shell: bash
+        run: |
+          mkdir -p arena-bridge-macos
+          cp bridge/dist/arena-bridge arena-bridge-macos/
+          chmod +x arena-bridge-macos/arena-bridge
+
+          # Sample bridge.env с Mac-путём
+          cat > arena-bridge-macos/bridge.env.example <<'EOF'
+          # Скопируй этот файл в bridge.env и заполни значения.
+          # Токен получи у администратора командой /access add в Discord.
+          WOW_INSTALL_PATH=/Applications/World of Warcraft/_anniversary_
+          BACKEND_URL=https://pvpwowarena.surprise4you.dev
+          BRIDGE_BEARER_TOKEN=вставить-токен-от-администратора
+          BRIDGE_PLAYER_NAME=ИмяПерсонажа
+          EOF
+
+          # README с инструкцией для Mac
+          cat > arena-bridge-macos/README.txt <<'EOF'
+          Arena Coach bridge — macOS (Apple Silicon)
+          ==========================================
+
+          1) Скопируй bridge.env.example → bridge.env и заполни значения.
+
+          2) Первый запуск (обход Gatekeeper, делается ОДИН РАЗ):
+
+             В Finder: правый клик на arena-bridge → Open → Open (в диалоге).
+             Либо в терминале:
+
+                xattr -d com.apple.quarantine ./arena-bridge
+
+          3) Проверь конфиг:
+
+                ./arena-bridge --check-config
+
+             Ожидаемый вывод: "Конфигурация корректна".
+
+          4) Перед игрой запускай:
+
+                ./arena-bridge
+
+             Оставь терминал открытым на время игры.
+
+          Альтернативно — указать .env-файл явно:
+
+                ./arena-bridge --env-file /path/to/bridge.env
+          EOF
+
+          tar -czvf arena-bridge-macos-arm64.tar.gz arena-bridge-macos/
+          shasum -a 256 arena-bridge-macos-arm64.tar.gz > arena-bridge-macos-arm64.tar.gz.sha256
+          echo "Bundle contents:"
+          tar -tzvf arena-bridge-macos-arm64.tar.gz
+
+      - name: Upload macOS bundle as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arena-bridge-macos-arm64
+          path: |
+            arena-bridge-macos-arm64.tar.gz
+            arena-bridge-macos-arm64.tar.gz.sha256
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    # Релиз создаём только при пуше тега, после успешной сборки обеих платформ.
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Windows .exe
+        uses: actions/download-artifact@v4
+        with:
+          name: arena-bridge-windows
+          path: artifacts/windows
+
+      - name: Download addon zip
+        uses: actions/download-artifact@v4
+        with:
+          name: arena-coach-addon
+          path: artifacts/addon
+
+      - name: Download macOS bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: arena-bridge-macos-arm64
+          path: artifacts/macos
+
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            bridge/dist/arena-bridge.exe
-            ArenaCoach.zip
+            artifacts/windows/arena-bridge.exe
+            artifacts/addon/ArenaCoach.zip
+            artifacts/macos/arena-bridge-macos-arm64.tar.gz
+            artifacts/macos/arena-bridge-macos-arm64.tar.gz.sha256
           name: Arena Coach ${{ github.ref_name }}
           body: |
-            ## Установка для игроков (Windows)
+            ## Установка для игроков
 
-            ### 1. Аддон — ArenaCoach.zip
+            ### 1. Аддон — ArenaCoach.zip (общий для Windows и macOS)
             Распаковать папку `ArenaCoach` в:
-            ```
-            C:\Program Files (x86)\World of Warcraft\_classic_era_\Interface\AddOns\
-            ```
+
+            - **Windows:** `C:\Program Files (x86)\World of Warcraft\_anniversary_\Interface\AddOns\`
+            - **macOS:** `/Applications/World of Warcraft/_anniversary_/Interface/AddOns/`
+
             Перезапустить WoW или `/reload` → в списке аддонов появится **ArenaCoach**.
 
-            ### 2. Bridge — arena-bridge.exe
+            > Имя папки клиента может отличаться (`_anniversary_`, `_classic_era_`) — главное чтобы внутри был `Interface/AddOns/`.
+
+            ### 2. Bridge — Windows
             1. Скачать `arena-bridge.exe`, положить в удобную папку (например `C:\ArenaCoach\`)
             2. Создать рядом файл `bridge.env` (токен получить у администратора в Discord):
                ```
-               WOW_INSTALL_PATH=C:\Program Files (x86)\World of Warcraft\_classic_era_
+               WOW_INSTALL_PATH=C:\Program Files (x86)\World of Warcraft\_anniversary_
                BACKEND_URL=https://pvpwowarena.surprise4you.dev
                BRIDGE_BEARER_TOKEN=твой-токен
                BRIDGE_PLAYER_NAME=ИмяПерсонажа
                ```
             3. Запустить `arena-bridge.exe --check-config` — проверить конфиг
             4. Запустить `arena-bridge.exe` перед игрой — оставить окно открытым
+
+            ### 2. Bridge — macOS (Apple Silicon, M1/M2/M3/M4)
+            1. Скачать `arena-bridge-macos-arm64.tar.gz`, распаковать
+            2. В папке `arena-bridge-macos/` скопировать `bridge.env.example` → `bridge.env`, заполнить значения
+            3. **Первый запуск — обход Gatekeeper** (бинарь не подписан). Сделать один раз:
+               - Через Finder: правый клик на `arena-bridge` → **Open** → **Open** в диалоге
+               - Или в терминале:
+                 ```
+                 xattr -d com.apple.quarantine ./arena-bridge
+                 ```
+            4. Проверить конфиг:
+               ```
+               ./arena-bridge --check-config
+               ```
+            5. Перед игрой запустить `./arena-bridge` — оставить терминал открытым
+
+            **SHA256** macOS-бандла — в файле `arena-bridge-macos-arm64.tar.gz.sha256`.
           draft: false
           prerelease: false
