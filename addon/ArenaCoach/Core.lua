@@ -6,7 +6,7 @@ ArenaCoach = ArenaCoach or {}
 local AC = ArenaCoach
 
 -- ── Версия ──────────────────────────────────────────────────────────────────
-AC.VERSION = "0.1.0"
+AC.VERSION = "0.2.0"
 
 -- ── SavedVariables schema ────────────────────────────────────────────────────
 -- ArenaCoachDB инициализируется один раз при первом логине.
@@ -73,8 +73,31 @@ SlashCmdList["ARENACOACH"] = function(msg)
         AC.Print("SavedVariables очищены.")
     elseif cmd == "sessions" then
         AC.Print("Сессий в DB: " .. #ArenaCoachDB.sessions)
+    elseif cmd == "test" then
+        if AC.RunBridgeTest then
+            AC.RunBridgeTest()
+        else
+            AC.Print("Tracker ещё не загружен.")
+        end
+    elseif cmd == "log" then
+        if LoggingChat and LoggingChat() then
+            AC.Print("Запись чата: ВКЛ (Logs/WoWChatLog.txt или Chat-*.txt пишется).")
+        else
+            if AC.EnsureChatLogging then AC.EnsureChatLogging() end
+            AC.Print("Запись чата: была ВЫКЛ — включил сейчас.")
+        end
+    elseif cmd:match("^flush") then
+        local arg = cmd:match("^flush%s+(%S+)")
+        if arg == "on" and AC.SetFlushEnabled then
+            AC.SetFlushEnabled(true)
+        elseif arg == "off" and AC.SetFlushEnabled then
+            AC.SetFlushEnabled(false)
+        else
+            local state = (AC.IsFlushEnabled and AC.IsFlushEnabled()) and "ВКЛ" or "ВЫКЛ"
+            AC.Print("Форс-флаш чат-лога: " .. state .. ". Переключить: /ac flush on|off")
+        end
     else
-        AC.Print("Команды: /ac status | /ac sessions | /ac reset")
+        AC.Print("Команды: /ac status | /ac test | /ac log | /ac flush | /ac sessions | /ac reset")
     end
 end
 

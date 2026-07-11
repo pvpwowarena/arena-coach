@@ -94,9 +94,27 @@ local function AppendEvent(session, eventType, source, target, abilityId, abilit
     table.insert(session.events, ev)
 end
 
--- ── Bridge-канал: whisper-to-self → Logs/Chat-*.txt ─────────────────────────
+-- ── Простой OnUpdate-таймер (замена C_Timer.After, которого нет в 2.4.3) ──────
+-- Определён здесь (до bridge-секции), т.к. используется в RequestChatFlush.
+
+local function ScheduleCall(delay, func)
+    local elapsed = 0
+    local t = CreateFrame("Frame")
+    t:SetScript("OnUpdate", function(self, e)
+        elapsed = elapsed + e
+        if elapsed >= delay then
+            self:SetScript("OnUpdate", nil)
+            func()
+        end
+    end)
+end
+
+-- ── Bridge-канал: whisper-to-self → Logs/WoWChatLog.txt (или Chat-*.txt) ─────
 -- WoW TBC не имеет прямого API для записи в файл, но SendChatMessage("WHISPER")
--- к самому игроку пишется в Logs/Chat-YYYY-MM-DD.txt мгновенно.
+-- к самому игроку логируется в chat-лог (при включённом LoggingChat).
+-- ВАЖНО: клиент буферизует запись — на диск строки попадают с задержкой.
+-- Поэтому после критических событий дёргаем LoggingChat(false→true):
+-- закрытие лога сбрасывает буфер (форс-флаш), bridge видит событие сразу.
 -- Формат: [AC|TYPE|field1|field2|...]  (символы | и ] в именах игроков не встречаются)
 -- Bridge (Python) читает файл каждые ~0.5с и фильтрует строки с [AC|.
 
@@ -122,7 +140,67 @@ function AC.SetBridgeEnabled(val)
     AC.Print("Bridge: " .. (val and "активен" or "пауза"))
 end
 
--- ── Сканирование врагов при старте ───────────────────────────────────────────
+-- ── Форс-флаш чат-лога ───────────────────────────────────────────────────────
+-- LoggingChat(false) закрывает файл лога → клиент сбрасывает буфер на диск.
+-- LoggingChat(true) сразу включает запись обратно. Дебаунс 1с коалесцирует
+-- пачки событий (опенер = несколько кастов подряд → один флаш).
+-- Побочный эффект: системные сообщения о вкл/выкл логирования в чате.
+-- Отключается через /ac flush off, если на живом тесте окажется лишним.
+
+local flushEnabled = true
+local flushPending = false
+
+function AC.SetFlushEnabled(val)
+    flushEnabled = val
+    AC.Print("Форс-флаш чат-лога: " .. (val and "ВКЛ" or "ВЫКЛ"))
+end
+
+function AC.IsFlushEnabled()
+    return flushEnabled
+end
+
+function AC.RequestChatFlush()
+    if not flushEnabled or flushPending then return end
+    if not LoggingChat then return end
+    flushPending = true
+    ScheduleCall(1.0, function()
+        flushPending = false
+        if not flushEnabled or not LoggingChat then return end
+        LoggingChat(false)
+        LoggingChat(true)
+    end)
+end
+
+-- Принудительно включить запись чата в файл. Без этого whisper-to-self
+-- НЕ попадает в Logs/Chat-*.txt и bridge не видит ни одного события.
+-- LoggingChat идемпотентна — повторный вызов безопасен.
+function AC.EnsureChatLogging()
+    if LoggingChat then
+        LoggingChat(true)
+        return true
+    end
+    return false
+end
+
+-- Self-test канала addon→bridge без захода на арену.
+-- Включает логирование и шлёт тестовые ARENA_START + TRINKET (оба — hint-события
+-- на бэке, т.е. при поднятом bridge должен прийти Discord DM).
+function AC.RunBridgeTest()
+    AC.EnsureChatLogging()
+    local myClass = select(2, UnitClass("player")) or "ROGUE"
+    local myRace = select(2, UnitRace("player")) or "HUMAN"
+    AC.Print("=== Bridge self-test ===")
+    AC.Print("1) Запись чата включена принудительно.")
+    AC.EmitToChat("ARENA_START", "2v2", "WARRIOR/ORC,PALADIN/BLOODELF",
+        myClass .. "/" .. myRace .. ",MAGE/UNDEAD")
+    AC.EmitToChat("TRINKET", "TestEnemy", "42292", "pvp_trinket")
+    AC.RequestChatFlush()
+    AC.Print("2) Отправлены тестовые ARENA_START + TRINKET (+ форс-флаш через ~1с).")
+    AC.Print("3) Проверь Logs/WoWChatLog.txt (или Chat-<дата>.txt) — строки [AC|...].")
+    AC.Print("4) Если bridge запущен — в Discord придёт DM.")
+end
+
+-- ── Сканирование врагов и союзников ─────────────────────────────────────────
 
 local function ScanEnemies(session)
     session.enemies = {}
@@ -138,6 +216,54 @@ local function ScanEnemies(session)
     end
 end
 
+-- Союзники: игрок ВСЕГДА первым (backend таргетирует советы под его класс)
+local function ScanAllies(session)
+    session.allies = {}
+    for _, unit in ipairs(PLAYER_UNITS) do
+        if UnitExists(unit) then
+            table.insert(session.allies, {
+                unit  = unit,
+                class = select(2, UnitClass(unit)) or "UNKNOWN",
+                race  = select(2, UnitRace(unit)) or "UNKNOWN",
+            })
+        end
+    end
+end
+
+local function UnitsToParts(list)
+    local parts = {}
+    for _, e in ipairs(list) do
+        -- Формат: CLASS/RACE (напр. ROGUE/HUMAN)
+        table.insert(parts, (e.class or "UNKNOWN") .. "/" .. (e.race or "UNKNOWN"))
+    end
+    return table.concat(parts, ",")
+end
+
+-- Bracket: сперва через GetBattlefieldStatus (teamSize — надёжно),
+-- fallback — по числу видимых arena-unit'ов (стелс скрывает врагов!)
+local function DetectBracket(session)
+    local maxq = (GetMaxBattlefieldID and GetMaxBattlefieldID()) or 3
+    for i = 1, maxq do
+        local status, _, _, _, _, teamSize = GetBattlefieldStatus(i)
+        if status == "active" and teamSize and teamSize > 0 then
+            return teamSize .. "v" .. teamSize
+        end
+    end
+    local count = #(session.enemies or {})
+    if count >= 3 then return "3v3" end
+    return "2v2"  -- 0-2 видимых врага: часть может быть в стелсе
+end
+
+-- Эмит ARENA_START с дедупом: повторный вызов (враг вышел из стелса)
+-- шлёт событие заново только если состав врагов реально изменился.
+local function EmitArenaStart(session)
+    local enemySig = UnitsToParts(session.enemies)
+    if session.lastEnemySig == enemySig then return end
+    session.lastEnemySig = enemySig
+    AC.EmitToChat("ARENA_START", session.bracket, enemySig, UnitsToParts(session.allies))
+    AC.RequestChatFlush()
+end
+
 -- ── Старт / финиш матча ───────────────────────────────────────────────────────
 
 local function OnArenaStart()
@@ -148,35 +274,25 @@ local function OnArenaStart()
         started_at = AC.Now(),
         ended_at   = nil,
         enemies    = {},
+        allies     = {},
         events     = {},
     }
 
-    -- Определяем bracket по количеству arena-unit'ов
-    local count = 0
-    for _, unit in ipairs(ARENA_UNITS) do
-        if UnitExists(unit) then count = count + 1 end
-    end
-    if count == 1 then session.bracket = "2v2"
-    elseif count == 2 then session.bracket = "3v3"
-    end
-
     ScanEnemies(session)
+    ScanAllies(session)
+    session.bracket = DetectBracket(session)
     AC.currentSession = session
     AC.Print("Арена началась (" .. session.bracket .. ") — трекинг активен.")
 
-    -- Сообщаем bridge о старте и составе врагов
-    local enemyParts = {}
-    for _, e in ipairs(session.enemies) do
-        -- Формат: CLASS/RACE (напр. ROGUE/HUMAN)
-        table.insert(enemyParts, (e.class or "UNKNOWN") .. "/" .. (e.race or "UNKNOWN"))
-    end
-    AC.EmitToChat("ARENA_START", session.bracket, table.concat(enemyParts, ","))
+    -- Сообщаем bridge о старте, составе врагов и союзников
+    EmitArenaStart(session)
 end
 
 local function OnArenaEnd()
     if not AC.currentSession then return end
     AC.currentSession.ended_at = AC.Now()
     AC.EmitToChat("ARENA_END", tostring(#AC.currentSession.events))
+    AC.RequestChatFlush()
     table.insert(ArenaCoachDB.sessions, AC.currentSession)
     AC.TrimSessions()
     AC.Print("Арена завершена. Событий записано: " .. #AC.currentSession.events)
@@ -218,6 +334,7 @@ local function OnCombatLog(timestamp, subevent, sourceGUID, sourceName, sourceFl
             -- Сообщаем bridge — это самый важный real-time сигнал
             AC.EmitToChat("TRINKET", sourceName or "", tostring(spellId),
                 AC.TRINKET_IDS[spellId] or "pvp_trinket")
+            AC.RequestChatFlush()
         end
         return
     end
@@ -236,6 +353,7 @@ local function OnCombatLog(timestamp, subevent, sourceGUID, sourceName, sourceFl
         -- Сообщаем bridge о CD врага
         AC.EmitToChat("ABILITY", sourceName or "", tostring(spellId),
             AC.TRACKED_SPELLS[spellId])
+        AC.RequestChatFlush()
     end
 end
 
@@ -243,8 +361,11 @@ end
 
 local function OnArenaOpponentUpdate()
     if not AC.currentSession then return end
-    -- Обновляем данные врагов (spec/class может появиться не сразу)
+    -- Обновляем данные врагов (класс может появиться не сразу: стелс,
+    -- поздний зум). Если состав изменился — повторный ARENA_START, чтобы
+    -- backend прислал уточнённый матчап-совет.
     ScanEnemies(AC.currentSession)
+    EmitArenaStart(AC.currentSession)
 end
 
 -- ── UNIT_AURA ────────────────────────────────────────────────────────────────
@@ -282,21 +403,8 @@ local function OnUnitAura(unitId)
     end
 end
 
--- ── Простой OnUpdate-таймер (замена C_Timer.After, которого нет в 2.4.3) ──────
-
-local function ScheduleCall(delay, func)
-    local elapsed = 0
-    local t = CreateFrame("Frame")
-    t:SetScript("OnUpdate", function(self, e)
-        elapsed = elapsed + e
-        if elapsed >= delay then
-            self:SetScript("OnUpdate", nil)
-            func()
-        end
-    end)
-end
-
 -- ── Основной фрейм событий ───────────────────────────────────────────────────
+-- (ScheduleCall определён выше, в секции таймера перед bridge-каналом)
 
 local frame = CreateFrame("Frame", "ArenaCoachTrackerFrame")
 
@@ -326,6 +434,12 @@ frame:SetScript("OnEvent", function(self, event, ...)
             AC.InitDB()
             AC.Print("v" .. AC.VERSION .. " загружен. /ac для помощи.")
         end
+
+    elseif event == "PLAYER_LOGIN" then
+        -- КРИТИЧНО для bridge: включаем запись чата в файл.
+        -- Без этого whisper-to-self не попадёт в Logs/Chat-*.txt и
+        -- bridge не увидит ни одного [AC|...] события.
+        AC.EnsureChatLogging()
 
     elseif event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
         local _, instanceType = IsInInstance()
