@@ -11,16 +11,36 @@
   "enemy_comps_2v2": {
     "warrior+resto-druid":       { "short": "warr-rdruid",   "human": "Warrior / Resto Druid" },
     "warrior+resto-shaman":      { "short": "warr-rsham",    "human": "Warrior / Resto Shaman" },
+    "warrior+holy-paladin":      { "short": "warr-hpala",    "human": "Warrior / Holy Paladin" },
     "ret-paladin+resto-shaman":  { "short": "retpala-rsham", "human": "Ret Paladin / Resto Shaman" },
     "warlock+resto-druid":       { "short": "lock-rdruid",   "human": "Warlock / Resto Druid" },
     "warlock+priest":            { "short": "lock-priest",   "human": "Warlock / Priest" },
     "warlock+rogue":             { "short": "lock-rogue",    "human": "Warlock / Rogue" },
+    "warlock+resto-shaman":      { "short": "lock-rsham",    "human": "Warlock / Resto Shaman" },
     "rogue+mage":                { "short": "rm-mirror",     "human": "Rogue / Mage (mirror)" },
     "rogue+rogue":               { "short": "rr",            "human": "Rogue / Rogue" },
     "rogue+priest":              { "short": "rogue-priest",  "human": "Rogue / Priest" },
     "rogue+resto-druid":         { "short": "rogue-rdruid",  "human": "Rogue / Resto Druid" },
     "hunter+resto-druid":        { "short": "hunter-rdruid", "human": "Hunter / Resto Druid" },
-    "mage+priest":               { "short": "mage-priest",   "human": "Mage / Priest" }
+    "mage+priest":               { "short": "mage-priest",   "human": "Mage / Priest" },
+    "warrior+rogue":             { "short": "warr-rogue",    "human": "Warrior / Rogue" },
+    "warrior+mage":              { "short": "warr-mage",     "human": "Warrior / Mage" },
+    "hunter+resto-shaman":       { "short": "hunter-rsham",  "human": "Hunter / Resto Shaman" },
+    "rogue+shadow-priest":       { "short": "rogue-spriest", "human": "Rogue / Shadow Priest (spec-variant)" }
+  },
+  "our_comps_3v3": {
+    "rogue+mage+priest": { "short": "rmp", "human": "Rogue / Mage / Priest (RMP)" }
+  },
+  "enemy_comps_3v3": {
+    "warrior+warlock+druid":  { "short": "wld",        "human": "Warrior / Warlock / Druid (WLD)" },
+    "rogue+warlock+priest":   { "short": "rlp",        "human": "Rogue / Warlock / Priest (RLP)" },
+    "rogue+warlock+druid":    { "short": "rld",        "human": "Rogue / Warlock / Druid (RLD)" },
+    "rogue+mage+priest":      { "short": "rmp-mirror", "human": "Rogue / Mage / Priest (mirror)" },
+    "mage+warlock+priest":    { "short": "mlp",        "human": "Mage / Warlock / Priest (MLP)" },
+    "shadow-priest+warlock+resto-shaman": { "short": "shadowplay", "human": "Shadowplay (SPriest / Warlock / Resto Shaman)" },
+    "mage+priest+resto-shaman": { "short": "mpsham",   "human": "Mage / Disc Priest / Resto Shaman (double-healer)" },
+    "warrior+mage+priest":    { "short": "wmp",        "human": "Warrior / Mage / Priest (WMP)" },
+    "hunter+disc-priest+resto-druid": { "short": "hpd", "human": "Hunter / Disc Priest / Resto Druid" }
   },
   "classes": [
     "warrior", "paladin", "hunter", "rogue",

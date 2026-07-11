@@ -77,15 +77,30 @@ class TestGlossaryResolution:
 
 
 class TestValidateDirectory:
-    """Контракт: validate_directory(kb/drafts/) валидирует все 22 сгенерированных draft'а."""
+    """Контракт: validate_directory(kb/drafts/) валидирует все 44 сгенерированных draft'ов."""
 
     def test_all_drafts_valid(self, drafts_dir: Path) -> None:
         if not drafts_dir.is_dir():
             pytest.skip("kb/drafts/ ещё не сгенерирован — запусти arena-ingest paste")
         ok, errors = validate_directory(drafts_dir)
         assert errors == [], f"Schema-валидация упала на: {errors}"
-        # Phase 1 эталон: 12 RM + 10 RP = 22
-        assert ok == 22, f"Ожидалось 22 валидных draft'а, получено {ok}"
+        # Эталон: 32×2v2 (15 RM + 15 RP + 2 spriest spec) + 9×3v3
+        # (WLD, mirror, RLP, RLD, MLP, Shadowplay, double-heal, WMP, Hunter/Disc/Druid) = 41
+        # +2 (2026-06-24): rm/rp-vs-warrior-rogue засорсены из гипотез (AOEAH tier-list anchor).
+        # +3 (2026-06-25): rm/rp-vs-warlock-hpala + rp-vs-hunter-hpala засорсены из гипотез
+        # (Warcraft Tavern 2v2 tier-list + RM/DPR strategies anchors).
+        # +2 (2026-06-27): rm/rp-vs-warrior-mage засорсены из гипотез
+        # (AOEAH D-tier anchor; RM + Icy Veins; RP + Gog123456/OwnedCore TBC 2008).
+        # +1 (2026-06-28): rp-vs-mage-rdruid засорсен из гипотезы
+        # (Deadlycoward in-depth DP/R guide, Warcraft Tavern — «DPR vs. Druid / Frost Mage» 5/10).
+        # +2 (2026-07-02): rm/rp-vs-rogue-hpala засорсены из гипотез
+        # (Wowhead hpala arena guide 2.5.5: «Paladin / Warrior or Rogue» = named 2v2 comp
+        # + посвящённая секция; Deadlycoward mana-burn план; Hesback hpala-vs-rogue-teams).
+        # +2 (2026-07-07): rm/rp-vs-mage-hpala засорсены из гипотез
+        # (Skill Capped comps-страницы S2/2.5.5: пара названа «C Tier: Holy Paladin +
+        # Frost Mage» с обеих сторон — hpala-comps и fmage-comps; RP + Deadlycoward
+        # class-handling как помеченная обвязка).
+        assert ok == 51, f"Ожидалось 51 валидных draft'ов, получено {ok}"
 
     def test_all_drafts_have_resolved_abilities(
         self, drafts_dir: Path, glossary_path: Path

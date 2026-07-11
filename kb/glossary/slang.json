@@ -1,0 +1,1078 @@
+{
+  "blind": {
+    "slug": "blind",
+    "en": "blind",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "ослепление",
+    "slang": [
+      "блайнд",
+      "блайндить",
+      "слепить",
+      "ослепить",
+      "заблайндить"
+    ],
+    "voice": "блайнд",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "peel"
+    ]
+  },
+  "blink": {
+    "slug": "blink",
+    "en": "blink",
+    "category": "ability",
+    "ref": "new",
+    "ru": "блинк",
+    "slang": [
+      "блинк",
+      "блинкнуться",
+      "блинкнулся"
+    ],
+    "voice": "блинк",
+    "register": "standard",
+    "confidence": "high",
+    "note": "mage. Нет в abilities.json — кандидат на добавление (Blink, ~spell 1953).",
+    "links": [
+      "nova"
+    ]
+  },
+  "cheap-shot": {
+    "slug": "cheap-shot",
+    "en": "cheap shot",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "чип-шот",
+    "slang": [
+      "чип",
+      "чипшот",
+      "чипшотнуть"
+    ],
+    "voice": "чип",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "opener",
+      "premed"
+    ]
+  },
+  "cloak": {
+    "slug": "cloak",
+    "en": "cloak",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "клоак",
+    "slang": [
+      "клоак",
+      "кош"
+    ],
+    "voice": "клоак",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "Cloak of Shadows; «кош» = CoS.",
+    "links": []
+  },
+  "counterspell": {
+    "slug": "counterspell",
+    "en": "Counterspell",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "кс",
+    "slang": [
+      "кс",
+      "контра",
+      "контру"
+    ],
+    "voice": "кс",
+    "register": "standard",
+    "confidence": "high",
+    "note": "«кик» для CS команда не использует (убрано). У вара аналог — Pummel.",
+    "links": [
+      "blanket-cs",
+      "sheep"
+    ]
+  },
+  "cyclone": {
+    "slug": "cyclone",
+    "en": "cyclone",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "циклон",
+    "slang": [
+      "циклон",
+      "циклонить",
+      "цикл"
+    ],
+    "voice": "циклон",
+    "register": "standard",
+    "confidence": "high",
+    "note": "друид.",
+    "links": []
+  },
+  "death-coil": {
+    "slug": "death-coil",
+    "en": "death coil",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "коил",
+    "slang": [
+      "коил",
+      "койл"
+    ],
+    "voice": "коил",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "лок.",
+    "links": [
+      "fear"
+    ]
+  },
+  "evasion": {
+    "slug": "evasion",
+    "en": "evasion",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "эвейжн",
+    "slang": [
+      "эвейжн"
+    ],
+    "voice": "эвейжн",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "",
+    "links": []
+  },
+  "evisc": {
+    "slug": "evisc",
+    "en": "eviscerate",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "эвис",
+    "slang": [
+      "эвис"
+    ],
+    "voice": "эвис",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "fear": {
+    "slug": "fear",
+    "en": "fear",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "страх",
+    "slang": [
+      "фир",
+      "фирнуть",
+      "зафирить"
+    ],
+    "voice": "фир",
+    "register": "standard",
+    "confidence": "high",
+    "note": "лок/прист.",
+    "links": [
+      "death-coil"
+    ]
+  },
+  "garrote": {
+    "slug": "garrote",
+    "en": "garrote",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "гаррота",
+    "slang": [
+      "гаррота",
+      "гарота"
+    ],
+    "voice": "гарота",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "Добавил «гарота» в формы под твой voice (в правке было только «гаррота»).",
+    "links": []
+  },
+  "gouge": {
+    "slug": "gouge",
+    "en": "gouge",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "гордж",
+    "slang": [
+      "гадж",
+      "гордж",
+      "горджить"
+    ],
+    "voice": "гадж",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "",
+    "links": []
+  },
+  "hammer-of-justice": {
+    "slug": "hammer-of-justice",
+    "en": "hammer of justice",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "подж",
+    "slang": [
+      "хаммер",
+      "подж"
+    ],
+    "voice": "подж",
+    "register": "standard",
+    "confidence": "high",
+    "note": "пал (HoJ). «подж» — основная форма; добавил в slang[], чтобы voice распознавался (в правке было только «хаммер»).",
+    "links": []
+  },
+  "hemo": {
+    "slug": "hemo",
+    "en": "hemo",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "хеморрейдж",
+    "slang": [
+      "хема",
+      "хемо"
+    ],
+    "voice": "хема",
+    "register": "colloquial",
+    "confidence": "low",
+    "note": "",
+    "links": []
+  },
+  "ice-block": {
+    "slug": "ice-block",
+    "en": "ice block",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "айс-блок",
+    "slang": [
+      "блок",
+      "айсблок",
+      "ледышка",
+      "в блоке"
+    ],
+    "voice": "блок",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "icy-veins": {
+    "slug": "icy-veins",
+    "en": "icy veins",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "ледяные вены",
+    "slang": [
+      "вены"
+    ],
+    "voice": "вены",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "маг бёрст-кд.",
+    "links": [
+      "cooldown"
+    ]
+  },
+  "kidney": {
+    "slug": "kidney",
+    "en": "kidney shot",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "кидни-шот",
+    "slang": [
+      "кидни",
+      "кидней",
+      "почка"
+    ],
+    "voice": "кидни",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "premed",
+      "cheap-shot"
+    ]
+  },
+  "mana-burn": {
+    "slug": "mana-burn",
+    "en": "mana burn",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "бёрн",
+    "slang": [
+      "бёрн",
+      "манабёрн",
+      "выжечь ману",
+      "сжигать ману"
+    ],
+    "voice": "бёрн",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "прист.",
+    "links": [
+      "oom"
+    ]
+  },
+  "nova": {
+    "slug": "nova",
+    "en": "frost nova",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "фрост-нова",
+    "slang": [
+      "нова",
+      "новить",
+      "зановить",
+      "новнуть"
+    ],
+    "voice": "нова",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "sticky-nova",
+      "shatter"
+    ]
+  },
+  "premed": {
+    "slug": "premed",
+    "en": "premed",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "премедиейшн",
+    "slang": [
+      "премед",
+      "премедить"
+    ],
+    "voice": "премед",
+    "register": "standard",
+    "confidence": "high",
+    "note": "+2 CP из стелса. RU оставил как в твоей правке (возможна опечатка → «премедитейшн»?).",
+    "links": [
+      "kidney",
+      "cheap-shot",
+      "combo-points"
+    ]
+  },
+  "preparation": {
+    "slug": "preparation",
+    "en": "preparation",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "препарейшн",
+    "slang": [
+      "преп",
+      "препнуть",
+      "препа"
+    ],
+    "voice": "преп",
+    "register": "standard",
+    "confidence": "high",
+    "note": "сброс кд рога; не путать с premed.",
+    "links": [
+      "vanish"
+    ]
+  },
+  "sap": {
+    "slug": "sap",
+    "en": "sap",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "сап",
+    "slang": [
+      "сап",
+      "сапнуть",
+      "засапить",
+      "сапить",
+      "сапуля"
+    ],
+    "voice": "сап",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "sap-stall",
+      "opener"
+    ]
+  },
+  "scatter-shot": {
+    "slug": "scatter-shot",
+    "en": "scatter shot",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "скаттер",
+    "slang": [
+      "скаттер",
+      "скат"
+    ],
+    "voice": "скаттер",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "хант.",
+    "links": []
+  },
+  "sheep": {
+    "slug": "sheep",
+    "en": "polymorph",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "полиморф",
+    "slang": [
+      "поли",
+      "заполить",
+      "овца",
+      "шип"
+    ],
+    "voice": "шип",
+    "register": "standard",
+    "confidence": "high",
+    "note": "slug=sheep (Polymorph). voice=«шип» по твоей правке.",
+    "links": [
+      "counterspell"
+    ]
+  },
+  "shiv": {
+    "slug": "shiv",
+    "en": "shiv",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "шив",
+    "slang": [
+      "шив",
+      "шивнуть",
+      "шивануть"
+    ],
+    "voice": "шив",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "",
+    "links": []
+  },
+  "slice-and-dice": {
+    "slug": "slice-and-dice",
+    "en": "slice and dice",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "слайс-энд-дайс",
+    "slang": [
+      "снд",
+      "слайс",
+      "дайсить"
+    ],
+    "voice": "снд",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "",
+    "links": []
+  },
+  "step": {
+    "slug": "step",
+    "en": "shadowstep",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "шэдоустеп",
+    "slang": [
+      "степ",
+      "шедоустеп"
+    ],
+    "voice": "степ",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "slug step (есть и shadowstep).",
+    "links": []
+  },
+  "trinket": {
+    "slug": "trinket",
+    "en": "Trinket",
+    "category": "ability",
+    "ref": "new",
+    "ru": "тринкет",
+    "slang": [
+      "тринка",
+      "тринканул"
+    ],
+    "voice": "тринка",
+    "register": "standard",
+    "confidence": "high",
+    "note": "Insignia/Medallion. Нет в abilities.json — кандидат (id уточнить, ~42292).",
+    "links": [
+      "post-trinket",
+      "swap"
+    ]
+  },
+  "vanish": {
+    "slug": "vanish",
+    "en": "vanish",
+    "category": "ability",
+    "ref": "abilities.json",
+    "ru": "ваниш",
+    "slang": [
+      "ваниш"
+    ],
+    "voice": "ваниш",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "reset",
+      "sap-stall",
+      "preparation"
+    ]
+  },
+  "opener": {
+    "slug": "opener",
+    "en": "opener",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "опенер",
+    "slang": [
+      "опенер",
+      "опен",
+      "заход"
+    ],
+    "voice": "опенер",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "cheap-shot",
+      "sap"
+    ]
+  },
+  "swap": {
+    "slug": "swap",
+    "en": "swap",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "свап",
+    "slang": [
+      "свап",
+      "свапнуть",
+      "перекинуть"
+    ],
+    "voice": "свап",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "kill-target",
+      "post-trinket"
+    ]
+  },
+  "peel": {
+    "slug": "peel",
+    "en": "peel",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "пил",
+    "slang": [
+      "пил",
+      "пильнуть",
+      "отпилить"
+    ],
+    "voice": "пил",
+    "register": "standard",
+    "confidence": "high",
+    "note": "peel = прикрыть тиммейта. НЕ путать с «пилить» (focus-damage).",
+    "links": [
+      "focus-damage",
+      "blind"
+    ]
+  },
+  "reset": {
+    "slug": "reset",
+    "en": "reset",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "ресет",
+    "slang": [
+      "ресет",
+      "ресетнуть",
+      "отресетить"
+    ],
+    "voice": "ресет",
+    "register": "standard",
+    "confidence": "high",
+    "note": "Убрал шуточное «решетка».",
+    "links": [
+      "vanish",
+      "dr"
+    ]
+  },
+  "kill-target": {
+    "slug": "kill-target",
+    "en": "kill target",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "фокус",
+    "slang": [
+      "фокус",
+      "килтаргет",
+      "цель"
+    ],
+    "voice": "фокус",
+    "register": "standard",
+    "confidence": "high",
+    "note": "«ласт» убрал — это другое (команда «добивай»), а не цель фокуса.",
+    "links": [
+      "swap",
+      "focus-damage"
+    ]
+  },
+  "sap-stall": {
+    "slug": "sap-stall",
+    "en": "sap-stall",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "сап-столл",
+    "slang": [
+      "сапстолл",
+      "сап-контроль"
+    ],
+    "voice": "сапстолл",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "",
+    "links": [
+      "sap",
+      "vanish"
+    ]
+  },
+  "blanket-cs": {
+    "slug": "blanket-cs",
+    "en": "blanket CS",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "бланкет",
+    "slang": [
+      "бланкет",
+      "бланкетнуть"
+    ],
+    "voice": "бланкет",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "превентивный кс вслепую (лок школы на 8 сек).",
+    "links": [
+      "counterspell"
+    ]
+  },
+  "shatter": {
+    "slug": "shatter",
+    "en": "shatter",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "шаттер",
+    "slang": [
+      "шаттер",
+      "шатнуть"
+    ],
+    "voice": "шаттер",
+    "register": "standard",
+    "confidence": "high",
+    "note": "крит по frozen-цели.",
+    "links": [
+      "nova"
+    ]
+  },
+  "sticky-nova": {
+    "slug": "sticky-nova",
+    "en": "sticky nova",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "стики-нова",
+    "slang": [
+      "стики нова",
+      "стики"
+    ],
+    "voice": "стики нова",
+    "register": "colloquial",
+    "confidence": "low",
+    "note": "Ниша: нова «сквозь» цель в melee. Уместность под вопросом — нужна ли запись?",
+    "links": [
+      "nova"
+    ]
+  },
+  "post-trinket": {
+    "slug": "post-trinket",
+    "en": "post-trinket",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "пост-тринка",
+    "slang": [
+      "пост-тринка",
+      "после тринки"
+    ],
+    "voice": "после тринки",
+    "register": "colloquial",
+    "confidence": "med",
+    "note": "фаза после тринки врага (синхронизировано с trinket=тринка).",
+    "links": [
+      "trinket",
+      "swap"
+    ]
+  },
+  "los": {
+    "slug": "los",
+    "en": "LoS",
+    "category": "tactic",
+    "ref": "terms.md",
+    "ru": "лос",
+    "slang": [
+      "лос",
+      "лосить",
+      "за пилар"
+    ],
+    "voice": "лос",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "pillar"
+    ]
+  },
+  "cc": {
+    "slug": "cc",
+    "en": "crowd control",
+    "category": "tactic",
+    "ref": "new",
+    "ru": "контроль",
+    "slang": [
+      "контроль",
+      "законтролить",
+      "цц"
+    ],
+    "voice": "контроль",
+    "register": "standard",
+    "confidence": "high",
+    "note": "«сс» убрал из-за нежелательной коннотации — оставил «цц»/«контроль».",
+    "links": [
+      "dr"
+    ]
+  },
+  "focus-damage": {
+    "slug": "focus-damage",
+    "en": "focus / train",
+    "category": "tactic",
+    "ref": "new",
+    "ru": "пилить",
+    "slang": [
+      "пилить",
+      "спилить",
+      "вынести",
+      "слить"
+    ],
+    "voice": "пилить",
+    "register": "standard",
+    "confidence": "high",
+    "note": "наносить урон по цели. НЕ путать с «пил» (peel).",
+    "links": [
+      "kill-target",
+      "peel"
+    ]
+  },
+  "dr": {
+    "slug": "dr",
+    "en": "DR",
+    "category": "status",
+    "ref": "abilities.json",
+    "ru": "др",
+    "slang": [
+      "др",
+      "в др",
+      "задрить"
+    ],
+    "voice": "др",
+    "register": "standard",
+    "confidence": "high",
+    "note": "diminishing returns. Есть и в terms.md.",
+    "links": [
+      "reset",
+      "cc"
+    ]
+  },
+  "oom": {
+    "slug": "oom",
+    "en": "OOM",
+    "category": "status",
+    "ref": "terms.md",
+    "ru": "оом",
+    "slang": [
+      "оом",
+      "без маны",
+      "замана"
+    ],
+    "voice": "оом",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "mana-burn",
+      "dampening"
+    ]
+  },
+  "dampening": {
+    "slug": "dampening",
+    "en": "dampening",
+    "category": "status",
+    "ref": "terms.md",
+    "ru": "дамп",
+    "slang": [
+      "дамп",
+      "затянули"
+    ],
+    "voice": "дамп",
+    "register": "colloquial",
+    "confidence": "low",
+    "note": "В чистом TBC механики нет — условно для затяжного матча. Нужна ли запись?",
+    "links": [
+      "oom"
+    ]
+  },
+  "cooldown": {
+    "slug": "cooldown",
+    "en": "cooldown",
+    "category": "status",
+    "ref": "new",
+    "ru": "кд",
+    "slang": [
+      "кд",
+      "на кд",
+      "выбить кд",
+      "попнуть кд"
+    ],
+    "voice": "кд",
+    "register": "standard",
+    "confidence": "high",
+    "note": "«попнуть» = использовать кд.",
+    "links": [
+      "icy-veins"
+    ]
+  },
+  "combo-points": {
+    "slug": "combo-points",
+    "en": "combo points",
+    "category": "status",
+    "ref": "new",
+    "ru": "очки",
+    "slang": [
+      "очки",
+      "цпшки",
+      "комбо"
+    ],
+    "voice": "очки",
+    "register": "standard",
+    "confidence": "high",
+    "note": "у рога.",
+    "links": [
+      "premed",
+      "kidney"
+    ]
+  },
+  "healer": {
+    "slug": "healer",
+    "en": "healer",
+    "category": "role",
+    "ref": "new",
+    "ru": "хил",
+    "slang": [
+      "хил",
+      "хилка",
+      "хилер"
+    ],
+    "voice": "хил",
+    "register": "standard",
+    "confidence": "high",
+    "note": "частая цель сапа/контроля.",
+    "links": [
+      "sap-stall",
+      "kill-target"
+    ]
+  },
+  "dps": {
+    "slug": "dps",
+    "en": "DPS",
+    "category": "role",
+    "ref": "new",
+    "ru": "дд",
+    "slang": [
+      "дд",
+      "дамагер",
+      "дамаг"
+    ],
+    "voice": "дд",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": [
+      "focus-damage"
+    ]
+  },
+  "pillar": {
+    "slug": "pillar",
+    "en": "pillar",
+    "category": "target",
+    "ref": "new",
+    "ru": "пилар",
+    "slang": [
+      "пилар",
+      "столб"
+    ],
+    "voice": "пилар",
+    "register": "standard",
+    "confidence": "high",
+    "note": "объект для LoS.",
+    "links": [
+      "los"
+    ]
+  },
+  "rogue": {
+    "slug": "rogue",
+    "en": "rogue",
+    "category": "class",
+    "ref": "new",
+    "ru": "рога",
+    "slang": [
+      "рога"
+    ],
+    "voice": "рога",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "mage": {
+    "slug": "mage",
+    "en": "mage",
+    "category": "class",
+    "ref": "new",
+    "ru": "маг",
+    "slang": [
+      "маг",
+      "мага"
+    ],
+    "voice": "маг",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "priest": {
+    "slug": "priest",
+    "en": "priest",
+    "category": "class",
+    "ref": "new",
+    "ru": "прист",
+    "slang": [
+      "прист",
+      "шадоу",
+      "диско"
+    ],
+    "voice": "прист",
+    "register": "standard",
+    "confidence": "high",
+    "note": "шадоу=shadow, диско=discipline.",
+    "links": []
+  },
+  "druid": {
+    "slug": "druid",
+    "en": "druid",
+    "category": "class",
+    "ref": "new",
+    "ru": "друид",
+    "slang": [
+      "друид",
+      "дру"
+    ],
+    "voice": "друид",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "warrior": {
+    "slug": "warrior",
+    "en": "warrior",
+    "category": "class",
+    "ref": "new",
+    "ru": "вар",
+    "slang": [
+      "вар",
+      "варриор"
+    ],
+    "voice": "вар",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "paladin": {
+    "slug": "paladin",
+    "en": "paladin",
+    "category": "class",
+    "ref": "new",
+    "ru": "пал",
+    "slang": [
+      "пал",
+      "паладин"
+    ],
+    "voice": "пал",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "shaman": {
+    "slug": "shaman",
+    "en": "shaman",
+    "category": "class",
+    "ref": "new",
+    "ru": "шам",
+    "slang": [
+      "шам",
+      "шаман"
+    ],
+    "voice": "шам",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "warlock": {
+    "slug": "warlock",
+    "en": "warlock",
+    "category": "class",
+    "ref": "new",
+    "ru": "лок",
+    "slang": [
+      "лок",
+      "варлок"
+    ],
+    "voice": "лок",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  },
+  "hunter": {
+    "slug": "hunter",
+    "en": "hunter",
+    "category": "class",
+    "ref": "new",
+    "ru": "хант",
+    "slang": [
+      "хант",
+      "хантер"
+    ],
+    "voice": "хант",
+    "register": "standard",
+    "confidence": "high",
+    "note": "",
+    "links": []
+  }
+}

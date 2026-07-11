@@ -17,6 +17,8 @@ authors = [{ name = "Arena Coach Dev" }]
 target-version = "py310"
 line-length = 100
 src = ["backend", "bridge", "ingest"]
+# tools/ — вспомогательные dev-скрипты (smoke-тесты), не под строгими гейтами CI.
+extend-exclude = ["tools"]
 
 [tool.ruff.lint]
 select = [
