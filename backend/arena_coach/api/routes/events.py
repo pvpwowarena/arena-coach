@@ -57,7 +57,7 @@ async def receive_event(
     player_name, event (dict), match (dict).
 
     Returns:
-        {"status": "sent"|"skipped"|"no_matchup"|"no_player"|"error"}
+        {"status": "sent"|"skipped"|"no_matchup"|"no_player"|"throttled"|"error"}
     """
     try:
         body: dict[str, Any] = await request.json()

@@ -1,7 +1,8 @@
 # Arena Coach — CLAUDE.md (контекст проекта для новых чатов)
 
-> Последнее обновление: 2026-05-17
+> Последнее обновление: 2026-06-23
 > Читай этот файл в начале каждого нового чата перед любой работой.
+> **Живые цифры KB** (драфты/гипотезы/покрытие) — в `docs/NEXT-SESSION-HANDOFF.md` и `docs/COVERAGE.md`, не здесь (этот файл — про архитектуру/инфру).
 
 ---
 
@@ -20,10 +21,11 @@
 ```
 [WoW client + ArenaCoach addon (Lua 2.4.3)]
         │ пишет события в chat-frame с префиксом [AC|TYPE|f1|f2|...]
+        │ (v0.2.0: ARENA_START шлёт и союзников; форс-флаш чат-лога LoggingChat toggle)
         ▼
-[arena-bridge.exe (Windows, PyInstaller onefile)]
-        │ tail WoW Logs/Chat-YYYY-MM-DD.txt → нормализация → HTTPS POST /v1/events
-        │ Bearer-токен аутентификация
+[arena-bridge (Windows .exe + macOS arm64, PyInstaller onefile)]
+        │ tail WoW Logs/WoWChatLog.txt ИЛИ Chat-YYYY-MM-DD.txt (автодетект, v0.3.0)
+        │ → нормализация → HTTPS POST /v1/events, Bearer-токен аутентификация
         ▼
 [Backend VPS: pvpwowarena.surprise4you.dev]
         ├── FastAPI (uvicorn, 127.0.0.1:8000) — systemd arena-coach-api
@@ -43,6 +45,8 @@
 ```
 
 **Канал addon ⇄ bridge:** chat-frame с префиксом `[AC|...]` (см. ADR-0003). SavedVariables как realtime-канал отвергнут — пишутся только при /reload и logout.
+
+**Имя chat-лога (v0.3.0):** стандартно `/chatlog` пишет в `Logs/WoWChatLog.txt` (не `Chat-YYYY-MM-DD.txt`, как предполагал ADR-0003). Bridge следит за обоими кандидатами и выбирает растущий. Клиент буферизует запись → аддон форс-флашит `LoggingChat(false→true)` после критических событий (отключается `/ac flush off`).
 
 ---
 
@@ -110,7 +114,7 @@ KB_PATH=/opt/arena-coach/kb
 ### ✅ Phase 1 — KB + ingestion (DONE)
 - Каноническая Markdown-схема, Pydantic-валидация
 - Глоссарий: `kb/glossary/abilities.json` + `kb/glossary/terms.md`
-- 22 драфта в `kb/drafts/` (RM + RP составы)
+- Драфты в `kb/drafts/` (RM + RP составы; живой счётчик — см. handoff/COVERAGE)
 - Ingest CLI: `python -m arena_ingest paste --from-paste`
 
 ### ✅ Phase 2 — Discord бот (DONE, работает на VPS)
@@ -131,6 +135,11 @@ Slash-команды:
 
 Канал в bridge: chat-frame с префиксом `[AC|...]`.
 
+**v0.2.0 (2026-07-11):** `ARENA_START` шлёт 4-е поле — союзники (игрок первым, для
+таргетирования советов); повторный emit при выходе врага из стелса (с дедупом);
+bracket через `GetBattlefieldStatus` (teamSize) вместо подсчёта юнитов;
+форс-флаш чат-лога (`LoggingChat(false→true)`, дебаунс 1с) + `/ac flush on|off`.
+
 **Статус:** код написан, не тестировался в живой игре.
 
 ### 🔄 Phase 4 — Bridge + реал-тайм подсказки (ЧАСТИЧНО)
@@ -143,7 +152,20 @@ Slash-команды:
   - `__main__.py` — CLI с `--env-file`, `--check-config`, авто-детект `bridge.env`
 - `arena-bridge.spec` — PyInstaller onefile spec, **кросс-платформенный** (Windows .exe + macOS arm64 binary, см. секцию GitHub Actions ниже).
 - **Pipeline на бэке:** `backend/arena_coach/orchestrator/pipeline.py` (подключён к `/v1/events`) — KB lookup → LLM hint (опционально) → Discord DM через REST
-- **НЕ собран** ни `arena-bridge.exe`, ни macOS-бандл — нужен первый тег `v0.1.0` для запуска GitHub Actions
+- **Релизы собраны:** теги `v0.1.0`…`v0.2.0` выпущены, GitHub Actions собрал `arena-bridge.exe` (Windows) + `arena-bridge-macos-arm64.tar.gz` (macOS). `v0.2.0` = HEAD. (Старый пункт «выпустить v0.1.0» закрыт.)
+- **Аддон починен (2026-06-05):** автозапуск `LoggingChat(true)` при `PLAYER_LOGIN` — без него whisper-to-self не попадал в `Logs/Chat-*.txt`, bridge не видел событий. Добавлена `/ac test` — self-test канала без арены. Версия аддона → `0.1.1`.
+- **Серверная цепочка проверена без живой игры:** `tools/e2e_dryrun.py` (synthetic Chat-log → bridge → backend → DM, статусы зелёные). Живой тест-гайд (Mac arm64 + Windows): `docs/TESTING.md`.
+- ✅ **Phase 4.1 ПОЧИНЕНА (2026-07-11, v0.3.0):** матчинг по базовым КЛАССАМ врагов
+  (`KBIndex.find_by_classes` + `comp_to_classes`: `holy-paladin`→`paladin`) с фильтром
+  по нашему составу (из allies аддона 0.2.0 или `$BRIDGE_OUR_COMP`). Спек с ворот не
+  виден → кандидатов может быть несколько: DM показывает основной + альтернативы.
+  DM на ARENA_START: опенер + килл-таргет + сложность, таргетировано под класс игрока
+  (`player_class` = allies[0]). In-fight: TRINKET + ключевые дефы (`_ABILITY_HINT_KEYS`:
+  evasion/ice block/bubble/wall/…) с троттлингом `HintThrottle` (20с интервал,
+  60с на повтор ключа). CC-касты намеренно не хинтятся. Новый статус: `throttled`.
+- **Bridge v0.3.0:** автодетект `WoWChatLog.txt`/`Chat-*.txt` (см. выше), устойчивость
+  к усечению файла и оборванным строкам, `utf-8-sig` для bridge.env (BOM Блокнота),
+  `$BRIDGE_OUR_COMP`/`--our-comp` fallback. Windows-ревью: `docs/TESTING.md` (внизу).
 - **macOS поддержка (MVP, май 2026):** Apple Silicon arm64 unsigned binary, .tar.gz с sample env-файлом и инструкцией по обходу Gatekeeper. Apple Developer signing/notarization отложены — добавим если выйдем за пределы 5-10 юзеров. Intel-mac сборка пока не делается.
 
 ### ⏳ Phase 5 — CV/OCR (не начата)
@@ -156,7 +178,8 @@ Slash-команды:
 ```
 kb/
 ├── matchups/      ← одобренные гайды (production-канон)
-├── drafts/        ← черновики после ingest, до review (22 файла)
+├── drafts/        ← sourced-черновики, до review (индексируются ботом)
+├── hypotheses/    ← AI-синтез, карантин (НЕ индексируются, НЕ проходят validate-kb)
 ├── glossary/
 │   ├── abilities.json   ← spell-id → {icon, duration, DR-category}
 │   └── terms.md         ← опенер, шаттер, sap-stall, etc.
@@ -253,7 +276,8 @@ arena-coach/
 │   └── arena_ingest/             # paste-parser, glossary-extract, CLI
 ├── kb/
 │   ├── matchups/                 # одобренные (сейчас пусто)
-│   ├── drafts/                   # 22 черновика — индекс грузит их тоже
+│   ├── drafts/                   # sourced-черновики — индекс грузит их тоже
+│   ├── hypotheses/               # AI-синтез, карантин — НЕ индексируются
 │   ├── glossary/
 │   └── compositions.json
 ├── tests/                        # ← единственный test-набор (113 тестов)
@@ -349,10 +373,13 @@ ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
 ## Что нужно сделать (backlog)
 
 ### Срочно (блокирует игроков)
-1. **Выпустить v0.1.0** — `git tag v0.1.0 && git push origin v0.1.0`
-   - Actions параллельно соберут `arena-bridge.exe` (Windows) и `arena-bridge-macos-arm64.tar.gz` (macOS) → опубликуют в GitHub Release → кнопки на `/download` заработают
-2. **Протестировать аддон в живой игре (Mac, Anniversary)** — скопировать `addon/ArenaCoach/` в `/Applications/World of Warcraft/_anniversary_/Interface/AddOns/`, зайти на арену, проверить что в `Logs/Chat-*.txt` появляются `[AC|...]` строки.
-3. **Phase 4 интеграция end-to-end на маке** — распаковать `arena-bridge-macos-arm64.tar.gz`, обойти Gatekeeper (`xattr -d com.apple.quarantine ./arena-bridge`), запустить против аддона, проверить что POST /v1/events доходят и Discord DM приходит.
+1. ✅ ~~Выпустить v0.1.0~~ — сделано (теги `v0.1.0`…`v0.2.0`, артефакты в Releases).
+2. **Выпустить v0.3.0** — `git push && git tag v0.3.0 && git push origin v0.3.0`
+   (Actions соберёт .exe + macOS arm64 tar.gz + ArenaCoach.zip с аддоном 0.2.0).
+   ⚠ В релизах ≤ v0.2.0 лежит аддон 0.1.0 БЕЗ LoggingChat-фикса и bridge без
+   автодетекта WoWChatLog.txt — для живого теста нужен именно v0.3.0.
+3. **Живой тест аддона + bridge (Mac arm64 и Windows)** — по гайду `docs/TESTING.md`. Можно начать ДО арены: `/ac test` гоняет канал до Discord DM прямо в открытом мире. Аддон теперь сам включает Chat-логирование. Предусловие: добавить игрока через `/access add … role:player` (даже owner — иначе `no_player`). На живом тесте проверить: какой файл лога открыл bridge; реальную задержку доставки DM (буферизация); не бесит ли форс-флаш системными сообщениями (если да — `/ac flush off`).
+4. ✅ ~~Phase 4.1 — починить KB-матчинг~~ — сделано 2026-07-11 (см. Phase 4).
 
 ### Среднесрочно
 4. Добавить настоящий `ANTHROPIC_API_KEY` (сейчас заглушка `sk-ant-placeholder` — LLM-hint не работает, pipeline отправляет KB-текст напрямую).

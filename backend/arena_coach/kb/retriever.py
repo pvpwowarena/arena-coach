@@ -8,7 +8,9 @@
 
 from __future__ import annotations
 
-from arena_coach.kb.indexer import KBIndex, _normalize_comp
+from collections.abc import Sequence
+
+from arena_coach.kb.indexer import KBIndex, _normalize_comp, comp_to_classes
 from arena_coach.kb.schema import KBDoc
 
 # Таблица алиасов для нормализации ввода пользователя
@@ -113,6 +115,41 @@ class KBRetriever:
 
     def find_by_slug(self, slug: str) -> KBDoc | None:
         return self._index.get_by_slug(slug)
+
+    def find_realtime_candidates(
+        self,
+        enemy_classes: Sequence[str],
+        our_comp_hint: str | None = None,
+    ) -> list[KBDoc]:
+        """Кандидаты матчапа для real-time pipeline (Phase 4.1).
+
+        Аддон присылает только КЛАССЫ врагов (спек с ворот не виден), поэтому
+        матчим по базовым классам: враги WARRIOR+PALADIN найдут и
+        'vs: warrior+holy-paladin', и 'vs: warrior+ret-paladin' — все кандидаты
+        возвращаются, вызывающий код решает как показать неоднозначность.
+
+        Args:
+            enemy_classes: классы врагов из ARENA_START (напр. ["WARRIOR", "PALADIN"])
+            our_comp_hint: наш состав из allies или $BRIDGE_OUR_COMP (напр. "rogue+mage");
+                None → ищем по любому нашему составу.
+
+        Returns:
+            Отсортированный по slug список кандидатов ([] если матчапа нет).
+        """
+        enemy = tuple(sorted(c.strip().lower() for c in enemy_classes if c and c.strip()))
+        if not enemy:
+            return []
+
+        our: tuple[str, ...] | None = None
+        if our_comp_hint:
+            our = comp_to_classes(normalize_user_comp(our_comp_hint))
+
+        docs = self._index.find_by_classes(our, enemy)
+        if not docs and our is not None:
+            # Наш состав не совпал ни с одним документом — покажем хоть что-то
+            # по этим врагам (совет соседнего состава лучше, чем тишина).
+            docs = self._index.find_by_classes(None, enemy)
+        return sorted(docs, key=lambda d: d.slug)
 
     def list_compositions(self) -> list[str]:
         return self._index.list_compositions()

@@ -24,6 +24,45 @@ def _normalize_comp(comp: str) -> str:
     return "+".join(sorted(parts))
 
 
+# ── Class-level матчинг (Phase 4.1) ──────────────────────────────────────────
+# Аддон видит только КЛАССЫ врагов (UnitClass), а KB-документы описывают
+# спеки ('warrior+holy-paladin'). Сводим спек-slug к базовому классу.
+
+_KNOWN_CLASSES = {
+    "warrior",
+    "paladin",
+    "hunter",
+    "rogue",
+    "priest",
+    "shaman",
+    "mage",
+    "warlock",
+    "druid",
+}
+
+# Спеки, чьё имя не оканчивается на класс
+_SPECIAL_SPEC_CLASS = {"boomkin": "druid"}
+
+
+def comp_part_to_class(part: str) -> str:
+    """'resto-druid' → 'druid'; 'holy-paladin' → 'paladin'; 'rogue' → 'rogue'."""
+    p = part.strip().lower()
+    if p in _KNOWN_CLASSES:
+        return p
+    if p in _SPECIAL_SPEC_CLASS:
+        return _SPECIAL_SPEC_CLASS[p]
+    if "-" in p:
+        tail = p.rsplit("-", 1)[1]
+        if tail in _KNOWN_CLASSES:
+            return tail
+    return p
+
+
+def comp_to_classes(comp: str) -> tuple[str, ...]:
+    """'warrior+holy-paladin' → ('paladin', 'warrior') — sorted базовые классы."""
+    return tuple(sorted(comp_part_to_class(x) for x in comp.split("+") if x.strip()))
+
+
 class KBIndex:
     """In-memory индекс KB-документов.
 
@@ -40,6 +79,7 @@ class KBIndex:
     def __init__(self) -> None:
         self._by_matchup: dict[tuple[str, str], KBDoc] = {}
         self._by_slug: dict[str, KBDoc] = {}
+        self._by_vs_classes: dict[tuple[str, ...], list[KBDoc]] = {}
         self._all: list[KBDoc] = []
         self._loaded = False
 
@@ -50,6 +90,7 @@ class KBIndex:
         """
         self._by_matchup.clear()
         self._by_slug.clear()
+        self._by_vs_classes.clear()
         self._all.clear()
 
         loaded = 0
@@ -99,9 +140,27 @@ class KBIndex:
             self._by_matchup[rev_key] = doc
 
         self._by_slug[doc.slug] = doc
+        self._by_vs_classes.setdefault(comp_to_classes(doc.vs), []).append(doc)
         self._all.append(doc)
 
     # ── Query API ─────────────────────────────────────────────────────────
+
+    def find_by_classes(
+        self,
+        our_classes: tuple[str, ...] | None,
+        enemy_classes: tuple[str, ...],
+    ) -> list[KBDoc]:
+        """Документы, где базовые классы vs == enemy_classes.
+
+        our_classes задан → дополнительно фильтруем по composition.
+        Спеки НЕ учитываются: враг 'PALADIN' матчит и holy-, и ret-документы —
+        кандидатов может быть несколько, выбор за вызывающим кодом.
+        """
+        docs = self._by_vs_classes.get(tuple(sorted(enemy_classes)), [])
+        if our_classes is None:
+            return list(docs)
+        ours = tuple(sorted(our_classes))
+        return [d for d in docs if comp_to_classes(d.composition) == ours]
 
     def get_by_matchup(self, comp: str, vs: str) -> KBDoc | None:
         """Найти документ по (наш состав, их состав). Нормализует ввод."""
