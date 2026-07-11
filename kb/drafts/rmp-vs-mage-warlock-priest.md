@@ -39,7 +39,7 @@ _Провенанс: 3v3-драфт по принятому паттерну (к
 
 ## If enemy trinkets
 
-Их маг трикетит [[ability:kidney-shot]] → [[ability:ice-block]] под добив, выжидай (у MLP нет рога, чтобы peel'ить — давление держится). Варлок трикетит → fear/[[ability:death-coil]]; прийст [[ability:pain-suppression]] под их burst. Не blanket-dispel в UA (silence).
+Их маг тринкетит [[ability:kidney-shot]] → [[ability:ice-block]] под добив, выжидай (у MLP нет рога, чтобы peel'ить — давление держится). Варлок тринкетит → fear/[[ability:death-coil]]; прийст [[ability:pain-suppression]] под их burst. Не blanket-dispel в UA (silence).
 
 ## Common mistakes
 

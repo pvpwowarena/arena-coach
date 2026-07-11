@@ -61,7 +61,7 @@ Double wound должен быть надет когда станишь кого
 
 ### Things to Watch Out For
 
-[[ability:blind]] + [[ability:sap]] окна для вражеского RD когда у тебя или прийста нет trinket'а. Rogue Druid очень хорошо капитализирует на trinket'ах через длинные CC-цепи. Не трикеть просто [[ability:blind]] — жди пока рог сольёт [[ability:vanish]] из blind'а, и получи 2 КД за 1.
+[[ability:blind]] + [[ability:sap]] окна для вражеского RD когда у тебя или прийста нет trinket'а. Rogue Druid очень хорошо капитализирует на trinket'ах через длинные CC-цепи. Не тринкеть просто [[ability:blind]] — жди пока рог сольёт [[ability:vanish]] из blind'а, и получи 2 КД за 1.
 
 Рано распознавай момент когда вражеская команда может построить давление на тебе и ставь рога в [[ability:fear]]. Не давай им окно где у них есть trinket'ы, [[ability:will-of-the-forsaken]], [[ability:blind]] и [[ability:vanish]], а у одного из вас trinket'а нет.
 

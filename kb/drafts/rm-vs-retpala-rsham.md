@@ -25,7 +25,7 @@ tags: []
 
 [[ability:sap]] паладина под конец sacrifice-баффа на shaman'е, маг подходит на mount'е и пытается [[ability:nova]] → [[ability:sheep]] shaman'а. Иногда нужен blanket counterspell чтобы лэндить sheep.
 
-После того как shaman в sheep'е — открываешь на ret'е с double wound: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]], blast вместе с магом. Shaman может трикетнуть в opener'е — тогда либо ре-sheep, либо blanket counterspell. Идеально вынудить trinket паладина или bubble, после чего vanish'аешься, маг blink'ается и убегаете.
+После того как shaman в sheep'е — открываешь на ret'е с double wound: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]], blast вместе с магом. Shaman может тринкетнуть в opener'е — тогда либо ре-sheep, либо blanket counterspell. Идеально вынудить trinket паладина или bubble, после чего vanish'аешься, маг blink'ается и убегаете.
 
 После этого ждёшь в стелсе пока DR'ы стана и sheep'а отойдут, и когда они off-DR — переоткрываешь на паладина: nova → blanket → counterspell shaman'а, и повторяешь то же комбо.
 

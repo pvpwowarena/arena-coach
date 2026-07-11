@@ -25,9 +25,9 @@ tags: []
 
 Если друид в stealth, рог ищет друида, а маг кайтит варриора rank-1 спеллами, фишингуя clearcast и frostbite proc'и для медленного износа HP. Если друид в tree form, маг сначала sheep'ит варриора, и только после этого рог открывает на друида. Если варриор **не gnome** — можно открыть с nova по варриору, при условии что sheep лэндит в конце новы и его не сорвут spell-reflect'ом или fear'ом.
 
-Equip: double wound. Combo: [[ability:cheap-shot]] → [[ability:shiv]] → [[ability:gouge]], чтобы оттянуть HOT'ы; маг шатерит друида ровно когда [[ability:kidney-shot]] лэндит после gouge. Если ты в радиусе варриора — **подними [[ability:evasion]] превентивно**, чтобы варр не трикетнул в hamstring/mace-stun proc на тебе.
+Equip: double wound. Combo: [[ability:cheap-shot]] → [[ability:shiv]] → [[ability:gouge]], чтобы оттянуть HOT'ы; маг шатерит друида ровно когда [[ability:kidney-shot]] лэндит после gouge. Если ты в радиусе варриора — **подними [[ability:evasion]] превентивно**, чтобы варр не тринкетнул в hamstring/mace-stun proc на тебе.
 
-Когда варриор трикетит — либо resheep, либо nova по нему. Если позиционно неудобно или маг под fear/intercept/pummel — рог [[ability:blind]] варра и продолжаем tunneling друида.
+Когда варриор тринкетит — либо resheep, либо nova по нему. Если позиционно неудобно или маг под fear/intercept/pummel — рог [[ability:blind]] варра и продолжаем tunneling друида.
 
 [[ability:counterspell]] после kidney по друиду закрывает мага от faerie fire и блокирует hot-spell-школу.
 

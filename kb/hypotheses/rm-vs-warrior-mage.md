@@ -31,7 +31,7 @@ tags: [ai-synthesized, unverified, needs-source-or-review]
 
 ## If enemy trinkets
 
-Их маг трикетит [[ability:kidney-shot]]/[[ability:sheep]] → [[ability:ice-block]] под наш добив, выжидай: после IB он всё ещё под давлением 2v1. Воин трикетит [[ability:sheep]]/[[ability:nova]] → resheep или [[ability:blind]]. Опасайся spell-reflect (наши nova/sheep отлетают) и того, что их маг counterspell'ит нашего мага в kill-окне.
+Их маг тринкетит [[ability:kidney-shot]]/[[ability:sheep]] → [[ability:ice-block]] под наш добив, выжидай: после IB он всё ещё под давлением 2v1. Воин тринкетит [[ability:sheep]]/[[ability:nova]] → resheep или [[ability:blind]]. Опасайся spell-reflect (наши nova/sheep отлетают) и того, что их маг counterspell'ит нашего мага в kill-окне.
 
 ## Common mistakes
 

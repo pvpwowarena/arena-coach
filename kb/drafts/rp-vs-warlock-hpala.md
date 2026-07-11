@@ -39,7 +39,7 @@ SL/SL warlock + holy paladin — танковый, mana-heavy состав по�
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:fear]]/[[ability:hammer-of-justice]]; warlock трикетит [[ability:kidney-shot]]/[[ability:fear]]. Держи [[ability:blind]] на пост-трикет паладина, чтобы докрутить манабёрн или закрыть kill-окно на варлоке.
+Paladin тринкетит [[ability:fear]]/[[ability:hammer-of-justice]]; warlock тринкетит [[ability:kidney-shot]]/[[ability:fear]]. Держи [[ability:blind]] на пост-тринкет паладина, чтобы докрутить манабёрн или закрыть kill-окно на варлоке.
 
 ## Common mistakes
 

@@ -41,7 +41,7 @@ _Провенанс: 3v3-драфт по принятому паттерну (к
 
 ## If enemy trinkets
 
-Их маг трикетит кидни → блок под добив, выжидай (у MLP нет рога, чтобы пил'ить — давление держится). Варлок трикетит → фир/Death Coil; прийст Pain Suppression под их burst. Не blanket-dispel в UA (silence).
+Их маг тринкетит кидни → блок под добив, выжидай (у MLP нет рога, чтобы пил'ить — давление держится). Варлок тринкетит → фир/Death Coil; прийст Pain Suppression под их burst. Не blanket-dispel в UA (silence).
 
 ## Common mistakes
 

@@ -130,7 +130,7 @@ Slash-команды:
 Файлы — **только `addon/ArenaCoach/`**:
 - `ArenaCoach.toc` — TOC для TBC 2.4.3 (Interface 20400)
 - `Core.lua` — namespace, SavedVariables-схема
-- `Tracker.lua` — ARENA_OPPONENT_UPDATE, UNIT_AURA, COMBAT_LOG_EVENT_UNFILTERED, трекинг трикетов и CC
+- `Tracker.lua` — ARENA_OPPONENT_UPDATE, UNIT_AURA, COMBAT_LOG_EVENT_UNFILTERED, трекинг тринкетов и CC
 - `UI.lua` — StatusFrame
 
 Канал в bridge: chat-frame с префиксом `[AC|...]`.

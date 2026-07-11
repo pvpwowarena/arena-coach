@@ -39,7 +39,7 @@ _Провенанс: comp-level якоря — tier-лист AOEAH (Dec 2025): w
 
 ## If enemy trinkets
 
-Их маг трикетит [[ability:kidney-shot]]/[[ability:sheep]] → [[ability:ice-block]] под наш добив; выжидай: после IB он под 2v1 без састейна, и у него нет хилера, который мог бы залечить. Воин трикетит [[ability:sheep]]/[[ability:nova]] → resheep или [[ability:blind]]. Опасайся spell-reflect воина: [[ability:sheep]] и [[ability:nova]] отлетают обратно — выжидай или подходи с другого угла.
+Их маг тринкетит [[ability:kidney-shot]]/[[ability:sheep]] → [[ability:ice-block]] под наш добив; выжидай: после IB он под 2v1 без састейна, и у него нет хилера, который мог бы залечить. Воин тринкетит [[ability:sheep]]/[[ability:nova]] → resheep или [[ability:blind]]. Опасайся spell-reflect воина: [[ability:sheep]] и [[ability:nova]] отлетают обратно — выжидай или подходи с другого угла.
 
 ## Common mistakes
 

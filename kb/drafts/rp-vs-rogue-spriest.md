@@ -41,7 +41,7 @@ Sourced-каркас (Windz, Warcraft Tavern, «SPR vs Disc Priest/Rogue», diff
 
 ## If enemy trinkets
 
-Их SP трикетит наш [[ability:kidney-shot]] → [[ability:blind]] и резап, либо mana-burn-давление (он лимитирован маной — источник). Их рог трикетит [[ability:sap]]/[[ability:blind]] → готовь [[ability:vanish]]/повторный [[ability:gouge]]. Под их синхронный burst (Psychic Scream → silence нашего диско → kidney) спасает [[ability:pain-suppression]] + шилд; silence лечится только пережиданием, поэтому диско не должен стоять mid-map.
+Их SP тринкетит наш [[ability:kidney-shot]] → [[ability:blind]] и резап, либо mana-burn-давление (он лимитирован маной — источник). Их рог тринкетит [[ability:sap]]/[[ability:blind]] → готовь [[ability:vanish]]/повторный [[ability:gouge]]. Под их синхронный burst (Psychic Scream → silence нашего диско → kidney) спасает [[ability:pain-suppression]] + шилд; silence лечится только пережиданием, поэтому диско не должен стоять mid-map.
 
 ## Common mistakes
 

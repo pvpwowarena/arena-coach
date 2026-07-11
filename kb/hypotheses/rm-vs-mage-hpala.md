@@ -33,7 +33,7 @@ Kill target — вражеский маг (сквишовее, и убрав е�
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:sheep]]/[[ability:hammer-of-justice]]; маг трикетит [[ability:kidney-shot]]/[[ability:nova]]. Держи [[ability:counterspell]] на heal паладина; не бурсти при доступных bubble/freedom.
+Paladin тринкетит [[ability:sheep]]/[[ability:hammer-of-justice]]; маг тринкетит [[ability:kidney-shot]]/[[ability:nova]]. Держи [[ability:counterspell]] на heal паладина; не бурсти при доступных bubble/freedom.
 
 ## Common mistakes
 

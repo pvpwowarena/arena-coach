@@ -29,7 +29,7 @@ Sourced-каркас (Gog123456, ownedcore, «Mirror Match PMR v PMR»): в зе
 
 ## If enemy trinkets
 
-Их маг под добивом уходит в [[ability:ice-block]] → **Mass Dispel снимает блок** (источник: «within 1-2 seconds»), команда доводит. Их рог [[ability:vanish]] из-под kidney → наш маг [[ability:nova]]/blizzard выбивает из стелса; наш прийст готов [[ability:fear]] (Psychic Scream) на их рога. Их прийст трикетит наш [[ability:kidney-shot]] → silence/[[ability:blind]] и продолжаем фокус мага.
+Их маг под добивом уходит в [[ability:ice-block]] → **Mass Dispel снимает блок** (источник: «within 1-2 seconds»), команда доводит. Их рог [[ability:vanish]] из-под kidney → наш маг [[ability:nova]]/blizzard выбивает из стелса; наш прийст готов [[ability:fear]] (Psychic Scream) на их рога. Их прийст тринкетит наш [[ability:kidney-shot]] → silence/[[ability:blind]] и продолжаем фокус мага.
 
 ## Common mistakes
 

@@ -47,7 +47,7 @@ _Провенанс: источники — tier-листы (AOEAH, Skill Capped
 
 ## If enemy trinkets
 
-Шаман выходит из [[ability:sheep]] почти **только трикетом** (magic он не снимает) — после его trinket'а шаман беззащитен от овцы на DR, это окно для шаттера варлока. Варлок трикетит [[ability:kidney-shot]]/[[ability:sheep]]. Держи [[ability:counterspell]] на NS-heal после трикета.
+Шаман выходит из [[ability:sheep]] почти **только тринкетом** (magic он не снимает) — после его trinket'а шаман беззащитен от овцы на DR, это окно для шаттера варлока. Варлок тринкетит [[ability:kidney-shot]]/[[ability:sheep]]. Держи [[ability:counterspell]] на NS-heal после тринкета.
 
 ## Common mistakes
 

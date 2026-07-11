@@ -35,7 +35,7 @@ _Провенанс: матчап-якоря — tier-лист AOEAH (warrior+ro
 
 ## If enemy trinkets
 
-Вражеский рог трикетит [[ability:kidney-shot]] → [[ability:blind]] и резет, либо [[ability:vanish]] и пережидание DR. Воин трикетит [[ability:sheep]]/[[ability:nova]] → resheep или [[ability:blind]] воина. Опасайся spell-reflect (sheep/nova отлетают) и Mortal Strike (−50% к хилу; у RM хила нет — критично только в долгой игре, а долгую игру состав без sustain как раз не тянет). Disarm воина снижает урон нашего рога.
+Вражеский рог тринкетит [[ability:kidney-shot]] → [[ability:blind]] и резет, либо [[ability:vanish]] и пережидание DR. Воин тринкетит [[ability:sheep]]/[[ability:nova]] → resheep или [[ability:blind]] воина. Опасайся spell-reflect (sheep/nova отлетают) и Mortal Strike (−50% к хилу; у RM хила нет — критично только в долгой игре, а долгую игру состав без sustain как раз не тянет). Disarm воина снижает урон нашего рога.
 
 ## Common mistakes
 

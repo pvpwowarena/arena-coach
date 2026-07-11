@@ -41,7 +41,7 @@ Sourced-каркас (Windz, Warcraft Tavern, «SPR vs Mage/Rogue» + обзор
 
 ## If enemy trinkets
 
-У shadow priest почти нет аутов — на его trinket держи повторный [[ability:kidney-shot]]/[[ability:sheep]] и не давай свободных кастов. Его Psychic Scream (магия школы shadow) рвёт burst: маг может снять фир [[ability:ice-block]], рог — [[ability:cloak-of-shadows]]. Вражеский рог трикетит kidney → [[ability:vanish]] или [[ability:blind]] и продолжаем давить прийста. Учти: SP в shadowform мягко танчит урон и лечится от своих DoT'ов (passive heal по источнику), поэтому добивать его нужно в чистое burst-окно, а не размазанным уроном.
+У shadow priest почти нет аутов — на его trinket держи повторный [[ability:kidney-shot]]/[[ability:sheep]] и не давай свободных кастов. Его Psychic Scream (магия школы shadow) рвёт burst: маг может снять фир [[ability:ice-block]], рог — [[ability:cloak-of-shadows]]. Вражеский рог тринкетит kidney → [[ability:vanish]] или [[ability:blind]] и продолжаем давить прийста. Учти: SP в shadowform мягко танчит урон и лечится от своих DoT'ов (passive heal по источнику), поэтому добивать его нужно в чистое burst-окно, а не размазанным уроном.
 
 ## Common mistakes
 

@@ -28,7 +28,7 @@ Hunter + resto shaman — healer/DPS с тоннами тоталки. Глав�
 
 ## If enemy trinkets
 
-Шаман трикетит [[ability:kidney-shot]] и кидает Nature's Swiftness-heal → нужен повторный stun/[[ability:counterspell]] на heal-школу (nature) и [[ability:sheep]] после DR. Хантер: deterrence (parry/deflect — пережди), readiness (сброс трапов), scatter+trap нашего мага. Опасайся viper sting (мана-дрейн мага).
+Шаман тринкетит [[ability:kidney-shot]] и кидает Nature's Swiftness-heal → нужен повторный stun/[[ability:counterspell]] на heal-школу (nature) и [[ability:sheep]] после DR. Хантер: deterrence (parry/deflect — пережди), readiness (сброс трапов), scatter+trap нашего мага. Опасайся viper sting (мана-дрейн мага).
 
 ## Common mistakes
 

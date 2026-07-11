@@ -63,7 +63,7 @@ Mind numbing poison делает магу жизнь адом. Невозмож�
 
 ### Additional Notes
 
-[[ability:blind]] в stoneform до того как он успеет использовать desperate prayer — отличный играй. Заставляет его сидеть [[ability:blind]] и даёт твоим стану/[[ability:fear]] выйти из DR и пере-стэкнуть wound'ы/crippling, либо вынуждает его трикетить и desperate prayer без wound-poison'ов.
+[[ability:blind]] в stoneform до того как он успеет использовать desperate prayer — отличный играй. Заставляет его сидеть [[ability:blind]] и даёт твоим стану/[[ability:fear]] выйти из DR и пере-стэкнуть wound'ы/crippling, либо вынуждает его тринкетить и desperate prayer без wound-poison'ов.
 
 Не overcommit'ься на мага и не дай ему утянуть тебя слишком далеко от пиллара — кроме случая когда у тебя есть [[ability:cloak-of-shadows]].
 

@@ -39,7 +39,7 @@ _Провенанс: матчап-якоря — tier-лист AOEAH (warrior+ro
 
 ## If enemy trinkets
 
-Их рог трикетит [[ability:kidney-shot]] → [[ability:blind]] и резет. Воин трикетит [[ability:fear]] → готовь второй fear (DR) или kite. Опасайся: disarm нашего рога (просадка урона) и MS на диско в kill-окнах. Spell-reflect ловит мало нашего — у прийста почти нет рефлектируемого.
+Их рог тринкетит [[ability:kidney-shot]] → [[ability:blind]] и резет. Воин тринкетит [[ability:fear]] → готовь второй fear (DR) или kite. Опасайся: disarm нашего рога (просадка урона) и MS на диско в kill-окнах. Spell-reflect ловит мало нашего — у прийста почти нет рефлектируемого.
 
 ## Common mistakes
 

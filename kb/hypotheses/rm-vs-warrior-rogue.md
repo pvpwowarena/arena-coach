@@ -32,7 +32,7 @@ tags: [ai-synthesized, sourced-promoted, needs-top-source]
 
 ## If enemy trinkets
 
-Вражеский рог трикетит [[ability:kidney-shot]] → [[ability:blind]] и резет, либо [[ability:vanish]] и пережидание DR. Воин трикетит [[ability:sheep]]/[[ability:nova]] → resheep или [[ability:blind]] воина. Опасайся spell-reflect (sheep/nova отлетают) и Mortal Strike (−50% к нашим хилам, хотя у RM хила нет — критично только если играем долго). Disarm воина снижает урон нашего рога.
+Вражеский рог тринкетит [[ability:kidney-shot]] → [[ability:blind]] и резет, либо [[ability:vanish]] и пережидание DR. Воин тринкетит [[ability:sheep]]/[[ability:nova]] → resheep или [[ability:blind]] воина. Опасайся spell-reflect (sheep/nova отлетают) и Mortal Strike (−50% к нашим хилам, хотя у RM хила нет — критично только если играем долго). Disarm воина снижает урон нашего рога.
 
 ## Common mistakes
 

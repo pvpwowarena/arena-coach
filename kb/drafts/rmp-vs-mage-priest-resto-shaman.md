@@ -39,7 +39,7 @@ _Провенанс: 3v3-драфт по принятому паттерну. И
 
 ## If enemy trinkets
 
-Их маг трикетит [[ability:kidney-shot]] → [[ability:ice-block]] под добив; [[ability:blind]] и резет на маге. Хилеры трикетят CC + NS-heal/[[ability:pain-suppression]]. Не вкладывай бурст в Bloodlust-окно (они отлечат) — дождись, когда оба хилера под CC/мана-давлением.
+Их маг тринкетит [[ability:kidney-shot]] → [[ability:ice-block]] под добив; [[ability:blind]] и резет на маге. Хилеры тринкетят CC + NS-heal/[[ability:pain-suppression]]. Не вкладывай бурст в Bloodlust-окно (они отлечат) — дождись, когда оба хилера под CC/мана-давлением.
 
 ## Common mistakes
 

@@ -17,7 +17,7 @@ promoted_at: '2026-06-28'
 tags: [ai-synthesized, unverified, needs-source-or-review]
 ---
 
-> ✅ **ЗАСОРСЕНО (2026-06-28).** Promoted to `kb/drafts/rp-vs-mage-rdruid.md`. Источник: in-depth DP/R-гайд Deadlycoward (Infernal Gladiator) на Warcraft Tavern, секция «DPR vs. Druid / Frost Mage» (5/10) — kill mage via mana-burn OOM, добив друида в human form после трикета, прийст диспелит весь контроль кроме cyclone. Awaits owner approval via `python -m arena_ingest review approve --slug rp-vs-mage-rdruid`.
+> ✅ **ЗАСОРСЕНО (2026-06-28).** Promoted to `kb/drafts/rp-vs-mage-rdruid.md`. Источник: in-depth DP/R-гайд Deadlycoward (Infernal Gladiator) на Warcraft Tavern, секция «DPR vs. Druid / Frost Mage» (5/10) — kill mage via mana-burn OOM, добив друида в human form после тринкета, прийст диспелит весь контроль кроме cyclone. Awaits owner approval via `python -m arena_ingest review approve --slug rp-vs-mage-rdruid`.
 
 ## Opener
 
@@ -31,7 +31,7 @@ tags: [ai-synthesized, unverified, needs-source-or-review]
 
 ## If enemy trinkets
 
-Друид трикетит [[ability:kidney-shot]]/[[ability:fear]] + NS-[[ability:cyclone]]; маг трикетит [[ability:kidney-shot]]/[[ability:blind]]. Держи [[ability:blind]] на пост-трикет друида, чтобы закрыть kill-окно на маге или дать прийсту докрутить манабёрн.
+Друид тринкетит [[ability:kidney-shot]]/[[ability:fear]] + NS-[[ability:cyclone]]; маг тринкетит [[ability:kidney-shot]]/[[ability:blind]]. Держи [[ability:blind]] на пост-тринкет друида, чтобы закрыть kill-окно на маге или дать прийсту докрутить манабёрн.
 
 ## Common mistakes
 

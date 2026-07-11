@@ -29,11 +29,11 @@ tags: [ai-synthesized, unverified, needs-source-or-review]
 
 ## Alternative opener
 
-Если открыли на тебе: вражеский [[ability:cheap-shot]]→[[ability:kidney-shot]] на маге, [[ability:hammer-of-justice]] паладина. Трикет [[ability:kidney-shot]] (не на их blind), [[ability:ice-block]] под burst, наш рог [[ability:blind]]/[[ability:kidney-shot]] вражеского рога.
+Если открыли на тебе: вражеский [[ability:cheap-shot]]→[[ability:kidney-shot]] на маге, [[ability:hammer-of-justice]] паладина. Тринкет [[ability:kidney-shot]] (не на их blind), [[ability:ice-block]] под burst, наш рог [[ability:blind]]/[[ability:kidney-shot]] вражеского рога.
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:sheep]]/[[ability:hammer-of-justice]]; вражеский рог трикетит [[ability:kidney-shot]]/[[ability:sheep]] или [[ability:blind]]. Держи [[ability:counterspell]] на heal; [[ability:sheep]] вражеского рога после его [[ability:vanish]]/[[ability:cloak-of-shadows]] на DR.
+Paladin тринкетит [[ability:sheep]]/[[ability:hammer-of-justice]]; вражеский рог тринкетит [[ability:kidney-shot]]/[[ability:sheep]] или [[ability:blind]]. Держи [[ability:counterspell]] на heal; [[ability:sheep]] вражеского рога после его [[ability:vanish]]/[[ability:cloak-of-shadows]] на DR.
 
 ## Common mistakes
 

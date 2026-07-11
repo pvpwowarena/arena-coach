@@ -28,7 +28,7 @@ Kill target — вражеский маг (сквишовее друида; уб
 
 ## If enemy trinkets
 
-Друид трикетит [[ability:sheep]]/[[ability:kidney-shot]] и держит NS-[[ability:cyclone]] на наш добив; маг трикетит [[ability:sheep]]/[[ability:nova]]. Не вкладывай burst, пока свободный друид может оборвать kill циклоном — сначала свяжи друида.
+Друид тринкетит [[ability:sheep]]/[[ability:kidney-shot]] и держит NS-[[ability:cyclone]] на наш добив; маг тринкетит [[ability:sheep]]/[[ability:nova]]. Не вкладывай burst, пока свободный друид может оборвать kill циклоном — сначала свяжи друида.
 
 ## Common mistakes
 

@@ -103,9 +103,9 @@ Interface/
    [ArenaCoach] Арена началась (2v2) — трекинг активен.
    ```
 3. Плашка сменится на зелёный `[AC] 2v2 0 ev`.
-4. При использовании врагом трикета:
+4. При использовании врагом тринкета:
    ```
-   [ArenaCoach] ТРИКЕТ: PlayerName использовал Medallion of the Alliance
+   [ArenaCoach] ТРИНКЕТ: PlayerName использовал Medallion of the Alliance
    ```
 5. После выхода с арены:
    ```

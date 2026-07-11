@@ -39,7 +39,7 @@ _Провенанс: 3v3-драфт по принятому паттерну. И
 
 ## If enemy trinkets
 
-SP трикетит [[ability:kidney-shot]] → [[ability:blind]] и второй сетап. Shaman NS-heal + grounding на наш бурст; warlock fear/[[ability:death-coil]] + felhunter Devour снимает [[ability:sheep]]. Не вкладывай весь бурст, пока shaman свободен и grounding стоит.
+SP тринкетит [[ability:kidney-shot]] → [[ability:blind]] и второй сетап. Shaman NS-heal + grounding на наш бурст; warlock fear/[[ability:death-coil]] + felhunter Devour снимает [[ability:sheep]]. Не вкладывай весь бурст, пока shaman свободен и grounding стоит.
 
 ## Common mistakes
 

@@ -21,7 +21,7 @@ sources:
   retrieved: '2026-06-30'
 - type: web
   url: "https://www.wowhead.com/tbc/guide/holy-paladin-tbcc-pvp-guide-gearing-tips-tricks-and-2v2-warrior-paladin-matchups-15309"
-  title: "Hesback (Gladiator S2, Firemaw-EU) — Holy Paladin TBCC PvP Guide (Wowhead) — поведение hpala против rogue-команд: «Stoneform is amazing against rogue teams», Sacrifice-аптайм «until Blind» только против НЕ-диспелящих rogue-команд (RP — диспелящая: прийст снимает Sacrifice), «stay at max range vs rogue teams», BoP на 2-й Kidney, трикет на 2-й Blind; ребафф r1 Might/Wisdom против диспелеров — «trade 20 mana buffs for their 200+ Dispel»"
+  title: "Hesback (Gladiator S2, Firemaw-EU) — Holy Paladin TBCC PvP Guide (Wowhead) — поведение hpala против rogue-команд: «Stoneform is amazing against rogue teams», Sacrifice-аптайм «until Blind» только против НЕ-диспелящих rogue-команд (RP — диспелящая: прийст снимает Sacrifice), «stay at max range vs rogue teams», BoP на 2-й Kidney, тринкет на 2-й Blind; ребафф r1 Might/Wisdom против диспелеров — «trade 20 mana buffs for their 200+ Dispel»"
   retrieved: '2026-07-02'
 last_reviewed: '2026-07-02'
 reviewer: null
@@ -39,17 +39,17 @@ _Провенанс: якорь пары — официальный hpala-arena-
 
 ## Alternative opener
 
-Если их рог открылся на прийсте ([[ability:cheap-shot]]→[[ability:kidney-shot]] + [[ability:hammer-of-justice]]): [[ability:pain-suppression]], трикет kidney (НЕ их blind), наш рог перекрывает их рога [[ability:kidney-shot]]/[[ability:blind]]. Помни про их экономию (Hesback): BoP придержан на 2-й kidney, трикет паладина — на 2-й blind. Пережили го — возвращаемся к мана-войне: каждый размен маны в нашу пользу.
+Если их рог открылся на прийсте ([[ability:cheap-shot]]→[[ability:kidney-shot]] + [[ability:hammer-of-justice]]): [[ability:pain-suppression]], тринкет kidney (НЕ их blind), наш рог перекрывает их рога [[ability:kidney-shot]]/[[ability:blind]]. Помни про их экономию (Hesback): BoP придержан на 2-й kidney, тринкет паладина — на 2-й blind. Пережили го — возвращаемся к мана-войне: каждый размен маны в нашу пользу.
 
 ## If enemy trinkets
 
-Паладин по Hesback не трикетит рано — держит под [[ability:blind]]; если раскидал рано, [[ability:blind]] в него залипает на полные 10 сек = свободный бурн-цикл. Их рог трикетит [[ability:kidney-shot]]/[[ability:blind]]. После OOM паладина (нет маны = нет bubble-каста... bubble мгновенный, но хилы кастовые — дави kick'ами нашего рога) — «stick to pala», добиваем. Dwarf-цели: Stoneform снимает яды (Hesback) — вторая причина не строить план только на wound.
+Паладин по Hesback не тринкетит рано — держит под [[ability:blind]]; если раскидал рано, [[ability:blind]] в него залипает на полные 10 сек = свободный бурн-цикл. Их рог тринкетит [[ability:kidney-shot]]/[[ability:blind]]. После OOM паладина (нет маны = нет bubble-каста... bubble мгновенный, но хилы кастовые — дави kick'ами нашего рога) — «stick to pala», добиваем. Dwarf-цели: Stoneform снимает яды (Hesback) — вторая причина не строить план только на wound.
 
 ## Common mistakes
 
 - Забыть про Cleanse: crippling/wound снимаются — без ре-[[ability:shiv]] их рог свободно уходит/врывается.
 - Жечь ману «между делом»: [[ability:mana-burn]] — это win-condition, прийст должен стоять на макс-дистанции и жечь каждое свободное окно (план Deadlycoward), а не танковать их рога.
-- Тратить [[ability:fear]] в [[ability:cloak-of-shadows]]/подставлять его под их трикет до OOM-фазы.
+- Тратить [[ability:fear]] в [[ability:cloak-of-shadows]]/подставлять его под их тринкет до OOM-фазы.
 - Стоять прийстом у стены/угла неправильно: спиной к стене от garrote, но НЕ в углу, где легко засапать (Deadlycoward).
 - Ребафф-война: не оставлять на себе дешёвые бафы — а вот их паладин, наоборот, будет ребаффить r1 Might/Wisdom под наш dispel (Hesback) — не корми свой манапул в обратную сторону, бёрн эффективнее диспела баффов.
 

@@ -28,7 +28,7 @@ Hunter + resto shaman против rogue/disc — это мана-война и 
 
 ## If enemy trinkets
 
-Шаман трикетит [[ability:kidney-shot]] + NS-heal → [[ability:gouge]]/повторный stun и [[ability:fear]] (Psychic Scream), если tremor totem уже сломан/далеко. Хантер: deterrence (пережди), readiness, viper sting (дрейн нашего диско — критично в мана-войне). Опасайся: tremor totem рвёт наш [[ability:fear]].
+Шаман тринкетит [[ability:kidney-shot]] + NS-heal → [[ability:gouge]]/повторный stun и [[ability:fear]] (Psychic Scream), если tremor totem уже сломан/далеко. Хантер: deterrence (пережди), readiness, viper sting (дрейн нашего диско — критично в мана-войне). Опасайся: tremor totem рвёт наш [[ability:fear]].
 
 ## Common mistakes
 

@@ -27,19 +27,19 @@ tags: [sourced, synthesized-execution, author-guide]
 
 ## Opener
 
-_Провенанс: матчап-якорь — in-depth DP/R-гайд Deadlycoward (Infernal Gladiator, top-10 EU DP/R season 1) на Warcraft Tavern, секция «DPR vs. Druid / Frost Mage» (5/10). Прямо из источника: kill target и план — sap мага, дисп прийста, OOM мага манабёрном, кайт; добив друида в human form после его трикета. DPR-strengths WT подтверждают, что дисп-прийст комфортен против frost-mage и druid roots («dispel everything except cyclone»). Пошаговое исполнение (роговый combo, DR, тайминги трикетов) синтезировано на sourced-каркасе из механик TBC 2.4.3. Теги `sourced`/`author-guide`/`synthesized-execution` — перед approve желательно ревью топ-RP._
+_Провенанс: матчап-якорь — in-depth DP/R-гайд Deadlycoward (Infernal Gladiator, top-10 EU DP/R season 1) на Warcraft Tavern, секция «DPR vs. Druid / Frost Mage» (5/10). Прямо из источника: kill target и план — sap мага, дисп прийста, OOM мага манабёрном, кайт; добив друида в human form после его тринкета. DPR-strengths WT подтверждают, что дисп-прийст комфортен против frost-mage и druid roots («dispel everything except cyclone»). Пошаговое исполнение (роговый combo, DR, тайминги тринкетов) синтезировано на sourced-каркасе из механик TBC 2.4.3. Теги `sourced`/`author-guide`/`synthesized-execution` — перед approve желательно ревью топ-RP._
 
-Матчап (источник, Deadlycoward, 5/10): frost-маг + resto-друид — каст-дамаг под кайт-хилером. Для RP это **не бурст-гонка, а игра на ману**. Kill target — вражеский **mage**, которого выжимают в OOM манабёрном (fallback — друид, добиваемый в human form после его трикета). Источник прямо: «kill mage by making him run out of mana / kill druid after his trinket».
+Матчап (источник, Deadlycoward, 5/10): frost-маг + resto-друид — каст-дамаг под кайт-хилером. Для RP это **не бурст-гонка, а игра на ману**. Kill target — вражеский **mage**, которого выжимают в OOM манабёрном (fallback — друид, добиваемый в human form после его тринкета). Источник прямо: «kill mage by making him run out of mana / kill druid after his trinket».
 
 Опенер (источник): рог [[ability:sap]] вражеского **мага**, прийст диспелит его контроль — дисп-прийст снимает [[ability:sheep]] и [[ability:nova]]-root, и вообще «dispel everything except cyclone». Дальше прийст давит мага [[ability:mana-burn]], команда кайтит вокруг пиллара: по источнику матч «pretty easy to kite and avoid CCs», потому что прийст чистит почти весь контроль. Рог держит мага в [[ability:gouge]]/[[ability:kidney-shot]] и [[ability:garrote]] (silence рвёт каст), не давая блинкать-кастовать, пока манабёрн добивает его мана-пул. Маг в OOM — добиваем.
 
 ## Alternative opener
 
-Fallback-цель — друид (источник: «kill druid after his trinket … kill druid in human form without trinket because your priest can dispel you»). Если маг невыгодно разменял ману или спрятался в [[ability:ice-block]], свяжи мага и лови **друида в human form**: прийст диспелит с рога снейр/root, рог [[ability:cheap-shot]] → [[ability:kidney-shot]] друида, бурст в окно. Лучший момент — когда трикет друида на КД, а [[ability:cyclone]] уже потрачен.
+Fallback-цель — друид (источник: «kill druid after his trinket … kill druid in human form without trinket because your priest can dispel you»). Если маг невыгодно разменял ману или спрятался в [[ability:ice-block]], свяжи мага и лови **друида в human form**: прийст диспелит с рога снейр/root, рог [[ability:cheap-shot]] → [[ability:kidney-shot]] друида, бурст в окно. Лучший момент — когда тринкет друида на КД, а [[ability:cyclone]] уже потрачен.
 
 ## If enemy trinkets
 
-Друид трикетит [[ability:kidney-shot]]/[[ability:fear]] и держит NS-[[ability:cyclone]] на твой добив — [[ability:cyclone]] прийст **не диспелит** (источник), поэтому не вкладывай kill-сетап, пока у друида свободен циклон. По источнику druid после трикета всё равно убиваем в human form (трикет ушёл на КД → лови с дисп-помощью прийста). Маг трикетит [[ability:kidney-shot]]/[[ability:garrote]] → [[ability:ice-block]] под давление; пережди IB и продолжай [[ability:mana-burn]] — его мана-пул, а не HP, главный таргет.
+Друид тринкетит [[ability:kidney-shot]]/[[ability:fear]] и держит NS-[[ability:cyclone]] на твой добив — [[ability:cyclone]] прийст **не диспелит** (источник), поэтому не вкладывай kill-сетап, пока у друида свободен циклон. По источнику druid после тринкета всё равно убиваем в human form (тринкет ушёл на КД → лови с дисп-помощью прийста). Маг тринкетит [[ability:kidney-shot]]/[[ability:garrote]] → [[ability:ice-block]] под давление; пережди IB и продолжай [[ability:mana-burn]] — его мана-пул, а не HP, главный таргет.
 
 ## Common mistakes
 

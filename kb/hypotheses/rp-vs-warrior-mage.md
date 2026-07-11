@@ -31,7 +31,7 @@ Warrior + mage против rogue/disc: воин тренит и спелл-ло
 
 ## If enemy trinkets
 
-Маг трикетит [[ability:kidney-shot]]/sheep → [[ability:ice-block]] под добив, выжидаем. Воин трикетит [[ability:fear]] → второй fear (DR) или kite. Опасайся: pummel-локает наш holy-cast (heal), поэтому фейкай касты; spell-reflect ловит fear; Mortal Strike режет хил на 50%.
+Маг тринкетит [[ability:kidney-shot]]/sheep → [[ability:ice-block]] под добив, выжидаем. Воин тринкетит [[ability:fear]] → второй fear (DR) или kite. Опасайся: pummel-локает наш holy-cast (heal), поэтому фейкай касты; spell-reflect ловит fear; Mortal Strike режет хил на 50%.
 
 ## Common mistakes
 

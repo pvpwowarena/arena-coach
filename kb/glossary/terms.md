@@ -81,7 +81,7 @@ Frost Mage комбо: **Frost Nova** (или любой freeze-эффект) �
 
 ## post-trinket
 
-Фаза после того, как противник использовал PvP-trinket (Insignia of the Alliance/Horde, spell 42292). Trinket снимает любой CC и даёт 30-сек immunity к stun/charm/sleep/fear/etc — потому что resilience-cap. Cooldown трикета 2 минуты. Подсказки в KB разделяются на `## Opener` и `## If enemy trinkets`, потому что пост-трикет — отдельная тактическая фаза.
+Фаза после того, как противник использовал PvP-trinket (Insignia of the Alliance/Horde, spell 42292). Trinket снимает любой CC и даёт 30-сек immunity к stun/charm/sleep/fear/etc — потому что resilience-cap. Cooldown тринкета 2 минуты. Подсказки в KB разделяются на `## Opener` и `## If enemy trinkets`, потому что пост-тринкет — отдельная тактическая фаза.
 
 ---
 

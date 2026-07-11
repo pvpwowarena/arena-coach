@@ -32,7 +32,7 @@ Hunter + holy paladin: хантер кайтит и контролит (freezing
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:fear]]/[[ability:hammer-of-justice]]; хантер трикетит [[ability:kidney-shot]]/trap-сетап. Держи [[ability:blind]] на пост-трикет паладина, чтобы докрутить манабёрн.
+Paladin тринкетит [[ability:fear]]/[[ability:hammer-of-justice]]; хантер тринкетит [[ability:kidney-shot]]/trap-сетап. Держи [[ability:blind]] на пост-тринкет паладина, чтобы докрутить манабёрн.
 
 ## Common mistakes
 

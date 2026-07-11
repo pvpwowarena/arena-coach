@@ -35,7 +35,7 @@ Kill target — вражеский маг. Опенер: рог [[ability:sap]] 
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:fear]]/[[ability:hammer-of-justice]]; маг трикетит [[ability:kidney-shot]]/[[ability:blind]]. Держи [[ability:blind]] на пост-трикет паладина — докрутить манабёрн или закрыть kill-окно на маге.
+Paladin тринкетит [[ability:fear]]/[[ability:hammer-of-justice]]; маг тринкетит [[ability:kidney-shot]]/[[ability:blind]]. Держи [[ability:blind]] на пост-тринкет паладина — докрутить манабёрн или закрыть kill-окно на маге.
 
 ## Common mistakes
 

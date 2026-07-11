@@ -44,7 +44,7 @@ _Провенанс: источники — со стороны warrior/holy-pal
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:sheep]] или [[ability:hammer-of-justice]]; воин трикетит [[ability:kidney-shot]]/[[ability:blind]]. Держи [[ability:counterspell]] на хил после трикета paladin'а. Не вкладывай burst, пока bubble/freedom/trinket доступны — сначала вынуди их.
+Paladin тринкетит [[ability:sheep]] или [[ability:hammer-of-justice]]; воин тринкетит [[ability:kidney-shot]]/[[ability:blind]]. Держи [[ability:counterspell]] на хил после тринкета paladin'а. Не вкладывай burst, пока bubble/freedom/trinket доступны — сначала вынуди их.
 
 ## Common mistakes
 

@@ -43,7 +43,7 @@ _Провенанс: comp-level якоря — Skill Capped (Season 2, Patch 2.5
 
 ## If enemy trinkets
 
-Их маг трикетит kidney/сетап → у него остаётся [[ability:ice-block]]: пережидаем ([[ability:evasion]]/отскок), после IB он голый — добив под [[ability:counterspell]]. Пала трикетит [[ability:sheep]] → re-sheep/[[ability:blind]]; пала bubble → killwindow закрыт на 12с: маг кайтит, рог [[ability:vanish]]-ресет или доводит их мага; после бабла у палы нет второй кнопки — снова CS на хил и добив мага. Берегись [[ability:hammer-of-justice]] по нашему магу в бурст-окно — пала держит его для пила.
+Их маг тринкетит kidney/сетап → у него остаётся [[ability:ice-block]]: пережидаем ([[ability:evasion]]/отскок), после IB он голый — добив под [[ability:counterspell]]. Пала тринкетит [[ability:sheep]] → re-sheep/[[ability:blind]]; пала bubble → killwindow закрыт на 12с: маг кайтит, рог [[ability:vanish]]-ресет или доводит их мага; после бабла у палы нет второй кнопки — снова CS на хил и добив мага. Берегись [[ability:hammer-of-justice]] по нашему магу в бурст-окно — пала держит его для пила.
 
 ## Common mistakes
 

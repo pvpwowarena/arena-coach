@@ -39,7 +39,7 @@ _Провенанс: матчап-якоря — (1) tier-лист 2v2 Warcraft 
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:sheep]]/[[ability:hammer-of-justice]]; warlock трикетит [[ability:kidney-shot]]/[[ability:sheep]]. Держи [[ability:counterspell]] на heal-школу после трикета паладина; не вкладывай burst, пока доступны bubble/freedom.
+Paladin тринкетит [[ability:sheep]]/[[ability:hammer-of-justice]]; warlock тринкетит [[ability:kidney-shot]]/[[ability:sheep]]. Держи [[ability:counterspell]] на heal-школу после тринкета паладина; не вкладывай burst, пока доступны bubble/freedom.
 
 ## Common mistakes
 

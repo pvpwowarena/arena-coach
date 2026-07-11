@@ -35,11 +35,11 @@ _Провенанс: 3v3-драфт по принятому паттерну (к
 
 ## Opener
 
-Стелс-открытие: найти hunter'а или druid'а. Свяжи druid'а ([[ability:sap]]/[[ability:sheep]]), бурст hunter'а. Hunter заскаттерит/затрапит — рог разрывает дистанцию или [[ability:cloak-of-shadows]]/трикет. Перед добивом hunter'а убедись, что druid не свободен (иначе [[ability:cyclone]] спасёт).
+Стелс-открытие: найти hunter'а или druid'а. Свяжи druid'а ([[ability:sap]]/[[ability:sheep]]), бурст hunter'а. Hunter заскаттерит/затрапит — рог разрывает дистанцию или [[ability:cloak-of-shadows]]/тринкет. Перед добивом hunter'а убедись, что druid не свободен (иначе [[ability:cyclone]] спасёт).
 
 ## If enemy trinkets
 
-Hunter трикетит [[ability:kidney-shot]] → deterrence/readiness (сброс трапов) — пережди и реоткройся. Druid трикетит [[ability:sheep]] + NS-[[ability:cyclone]] на наш добив. Disc трикетит + [[ability:pain-suppression]]/mass dispel. Не вкладывай бурст при свободном druid'е.
+Hunter тринкетит [[ability:kidney-shot]] → deterrence/readiness (сброс трапов) — пережди и реоткройся. Druid тринкетит [[ability:sheep]] + NS-[[ability:cyclone]] на наш добив. Disc тринкетит + [[ability:pain-suppression]]/mass dispel. Не вкладывай бурст при свободном druid'е.
 
 ## Common mistakes
 

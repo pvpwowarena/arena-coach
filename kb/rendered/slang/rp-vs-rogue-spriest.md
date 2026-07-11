@@ -43,7 +43,7 @@ Sourced-каркас (Windz, Warcraft Tavern, «SPR vs Disc прист/рога�
 
 ## If enemy trinkets
 
-Их SP трикетит наш кидни → блайнд и резап, либо mana-burn-давление (он лимитирован маной — источник). Их рог трикетит сап/блайнд → готовь ваниш/повторный Gouge. Под их синхронный burst (Psychic Scream → silence нашего диско → kidney) спасает Pain Suppression + шилд; silence лечится только пережиданием, поэтому диско не должен стоять mid-map.
+Их SP тринкетит наш кидни → блайнд и резап, либо mana-burn-давление (он лимитирован маной — источник). Их рог тринкетит сап/блайнд → готовь ваниш/повторный Gouge. Под их синхронный burst (Psychic Scream → silence нашего диско → kidney) спасает Pain Suppression + шилд; silence лечится только пережиданием, поэтому диско не должен стоять mid-map.
 
 ## Common mistakes
 

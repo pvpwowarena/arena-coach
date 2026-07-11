@@ -32,7 +32,7 @@ tags: [ai-synthesized, sourced-promoted, needs-top-source]
 
 ## If enemy trinkets
 
-Их рог трикетит [[ability:kidney-shot]] → [[ability:blind]] и резет. Воин трикетит [[ability:fear]] → готовь второй fear (DR) или kite. Опасайся: воин fear'ит наш фир ward (если есть) intercept'ом, spell-reflect ловит... у прийста мало рефлектируемого; основная боль — disarm нашего рога и MS на диско.
+Их рог тринкетит [[ability:kidney-shot]] → [[ability:blind]] и резет. Воин тринкетит [[ability:fear]] → готовь второй fear (DR) или kite. Опасайся: воин fear'ит наш фир ward (если есть) intercept'ом, spell-reflect ловит... у прийста мало рефлектируемого; основная боль — disarm нашего рога и MS на диско.
 
 ## Common mistakes
 

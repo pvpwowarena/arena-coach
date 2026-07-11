@@ -31,11 +31,11 @@ tags: [ai-synthesized, unverified, needs-source-or-review]
 
 ## Alternative opener
 
-Если открыли на прийсте: вражеский [[ability:cheap-shot]]→[[ability:kidney-shot]], [[ability:hammer-of-justice]]. [[ability:pain-suppression]], трикет [[ability:kidney-shot]] (не [[ability:blind]]), наш рог [[ability:blind]]/[[ability:kidney-shot]] вражеского рога, [[ability:fear]] на его [[ability:vanish]].
+Если открыли на прийсте: вражеский [[ability:cheap-shot]]→[[ability:kidney-shot]], [[ability:hammer-of-justice]]. [[ability:pain-suppression]], тринкет [[ability:kidney-shot]] (не [[ability:blind]]), наш рог [[ability:blind]]/[[ability:kidney-shot]] вражеского рога, [[ability:fear]] на его [[ability:vanish]].
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:fear]]/[[ability:hammer-of-justice]]; вражеский рог трикетит [[ability:kidney-shot]]/[[ability:blind]]. Держи [[ability:blind]] на пала или на пост-[[ability:cloak-of-shadows]] вражеского рога; докручивай манабёрн.
+Paladin тринкетит [[ability:fear]]/[[ability:hammer-of-justice]]; вражеский рог тринкетит [[ability:kidney-shot]]/[[ability:blind]]. Держи [[ability:blind]] на пала или на пост-[[ability:cloak-of-shadows]] вражеского рога; докручивай манабёрн.
 
 ## Common mistakes
 

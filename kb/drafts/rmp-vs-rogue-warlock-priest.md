@@ -39,7 +39,7 @@ S-vs-S зеркало по духу: оба состава — control/attrition
 
 ## If enemy trinkets
 
-Их warlock трикетит [[ability:kidney-shot]] → death coil/fear-ловля; готовь [[ability:blind]] и второй сетап. Disc-прийст трикетит и жмёт [[ability:pain-suppression]] — не вкладывай весь бурст в PS-окно. **Не blanket-dispel'ить** их прийста бездумно: снятие Unstable Affliction (warlock DoT) сайленсит снимающего — диспелим аккуратно.
+Их warlock тринкетит [[ability:kidney-shot]] → death coil/fear-ловля; готовь [[ability:blind]] и второй сетап. Disc-прийст тринкетит и жмёт [[ability:pain-suppression]] — не вкладывай весь бурст в PS-окно. **Не blanket-dispel'ить** их прийста бездумно: снятие Unstable Affliction (warlock DoT) сайленсит снимающего — диспелим аккуратно.
 
 ## Common mistakes
 

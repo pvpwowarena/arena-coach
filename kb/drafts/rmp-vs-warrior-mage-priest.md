@@ -39,7 +39,7 @@ WMP давит warrior'ом и контролит магом, но **уступ�
 
 ## If enemy trinkets
 
-Их маг трикетит [[ability:kidney-shot]] → [[ability:ice-block]]; [[ability:blind]] и резет. Warrior трикетит [[ability:sheep]]/[[ability:nova]] → resheep/[[ability:blind]] (берегись spell-reflect). Disc трикетит и [[ability:pain-suppression]] — не вкладывай весь бурст в PS-окно.
+Их маг тринкетит [[ability:kidney-shot]] → [[ability:ice-block]]; [[ability:blind]] и резет. Warrior тринкетит [[ability:sheep]]/[[ability:nova]] → resheep/[[ability:blind]] (берегись spell-reflect). Disc тринкетит и [[ability:pain-suppression]] — не вкладывай весь бурст в PS-окно.
 
 ## Common mistakes
 

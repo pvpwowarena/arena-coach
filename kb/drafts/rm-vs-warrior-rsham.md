@@ -29,4 +29,4 @@ tags: []
 
 Как и в Warrior/Druid, маг занимается варром и не даёт ему двигаться, пока ты строишь давление и стэкаешь wound'ы на shaman'е. Я обычно держу double wound в этом матчапе, но иногда нужно cripple shaman'а чтобы он был в LoS у мага.
 
-Если warrior трикетит — либо resheep / nova на trinket, либо blind если магу неудобно; продолжаешь пилить shaman'а.
+Если warrior тринкетит — либо resheep / nova на trinket, либо blind если магу неудобно; продолжаешь пилить shaman'а.

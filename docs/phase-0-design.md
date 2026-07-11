@@ -100,7 +100,7 @@ arena-coach/
 │   │   ├── EventBus.lua
 │   │   ├── ArenaTracker.lua      # ARENA_OPPONENT_UPDATE, UNIT_AURA
 │   │   ├── CombatLog.lua         # COMBAT_LOG_EVENT_UNFILTERED
-│   │   ├── CooldownTracker.lua   # трикеты, эвейжн, prep, vanish, ice-block...
+│   │   ├── CooldownTracker.lua   # тринкеты, эвейжн, prep, vanish, ice-block...
 │   │   └── Serializer.lua        # запись в ArenaCoachDB
 │   ├── ui/
 │   │   └── StatusFrame.lua       # маленький "connected/idle" frame
@@ -277,7 +277,7 @@ tags: [opener-burst, sap-stall, druid-swap]
 [что делаем по дамагеру / по хилу после CC-trinket]
 
 ## Mid-fight rotation
-[как держим давление до 2-го трикета / 2-го vanish]
+[как держим давление до 2-го тринкета / 2-го vanish]
 
 ## Endgame / OOM scenarios
 [мана-вар на маге, druid-OOM, dampening]
@@ -387,10 +387,10 @@ tags: [opener-burst, druid-swap, double-wound, evasion-preempt]
 Equip: double wound. Combo: [[ability:cheap-shot]] → [[ability:shiv]] →
 [[ability:gouge]] чтобы стол-аутить HOT'ы, маг шатерит друида ровно когда
 [[ability:kidney-shot]] лэндит после gouge. Если рог в радиусе варра — **pop
-[[ability:evasion]] превентивно**, чтобы варр не трикетнул в hamstring/mace-stun proc.
+[[ability:evasion]] превентивно**, чтобы варр не тринкетнул в hamstring/mace-stun proc.
 
 ## If enemy trinkets
-Когда варр трикетит: либо resheep, либо nova по варру; если позиционно неудобно или
+Когда варр тринкетит: либо resheep, либо nova по варру; если позиционно неудобно или
 маг под fear/intercept/pummel — рог [[ability:blind]] варра и продолжает tunneling друида.
 
 [[ability:counterspell]] после kidney по друиду — закрывает мага от faerie fire и
@@ -516,7 +516,7 @@ faerie fire или мили-удары.
 │ Маг открывает Polymorph на варриоре. Рог сапает и идёт         │
 │ на друида: Cheap Shot → Kidney Shot. Маг свопает: Frostbolt    │
 │ + shatter (Frost Nova → Ice Lance). Цель — 60-70% HP с друида  │
-│ до первого трикета.                                            │
+│ до первого тринкета.                                            │
 │                                                                │
 │ 🔄  If enemy trinkets                                          │
 │ Druid → kidney: garrote-silence + повторный stun.              │
@@ -524,7 +524,7 @@ faerie fire или мили-удары.
 │                                                                │
 │ ❌  Common mistakes                                            │
 │ • Маг открывает frostbolt до сапа на друиде                    │
-│ • Рог vanish'ит на первый трикет, теряя prep                   │
+│ • Рог vanish'ит на первый тринкет, теряя prep                   │
 │                                                                │
 │ ⏱  CDs to track                                                │
 │ Enemy:   trinket 2m • intercept 30s • spell-reflect 10s        │
@@ -814,7 +814,7 @@ JSON, отправляется по WSS на backend:
 |------|----------|---------|
 | `match_start` | arena_opponent_update | Заполнение enemy[] |
 | `match_end` | UI_INFO_MESSAGE + score | Result win/loss |
-| `enemy_cooldown_used` | CLEU SPELL_CAST_SUCCESS | Трикет, intercept, vanish, prep, evasion, ice-block, divine-shield, lichborne, и т.д. |
+| `enemy_cooldown_used` | CLEU SPELL_CAST_SUCCESS | Тринкет, intercept, vanish, prep, evasion, ice-block, divine-shield, lichborne, и т.д. |
 | `enemy_trinket_used` | CLEU + aura-break heuristic | Подвид cooldown_used, отдельный для приоритета подсказок |
 | `enemy_cc_landed` / `_faded` | UNIT_AURA на teammates | Sap/blind/fear/cyclone/sheep |
 | `ally_cooldown_used` | CLEU + UNIT_AURA self/team | Свои КД — для tracking «у меня осталось» |

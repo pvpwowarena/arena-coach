@@ -43,7 +43,7 @@ _Провенанс: источники — tier-лист (AOEAH: состав w
 
 ## If enemy trinkets
 
-Шаман трикетит [[ability:kidney-shot]]/[[ability:blind]] + NS-heal; варлок трикетит [[ability:fear]]/[[ability:kidney-shot]]. Держи [[ability:blind]] на пост-трикет шамана, чтобы закрыть kill-окно на варлоке или дать прийсту докрутить манабёрн. Не трать dispel на UA.
+Шаман тринкетит [[ability:kidney-shot]]/[[ability:blind]] + NS-heal; варлок тринкетит [[ability:fear]]/[[ability:kidney-shot]]. Держи [[ability:blind]] на пост-тринкет шамана, чтобы закрыть kill-окно на варлоке или дать прийсту докрутить манабёрн. Не трать dispel на UA.
 
 ## Common mistakes
 

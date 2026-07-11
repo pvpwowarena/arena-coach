@@ -27,7 +27,7 @@ tags: []
 
 Когда нашёл друида — кричишь магу, что нашёл, и маг идёт к тебе. Магу стоит cone of cold'нуть и nova'нуть варлока (особенно после того, как варлок использовал spellstone для снятия слоя), чтобы держать его в дистанции.
 
-Открываешь на друида с double wound: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:shiv]] → [[ability:kidney]]. Когда друид трикетит — два варианта: либо [[ability:blind]] его в humanoid-форме и сразу [[ability:vanish]] до того как тебя задотят, потом [[ability:sap]] для stall'а stun DR'ов и переоткрытия на убийство; либо [[ability:garrote]] + [[ability:counterspell]] сразу после trinket'а и продолжаем пилить. Накапливай wound-стэки — приоритезируй shiv над hemo, кроме случая когда уже 4-5 wound'ов и есть запас энергии.
+Открываешь на друида с double wound: [[ability:premed]] → [[ability:cheap-shot]] → [[ability:shiv]] → [[ability:kidney]]. Когда друид тринкетит — два варианта: либо [[ability:blind]] его в humanoid-форме и сразу [[ability:vanish]] до того как тебя задотят, потом [[ability:sap]] для stall'а stun DR'ов и переоткрытия на убийство; либо [[ability:garrote]] + [[ability:counterspell]] сразу после trinket'а и продолжаем пилить. Накапливай wound-стэки — приоритезируй shiv над hemo, кроме случая когда уже 4-5 wound'ов и есть запас энергии.
 
 Следи за [[ability:death-coil]] и пытайся vanish'нуть его если возможно. Counterspell'ить варлока на fear'ах, не давая ему disrupt'ить тебя — тоже хороший вариант.
 

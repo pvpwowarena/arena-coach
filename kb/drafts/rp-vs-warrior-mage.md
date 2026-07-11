@@ -39,7 +39,7 @@ _Провенанс: comp-level якоря — AOEAH (Dec 2025): warrior+mage = 
 
 ## If enemy trinkets
 
-Их маг трикетит [[ability:kidney-shot]]/[[ability:blind]] → [[ability:ice-block]] под добив; выжидай: без хилера IB — тактический резет, не спасение; после выхода — повторный stun/[[ability:gouge]]. Воин трикетит [[ability:fear]] → второй [[ability:fear]] (DR) или kite. Опасайся: pummel прийста на школе holy (~8с lockout) — фейкай касты; spell-reflect ловит [[ability:fear]]; Mortal Strike −50% хил, хотя при наличии прийста это менее критично, чем без хилера у врага.
+Их маг тринкетит [[ability:kidney-shot]]/[[ability:blind]] → [[ability:ice-block]] под добив; выжидай: без хилера IB — тактический резет, не спасение; после выхода — повторный stun/[[ability:gouge]]. Воин тринкетит [[ability:fear]] → второй [[ability:fear]] (DR) или kite. Опасайся: pummel прийста на школе holy (~8с lockout) — фейкай касты; spell-reflect ловит [[ability:fear]]; Mortal Strike −50% хил, хотя при наличии прийста это менее критично, чем без хилера у врага.
 
 ## Common mistakes
 

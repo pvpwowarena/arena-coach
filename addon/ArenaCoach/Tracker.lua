@@ -1,12 +1,12 @@
 -- ArenaCoach/Tracker.lua
 -- Регистрирует события арены и пишет их в SavedVariables.
--- Отслеживает: трикеты, основные CC/defensive CDs, старт/конец матча.
+-- Отслеживает: тринкеты, основные CC/defensive CDs, старт/конец матча.
 
 local AC = ArenaCoach
 
 -- ── Spell ID таблицы ─────────────────────────────────────────────────────────
 
--- PvP-трикеты (Every Man for Himself = 59752, стандартный = 42292 / 7744)
+-- PvP-тринкеты (Every Man for Himself = 59752, стандартный = 42292 / 7744)
 AC.TRINKET_IDS = {
     [42292] = "pvp_trinket",       -- Medallion of the Alliance/Horde
     [59752] = "every_man",         -- Every Man for Himself (human racial)
@@ -317,7 +317,7 @@ local function OnCombatLog(timestamp, subevent, sourceGUID, sourceName, sourceFl
     spellId = tonumber(spellId)
     if not spellId then return end
 
-    -- Трикеты — отслеживаем для обеих сторон
+    -- Тринкеты — отслеживаем для обеих сторон
     if AC.TRINKET_IDS[spellId] then
         local isEnemy = IsArenaUnit(sourceGUID) ~= nil
         AppendEvent(
@@ -330,7 +330,7 @@ local function OnCombatLog(timestamp, subevent, sourceGUID, sourceName, sourceFl
             { trinket_type = AC.TRINKET_IDS[spellId], is_enemy = isEnemy }
         )
         if isEnemy then
-            AC.Print("ТРИКЕТ: " .. (sourceName or "?") .. " использовал " .. (spellName or "?"))
+            AC.Print("ТРИНКЕТ: " .. (sourceName or "?") .. " использовал " .. (spellName or "?"))
             -- Сообщаем bridge — это самый важный real-time сигнал
             AC.EmitToChat("TRINKET", sourceName or "", tostring(spellId),
                 AC.TRINKET_IDS[spellId] or "pvp_trinket")

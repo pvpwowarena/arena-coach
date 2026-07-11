@@ -7,7 +7,7 @@ WoW Lua-аддон для клиента **Burning Crusade Classic Anniversary 2
 Read-only телеметрия арена-матчей:
 
 - Регистрация `ARENA_OPPONENT_UPDATE`, `COMBAT_LOG_EVENT_UNFILTERED`, `UNIT_AURA`.
-- Трекинг: enemy spec/race, использование трикета (spell 42292/7744), evasion/cloak/cold-blood/vanish/prep, fear/blind/sap/cyclone, defensive CDs (ice block, divine shield, lichborne).
+- Трекинг: enemy spec/race, использование тринкета (spell 42292/7744), evasion/cloak/cold-blood/vanish/prep, fear/blind/sap/cyclone, defensive CDs (ice block, divine shield, lichborne).
 - Запись событий в `ArenaCoachDB` (SavedVariables).
 - Chat-frame mirror как realtime канал (см. [ADR-0003](../docs/decisions/0003-chatframe-realtime-channel.md)).
 - Минимальный UI-фрейм со статусом — без interactive-элементов во время боя.

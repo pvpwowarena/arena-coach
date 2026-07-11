@@ -41,7 +41,7 @@ _Провенанс: 3v3-драфт по принятому паттерну. И
 
 ## If enemy trinkets
 
-SP трикетит кидни → блайнд и второй сетап. шам NS-heal + grounding на наш бурст; лок фир/Death Coil + felhunter Devour снимает шип. Не вкладывай весь бурст, пока шам свободен и grounding стоит.
+SP тринкетит кидни → блайнд и второй сетап. шам NS-heal + grounding на наш бурст; лок фир/Death Coil + felhunter Devour снимает шип. Не вкладывай весь бурст, пока шам свободен и grounding стоит.
 
 ## Common mistakes
 

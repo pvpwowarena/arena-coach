@@ -45,7 +45,7 @@ _Провенанс: источники — со стороны warrior/holy-pal
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:fear]]/[[ability:blind]] или связку под [[ability:hammer-of-justice]]; воин трикетит [[ability:kidney-shot]]. Держи [[ability:blind]] на пост-трикет paladin'а, чтобы закрыть kill-окно или дать прийсту добить манабёрн. Не трать dispel зря — freedom важнее снимать перед kill-окном на воине.
+Paladin тринкетит [[ability:fear]]/[[ability:blind]] или связку под [[ability:hammer-of-justice]]; воин тринкетит [[ability:kidney-shot]]. Держи [[ability:blind]] на пост-тринкет paladin'а, чтобы закрыть kill-окно или дать прийсту добить манабёрн. Не трать dispel зря — freedom важнее снимать перед kill-окном на воине.
 
 ## Common mistakes
 

@@ -321,7 +321,7 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     elif event_type == "TRINKET":
         source = str(event.get("source_name", "враг"))
         lines = [
-            f"💎 **{source} трикетнул!** | {matchup_label}",
+            f"💎 **{source} тринкетнул!** | {matchup_label}",
             hint_text,
         ]
     else:  # ABILITY

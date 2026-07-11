@@ -28,7 +28,7 @@ Hunter + holy paladin: дальнее давление + ловушки/конт
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:sheep]]/[[ability:hammer-of-justice]]; хантер трикетит [[ability:kidney-shot]]/[[ability:sheep]] или [[ability:nova]]. Держи [[ability:counterspell]] на heal; не входи в открытую на freezing trap.
+Paladin тринкетит [[ability:sheep]]/[[ability:hammer-of-justice]]; хантер тринкетит [[ability:kidney-shot]]/[[ability:sheep]] или [[ability:nova]]. Держи [[ability:counterspell]] на heal; не входи в открытую на freezing trap.
 
 ## Common mistakes
 

@@ -32,7 +32,7 @@ SL/SL warlock + holy paladin — один из самых танковых, mana
 
 ## If enemy trinkets
 
-Paladin трикетит [[ability:sheep]]/[[ability:hammer-of-justice]]; warlock трикетит [[ability:kidney-shot]]/[[ability:sheep]]. Держи [[ability:counterspell]] на heal после трикета паладина; не вкладывай burst, пока доступны bubble/freedom.
+Paladin тринкетит [[ability:sheep]]/[[ability:hammer-of-justice]]; warlock тринкетит [[ability:kidney-shot]]/[[ability:sheep]]. Держи [[ability:counterspell]] на heal после тринкета паладина; не вкладывай burst, пока доступны bubble/freedom.
 
 ## Common mistakes
 

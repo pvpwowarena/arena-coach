@@ -43,20 +43,20 @@ RP — это контра для warlock/rogue. По источникам (sile
 
 ## Alternative opener
 
-Если их рог нашёл тебя первым (human/undead, perception/restealth) — не лезь в их опенер. Прийст pre-shield'ит тебя, [[ability:pain-suppression]] под бурст, ты трикетишь только [[ability:kidney-shot]] (не fear/coil — у их CC нет DR между собой, трикет на fear уйдёт впустую). Из стана — [[ability:vanish]] и ре-опенер на warlock'а, либо [[ability:blind]] их рога и [[ability:cloak-of-shadows]] от DoT'ов.
+Если их рог нашёл тебя первым (human/undead, perception/restealth) — не лезь в их опенер. Прийст pre-shield'ит тебя, [[ability:pain-suppression]] под бурст, ты тринкетишь только [[ability:kidney-shot]] (не fear/coil — у их CC нет DR между собой, тринкет на fear уйдёт впустую). Из стана — [[ability:vanish]] и ре-опенер на warlock'а, либо [[ability:blind]] их рога и [[ability:cloak-of-shadows]] от DoT'ов.
 
 Против НЕ-undead их рога [[ability:fear]] прийста особенно ценен (нет Will of the Forsaken на снятие). Если и warlock не undead — играй от fear-давления на лока между их собственными fear/coil DR-окнами.
 
 ## If enemy trinkets
 
-Их рог обычно трикетит [[ability:kidney-shot]] или твой kill-сетап на warlock'е. Когда трикетит warlock — у тебя [[ability:blind]] на него либо продолжаешь wound + повторный [[ability:kidney-shot]]. У врага нет healer'а, поэтому не разменивай [[ability:blind]] зря: держи его на разрыв их burst-окна или на их рога. После их трикета CC-chain пойдёт без DR — прийст заранее уходит за LoS, чтобы не словить полный лок.
+Их рог обычно тринкетит [[ability:kidney-shot]] или твой kill-сетап на warlock'е. Когда тринкетит warlock — у тебя [[ability:blind]] на него либо продолжаешь wound + повторный [[ability:kidney-shot]]. У врага нет healer'а, поэтому не разменивай [[ability:blind]] зря: держи его на разрыв их burst-окна или на их рога. После их тринкета CC-chain пойдёт без DR — прийст заранее уходит за LoS, чтобы не словить полный лок.
 
 ## Common mistakes
 
 - Делать kill target из их рога: он мобилен (shadowstep / sprint / vanish), а warlock immobile и важнее как цель.
 - Затягивать игру: healthstone, perception-баф и lifetap-сустейн позволяют им «win long games». Не давай warlock'у садиться за пиллар и восстанавливаться — держи crippling/wound.
 - Диспеллить Unstable Affliction в неудачный момент → силенс прийста в разгар.
-- Ловить прийстом полный CC-chain (Fear → Sap → Blind → CS → KS → Coil без DR между категориями). Прийст играет от LoS и трикетит с умом, а не на первый же эффект.
+- Ловить прийстом полный CC-chain (Fear → Sap → Blind → CS → KS → Coil без DR между категориями). Прийст играет от LoS и тринкетит с умом, а не на первый же эффект.
 
 ## Key cooldowns to track
 

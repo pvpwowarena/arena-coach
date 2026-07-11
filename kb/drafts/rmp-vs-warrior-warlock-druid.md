@@ -49,7 +49,7 @@ _Провенанс: первый 3v3-драфт (фаза только заве
 
 ## If enemy trinkets
 
-Druid трикетит [[ability:sheep]]/[[ability:kidney-shot]] и держит NS-[[ability:cyclone]] на наш kill-attempt; warlock трикетит [[ability:sheep]]/[[ability:fear]]-ловлю; warrior трикетит [[ability:kidney-shot]]. Не вкладывай burst, пока druid с трикетом+NS может оборвать kill циклоном — сначала свяжи druid'а ([[ability:sheep]]/[[ability:sap]]/[[ability:counterspell]] на его cast).
+Druid тринкетит [[ability:sheep]]/[[ability:kidney-shot]] и держит NS-[[ability:cyclone]] на наш kill-attempt; warlock тринкетит [[ability:sheep]]/[[ability:fear]]-ловлю; warrior тринкетит [[ability:kidney-shot]]. Не вкладывай burst, пока druid с тринкетом+NS может оборвать kill циклоном — сначала свяжи druid'а ([[ability:sheep]]/[[ability:sap]]/[[ability:counterspell]] на его cast).
 
 ## Common mistakes
 

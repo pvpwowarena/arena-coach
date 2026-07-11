@@ -41,11 +41,11 @@ Resto shaman — самый слабый соло-хилер в 2v2 (mmo-champio
 
 ## Alternative opener
 
-Если воин сразу идёт на прийста: рог не уходит с воина — держи crippling + 5 wound (wound снижает heal шамана и прикрывает crippling). Crippling медленнее hamstring'а, поэтому прийст обязан хорошо LoS'ить воина (ownedcore). Прийст [[ability:mana-burn]]'ит шамана между его heal'ами и в кайт-окнах. Цель — довести воина до ~40% и в kill-окно: [[ability:fear]] / [[ability:kidney-shot]] на шамана, [[ability:blind]] если шаман трикетит, и дожать воина.
+Если воин сразу идёт на прийста: рог не уходит с воина — держи crippling + 5 wound (wound снижает heal шамана и прикрывает crippling). Crippling медленнее hamstring'а, поэтому прийст обязан хорошо LoS'ить воина (ownedcore). Прийст [[ability:mana-burn]]'ит шамана между его heal'ами и в кайт-окнах. Цель — довести воина до ~40% и в kill-окно: [[ability:fear]] / [[ability:kidney-shot]] на шамана, [[ability:blind]] если шаман тринкетит, и дожать воина.
 
 ## If enemy trinkets
 
-Шаман часто держит trinket на [[ability:kidney-shot]] / [[ability:fear]] в связке с Nature's Swiftness-heal'ом. Анти-tremor: основной CC по шаману делай физикой ([[ability:cheap-shot]] / [[ability:kidney-shot]] / [[ability:blind]]) — её tremor не трогает; а [[ability:fear]] ставь, когда тотем только что сбит или на КД. После трикета шамана — [[ability:blind]] и повторный [[ability:sap]]/CC для нового kill-окна на воине. Против dwarf-воина не трать время на полный стэк wound — старайся продавить в одно burst-окно и жди связку trinket + Nature's Swiftness шамана.
+Шаман часто держит trinket на [[ability:kidney-shot]] / [[ability:fear]] в связке с Nature's Swiftness-heal'ом. Анти-tremor: основной CC по шаману делай физикой ([[ability:cheap-shot]] / [[ability:kidney-shot]] / [[ability:blind]]) — её tremor не трогает; а [[ability:fear]] ставь, когда тотем только что сбит или на КД. После тринкета шамана — [[ability:blind]] и повторный [[ability:sap]]/CC для нового kill-окна на воине. Против dwarf-воина не трать время на полный стэк wound — старайся продавить в одно burst-окно и жди связку trinket + Nature's Swiftness шамана.
 
 ## Common mistakes
 

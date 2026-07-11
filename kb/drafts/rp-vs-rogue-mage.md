@@ -41,7 +41,7 @@ tags: []
 
 На этом этапе вражеский маг вынужден отбегать и играть на себя, а твой прийст начинает медленно 1v1'ить его.
 
-Но чаще всего вражеский рог всё равно открывает на твоего прийста вместе с магом, несмотря на то что ты остановил shatter. В таком случае пытаешься сразу [[ability:shadowstep]] [[ability:cheap-shot]] вражеского рога и ставишь его в [[ability:kidney-shot]]. Если он трикетит — [[ability:blind]] его и [[ability:vanish]], обычно вместе с [[ability:cloak-of-shadows]] для прикрытия от мажьего AoE.
+Но чаще всего вражеский рог всё равно открывает на твоего прийста вместе с магом, несмотря на то что ты остановил shatter. В таком случае пытаешься сразу [[ability:shadowstep]] [[ability:cheap-shot]] вражеского рога и ставишь его в [[ability:kidney-shot]]. Если он тринкетит — [[ability:blind]] его и [[ability:vanish]], обычно вместе с [[ability:cloak-of-shadows]] для прикрытия от мажьего AoE.
 
 Затем [[ability:sap]] рога с blind'а для stall'а stun DR'ов и снова [[ability:cheap-shot]] [[ability:kidney-shot]] — на этом этапе он должен умереть.
 
@@ -53,9 +53,9 @@ tags: []
 
 Если вражеский рог в этот момент vanish'ится, ты вынужден полностью коммититься на мага. Обычно просто [[ability:cloak-of-shadows]] и пилишь — ты ещё на stun DR, надо выжать максимум из этого окна.
 
-Если прийст не может дать [[ability:pain-suppression]] (потому что он под imp CS) — максимально быстро трикетишь [[ability:kidney-shot]] и [[ability:vanish]] → [[ability:premed]] → [[ability:cheap-shot]] на вражеского рога + [[ability:cloak-of-shadows]] чтобы закрыться от sheep'ов, и пилишь рога. Если он трикетит [[ability:kidney-shot]] и blind'ит тебя раньше чем ты успел его blind'нуть — в случае что рог vanish'ится после твоего trinket'а kidney, ты должен [[ability:cloak-of-shadows]] и пилить мага. Используй sprint / [[ability:shadowstep]], и даже [[ability:preparation]] → [[ability:shadowstep]] если нужно. Давление надо выжать максимально быстро пока ещё на stun DR.
+Если прийст не может дать [[ability:pain-suppression]] (потому что он под imp CS) — максимально быстро тринкетишь [[ability:kidney-shot]] и [[ability:vanish]] → [[ability:premed]] → [[ability:cheap-shot]] на вражеского рога + [[ability:cloak-of-shadows]] чтобы закрыться от sheep'ов, и пилишь рога. Если он тринкетит [[ability:kidney-shot]] и blind'ит тебя раньше чем ты успел его blind'нуть — в случае что рог vanish'ится после твоего trinket'а kidney, ты должен [[ability:cloak-of-shadows]] и пилить мага. Используй sprint / [[ability:shadowstep]], и даже [[ability:preparation]] → [[ability:shadowstep]] если нужно. Давление надо выжать максимально быстро пока ещё на stun DR.
 
-Если прийст в sheep'е и imp CS у вражеской команды нет — прийст должен трикетнуть первый sheep и [[ability:pain-suppression]] тебя в момент когда они открывают. Твой trinket в этом матчапе обычно ценнее, чем trinket прийста.
+Если прийст в sheep'е и imp CS у вражеской команды нет — прийст должен тринкетнуть первый sheep и [[ability:pain-suppression]] тебя в момент когда они открывают. Твой trinket в этом матчапе обычно ценнее, чем trinket прийста.
 
 Прийст также должен dot'ить вражеского рога если твой [[ability:blind]] уже потрачен — это вынуждает рога [[ability:cloak-of-shadows]] dot'ы, чтобы получить чистый [[ability:vanish]].
 

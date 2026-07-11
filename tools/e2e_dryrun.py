@@ -62,7 +62,7 @@ def _write_synthetic_chatlog(tmp: str) -> pathlib.Path:
 
     Имя файла — стандартное WoWChatLog.txt (bridge v0.3.0 автодетектит его).
     Сценарий: враги WARRIOR+PALADIN (матчит rm-vs-warrior-hpala по классам),
-    союзники ROGUE+MAGE (игрок — рога), трикет, shield_wall (hint) ×2 (второй
+    союзники ROGUE+MAGE (игрок — рога), тринкет, shield_wall (hint) ×2 (второй
     должен затроттлиться), cyclone (skipped — CC-каст не в hint-списке).
     """
     logdir = pathlib.Path(tmp) / "Logs"

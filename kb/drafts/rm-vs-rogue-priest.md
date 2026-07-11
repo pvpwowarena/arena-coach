@@ -35,12 +35,12 @@ Option 1 — Go Priest
 
 Если выбираешь открыть на прийста: equip wound main-hand и crippling off-hand, чтобы готов шивнуть прийста на случай stun-резиста или trinket'а.
 
-[[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]], и [[ability:counterspell]] одновременно с lэнд'ом kidney, ожидая trinket прийста. Если маг к этому моменту успел сделать full shatter — прийст должен быть достаточно low для добивания [[ability:vanish]] [[ability:garrote]]. [[ability:cloak-of-shadows]] после cheap shot — на случай ожидаемого trinket'а + fear от прийста. Будь готов blind'нуть или vanish'нуться сразу, если вражеский рог трикетит [[ability:sap]] или входящий sheep после [[ability:sap]].
+[[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]], и [[ability:counterspell]] одновременно с lэнд'ом kidney, ожидая trinket прийста. Если маг к этому моменту успел сделать full shatter — прийст должен быть достаточно low для добивания [[ability:vanish]] [[ability:garrote]]. [[ability:cloak-of-shadows]] после cheap shot — на случай ожидаемого trinket'а + fear от прийста. Будь готов blind'нуть или vanish'нуться сразу, если вражеский рог тринкетит [[ability:sap]] или входящий sheep после [[ability:sap]].
 
 Option 2 — Go Rogue
 
 Если открываешь на рога — маг обычно встаёт прямо на вражеского прийста и blanket [[ability:counterspell]] → sheep, потом поднимает КД и начинает кастовать по рогу пока тот в [[ability:sap]].
 
-Когда прийст в sheep'е и маг кастует по рогу — [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]] рога. Если он трикетит, ты сразу vanish'ишься; маг blizzard'ит чтобы выбить его из vanish'а. Если вражеский рог успел трикет + vanish + cheap shot тебя, маг может sheep'нуть рога до lэнд'а kidney на тебе, давая время vanish'нуться или blind'нуть. Иначе трикетишь kidney + blind рога + restealth/vanish + [[ability:sap]] его. И повторяешь тот же opener.
+Когда прийст в sheep'е и маг кастует по рогу — [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]] рога. Если он тринкетит, ты сразу vanish'ишься; маг blizzard'ит чтобы выбить его из vanish'а. Если вражеский рог успел тринкет + vanish + cheap shot тебя, маг может sheep'нуть рога до lэнд'а kidney на тебе, давая время vanish'нуться или blind'нуть. Иначе тринкетишь kidney + blind рога + restealth/vanish + [[ability:sap]] его. И повторяешь тот же opener.
 
 Матчап обычно решается на opener'е. Для менее опытных игроков прийст — самый частый кил-таргет. Going rogue требует больше моментальной адаптации. Я лично предпочитаю going rogue против Disc Priest/Rogue как RM — меньше RNG.

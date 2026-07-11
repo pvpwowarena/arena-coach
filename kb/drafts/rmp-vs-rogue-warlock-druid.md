@@ -39,7 +39,7 @@ RLD (источник, WT): «skips the CC of a Frost Mage in favor of constant 
 
 ## If enemy trinkets
 
-Druid трикетит [[ability:sheep]]/[[ability:kidney-shot]] и держит NS-[[ability:cyclone]] на kill-attempt; warlock трикетит [[ability:kidney-shot]] → fear/[[ability:death-coil]]. Не вкладывай бурст, пока свободный druid с трикетом+NS может оборвать kill [[ability:cyclone]] — сперва свяжи druid'а.
+Druid тринкетит [[ability:sheep]]/[[ability:kidney-shot]] и держит NS-[[ability:cyclone]] на kill-attempt; warlock тринкетит [[ability:kidney-shot]] → fear/[[ability:death-coil]]. Не вкладывай бурст, пока свободный druid с тринкетом+NS может оборвать kill [[ability:cyclone]] — сперва свяжи druid'а.
 
 ## Common mistakes
 
