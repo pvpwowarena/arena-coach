@@ -80,6 +80,7 @@ def _load_config_from_env() -> dict[str, str]:
         "backend_url": os.environ.get("BACKEND_URL", ""),
         "token": os.environ.get("BRIDGE_BEARER_TOKEN", ""),
         "player_name": os.environ.get("BRIDGE_PLAYER_NAME", ""),
+        "our_comp": os.environ.get("BRIDGE_OUR_COMP", ""),
         "log_level": os.environ.get("LOG_LEVEL", "INFO"),
         "poll_interval": os.environ.get("BRIDGE_POLL_INTERVAL", "0.5"),
     }
@@ -92,6 +93,7 @@ async def _run_bridge(
     player_name: str,
     poll_interval: float,
     stop_event: asyncio.Event,
+    our_comp: str | None = None,
 ) -> None:
     """Основной asyncio-loop: chat_tail → normalizer → http POST."""
     # Импортируем здесь чтобы не мешать argparse при --check-config
@@ -99,7 +101,7 @@ async def _run_bridge(
     from .normalizer import SessionState, normalize_raw
     from .ws_client import EventClient
 
-    session = SessionState()
+    session = SessionState(default_our_comp=our_comp)
     client = EventClient(backend_url, bearer_token)
 
     # Проверяем backend доступность при старте
@@ -201,6 +203,14 @@ def main() -> int:
         help="Имя WoW-персонажа (для envelope). По умолчанию: $BRIDGE_PLAYER_NAME",
     )
     parser.add_argument(
+        "--our-comp",
+        default=env["our_comp"],
+        help=(
+            "Наш состав (напр. rogue+mage) — fallback, если аддон не шлёт союзников. "
+            "По умолчанию: $BRIDGE_OUR_COMP"
+        ),
+    )
+    parser.add_argument(
         "--poll-interval",
         type=float,
         default=float(env["poll_interval"]),
@@ -260,6 +270,7 @@ def main() -> int:
         print(f"  Logs dir    : {log_dir or 'НЕ НАЙДЕНА'}")
         print(f"  Backend URL : {args.backend_url or 'НЕ ЗАДАН'}")
         print(f"  Player      : {args.player_name or 'НЕ ЗАДАН'}")
+        print(f"  Our comp    : {args.our_comp or '(из аддона)'}")
         print(f"  Token       : {'***' if args.token else 'НЕ ЗАДАН'}")
         print(f"  Poll        : {args.poll_interval}s")
         if errors:
@@ -298,6 +309,7 @@ def main() -> int:
             player_name=args.player_name,
             poll_interval=args.poll_interval,
             stop_event=stop_event,
+            our_comp=args.our_comp or None,
         )
 
     try:

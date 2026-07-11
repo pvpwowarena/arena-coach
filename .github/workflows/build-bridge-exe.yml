@@ -138,11 +138,13 @@ jobs:
           # Sample bridge.env с Mac-путём
           cat > arena-bridge-macos/bridge.env.example <<'EOF'
           # Скопируй этот файл в bridge.env и заполни значения.
-          # Токен получи у администратора командой /access add в Discord.
+          # Токен (общий BRIDGE_BEARER_TOKEN) получи у администратора.
           WOW_INSTALL_PATH=/Applications/World of Warcraft/_anniversary_
           BACKEND_URL=https://pvpwowarena.surprise4you.dev
           BRIDGE_BEARER_TOKEN=вставить-токен-от-администратора
           BRIDGE_PLAYER_NAME=ИмяПерсонажа
+          # Опционально (fallback, если аддон < 0.2.0 не шлёт союзников):
+          # BRIDGE_OUR_COMP=rogue+mage
           EOF
 
           # README с инструкцией для Mac

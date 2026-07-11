@@ -25,7 +25,10 @@ def load_env_file(path: Path) -> dict[str, str]:
     """Прочитать KEY=VALUE файл и вернуть словарь без изменения os.environ."""
     result: dict[str, str] = {}
     try:
-        text = path.read_text(encoding="utf-8")
+        # utf-8-sig: Блокнот на Windows сохраняет UTF-8 с BOM — без -sig первый
+        # ключ превращается в '﻿WOW_INSTALL_PATH' и молча не подхватывается.
+        # errors="replace": файл в cp1251 не уронит bridge на старте.
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
     except OSError:
         return result
 

@@ -1,11 +1,23 @@
-"""Tail Logs/Chat-YYYY-MM-DD.txt → канонические события.
+"""Tail WoW chat-лога → канонические события.
 
-WoW TBC пишет исходящие whisper-to-self в файл чата мгновенно.
+Имя файла зависит от клиента:
+  • Классические/современные клиенты: ``Logs/WoWChatLog.txt`` (один файл,
+    append-only, НЕ ротируется) — стандартное поведение ``/chatlog``.
+  • Гипотетический date-stamped вариант: ``Logs/Chat-YYYY-MM-DD.txt``
+    (изначальное допущение ADR-0003 — оставлено как второй кандидат).
+
+Мы НЕ знаем заранее, какой формат у Anniversary-клиента, поэтому tailer
+следит за обоими кандидатами и переключается на тот, который реально растёт.
+
 Аддон отправляет события в формате [AC|TYPE|field1|field2|...].
 Bridge читает файл раз в poll_interval секунд и извлекает AC-строки.
 
-Ротация файла: в полночь WoW начинает писать в новый Chat-<new_date>.txt.
-Мы отслеживаем это и переключаемся автоматически.
+Устойчивость:
+  • Усечение/пересоздание файла (size < offset) → читаем с начала.
+  • Недописанная строка (без \\n на конце) → откатываемся и ждём следующего
+    poll — WoW флашит буфер кусками, строка может оборваться посередине.
+  • Полуночная ротация date-stamped файла → автоматическое переключение.
+  • Оффсеты помнятся per-file — переключение туда-обратно не теряет данные.
 """
 
 from __future__ import annotations
@@ -25,94 +37,154 @@ log = logging.getLogger(__name__)
 # Мы ищем [AC|...] независимо от языка интерфейса.
 _AC_RE = re.compile(r"\[AC\|([^\]]+)\]")
 
+# Стандартное имя chat-лога (``/chatlog`` во всех известных клиентах).
+_FIXED_CHAT_LOG = "WoWChatLog.txt"
+
 
 def _today_chat_path(log_dir: Path) -> Path:
-    """Путь к Chat-файлу на сегодня."""
+    """Путь к date-stamped Chat-файлу на сегодня (кандидат №2)."""
     today = date.today().strftime("%Y-%m-%d")
     return log_dir / f"Chat-{today}.txt"
 
 
+def candidate_chat_paths(log_dir: Path) -> list[Path]:
+    """Все возможные пути chat-лога в порядке приоритета."""
+    return [log_dir / _FIXED_CHAT_LOG, _today_chat_path(log_dir)]
+
+
+def _safe_stat(path: Path) -> tuple[float, int] | None:
+    """(mtime, size) или None если файл исчез между exists() и stat()."""
+    try:
+        st = path.stat()
+        return (st.st_mtime, st.st_size)
+    except OSError:
+        return None
+
+
 class ChatTailer:
-    """Asyncio tailer для WoW Chat-лога.
+    """Asyncio tailer для WoW chat-лога с автодетектом имени файла.
 
     Использование::
 
         tailer = ChatTailer(Path("C:/WoW/Logs"), poll_interval=0.5)
         async for raw_line in tailer.lines():
-            print(raw_line)  # содержимое внутри [AC|...|]
+            print(raw_line)  # содержимое внутри [AC|...]
 
-    Генерирует только строки, содержащие [AC|...|].
-    При полуночной ротации автоматически переключается на новый файл.
+    Генерирует только payload'ы строк, содержащих [AC|...].
     """
 
     def __init__(self, log_dir: Path, poll_interval: float = 0.5) -> None:
         self.log_dir = log_dir
         self.poll_interval = poll_interval
         self._running = False
+        # Оффсеты чтения per-file: переключение между кандидатами не теряет данные
+        self._offsets: dict[str, int] = {}
+
+    # ── Выбор активного файла ────────────────────────────────────────────
+
+    def _pick_active(self, current: Path | None) -> Path | None:
+        """Выбрать файл для чтения.
+
+        Логика: из существующих кандидатов берём тот, где есть непрочитанные
+        данные (size > offset); при нескольких — с самым свежим mtime.
+        Если непрочитанного нет нигде — остаёмся на текущем (или самом свежем).
+        """
+        stats: list[tuple[Path, float, int]] = []
+        for p in candidate_chat_paths(self.log_dir):
+            if p.exists():
+                st = _safe_stat(p)
+                if st is not None:
+                    stats.append((p, st[0], st[1]))
+
+        if not stats:
+            return None
+
+        # Кандидаты с непрочитанными данными
+        unread = [(p, mtime) for p, mtime, size in stats if size != self._offsets.get(str(p), 0)]
+        if unread:
+            # Приоритет текущему файлу — не дёргаемся, пока он растёт
+            if current is not None and any(p == current for p, _ in unread):
+                return current
+            return max(unread, key=lambda t: t[1])[0]
+
+        if current is not None and any(p == current for p, _, _ in stats):
+            return current
+        return max(stats, key=lambda t: t[1])[0]
+
+    # ── Основной цикл ────────────────────────────────────────────────────
 
     async def lines(self) -> AsyncIterator[str]:
         """Асинхронный генератор AC-строк из chat-лога."""
         self._running = True
-        current_path = _today_chat_path(self.log_dir)
         file_handle = None
-        current_date = date.today()
-        # Файл уже существовал при старте? → seek END (пропускаем историю).
-        # Файл появился позже (ротация или bridge стартовал раньше WoW) → читаем с начала.
-        initial_file_existed = current_path.exists()
+        current_path: Path | None = None
+
+        # Файлы, существовавшие при старте: их историю пропускаем (seek END
+        # при первом открытии). Новые файлы читаем с нуля — их содержимое
+        # гарантированно свежее.
+        preexisting = {str(p) for p in candidate_chat_paths(self.log_dir) if p.exists()}
 
         try:
             while self._running:
-                # Ротация файла в полночь
-                today = date.today()
-                if today != current_date:
-                    log.info(
-                        "Ротация chat-лога: %s → %s",
-                        current_path.name,
-                        _today_chat_path(self.log_dir).name,
-                    )
+                active = self._pick_active(current_path)
+
+                if active is None:
+                    log.debug("Chat-лог не найден в %s — жду", self.log_dir)
+                    await asyncio.sleep(self.poll_interval)
+                    continue
+
+                # Переключение на другой файл (или первое открытие)
+                if active != current_path:
                     if file_handle is not None:
+                        self._offsets[str(current_path)] = file_handle.tell()
                         file_handle.close()
                         file_handle = None
-                    current_date = today
-                    current_path = _today_chat_path(self.log_dir)
-                    initial_file_existed = False  # новый файл — читаем с начала
+                    current_path = active
 
-                # Открываем файл, если ещё не открыт
                 if file_handle is None:
-                    if not current_path.exists():
-                        log.debug("Chat-лог не найден: %s — жду", current_path)
-                        await asyncio.sleep(self.poll_interval)
-                        continue
                     file_handle = current_path.open("r", encoding="utf-8", errors="replace")
-                    if initial_file_existed:
-                        # Файл был до нашего старта — пропускаем историю
-                        file_handle.seek(0, 2)  # SEEK_END
-                    # Если файл появился после старта — читаем с позиции 0 (по умолчанию)
+                    key = str(current_path)
+                    if key in self._offsets:
+                        file_handle.seek(self._offsets[key])
+                    elif key in preexisting:
+                        file_handle.seek(0, 2)  # SEEK_END — пропускаем историю
                     log.info(
-                        "Открыт chat-лог: %s (с позиции %d, skip_history=%s)",
+                        "Открыт chat-лог: %s (позиция %d)",
                         current_path,
                         file_handle.tell(),
-                        initial_file_existed,
                     )
+
+                # Усечение/пересоздание файла? (например, игрок удалил лог)
+                st = _safe_stat(current_path)
+                if st is not None and st[1] < file_handle.tell():
+                    log.info("Chat-лог усечён (%s) — читаю с начала", current_path.name)
+                    file_handle.seek(0)
 
                 # Читаем новые строки
                 while True:
+                    pos_before = file_handle.tell()
                     line = file_handle.readline()
                     if not line:
                         break  # нет новых данных — ждём следующего poll
+                    if not line.endswith("\n"):
+                        # Недописанная строка (WoW флашит кусками) —
+                        # откатываемся, дочитаем когда появится \n
+                        file_handle.seek(pos_before)
+                        break
                     match = _AC_RE.search(line)
                     if match:
                         payload = match.group(1)
                         log.debug("AC event: %s", payload)
                         yield payload
 
+                self._offsets[str(current_path)] = file_handle.tell()
                 await asyncio.sleep(self.poll_interval)
 
         finally:
             self._running = False
             if file_handle is not None:
                 file_handle.close()
-                log.info("Chat tailer остановлен")
+            log.info("Chat tailer остановлен")
 
     def stop(self) -> None:
         """Остановить tailer."""

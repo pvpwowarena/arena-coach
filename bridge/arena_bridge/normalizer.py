@@ -1,14 +1,17 @@
 """Нормализация raw addon-событий в canonical schema для backend.
 
-Формат AC-сообщений из Tracker.lua:
-  [AC|ARENA_START|2v2|ROGUE/HUMAN,MAGE/GNOME]
+Формат AC-сообщений из Tracker.lua (addon >= 0.2.0 шлёт и союзников):
+  [AC|ARENA_START|2v2|WARRIOR/ORC,PALADIN/BLOODELF|ROGUE/HUMAN,MAGE/GNOME]
+  [AC|ARENA_START|2v2|WARRIOR/ORC,PALADIN/BLOODELF]      # addon 0.1.x — без союзников
   [AC|TRINKET|EnemyName|42292|pvp_trinket]
   [AC|ABILITY|EnemyName|33786|cyclone]
   [AC|ARENA_END|42]
 
+В allies игрок ВСЕГДА первый — backend таргетирует советы под его класс.
+
 Нормализатор парсит поля → pydantic-модели → JSON envelope для backend.
 
-Envelope schema (v1):
+Envelope schema (v1, additive-совместимо расширен в Phase 4.1):
 {
   "schema_version": 1,
   "bridge_ts": "2026-05-14T12:34:56Z",
@@ -20,8 +23,11 @@ Envelope schema (v1):
   },
   "match": {
     "bracket": "2v2" | "3v3",
-    "enemies": [{"class": "ROGUE", "race": "HUMAN"}, ...],
-    "matchup_slug_hint": "rogue-mage-vs-warrior-druid"  # или null
+    "enemies": [{"wow_class": "ROGUE", "race": "HUMAN"}, ...],
+    "allies":  [{"wow_class": "ROGUE", "race": "HUMAN"}, ...],   # игрок первый
+    "our_comp_hint": "mage+rogue",       # из allies или $BRIDGE_OUR_COMP
+    "player_class": "ROGUE",             # класс игрока (allies[0])
+    "matchup_slug_hint": "mage-rogue"    # классы врагов, sorted; или null
   }
 }
 """
@@ -62,6 +68,7 @@ class ArenaStartEvent(BaseModel):
     type: Literal["ARENA_START"] = "ARENA_START"
     bracket: str
     enemies: list[EnemyInfo]
+    allies: list[EnemyInfo] = Field(default_factory=list)  # игрок первый (addon >= 0.2.0)
 
 
 class TrinketEvent(BaseModel):
@@ -91,6 +98,9 @@ class MatchInfo(BaseModel):
 
     bracket: str = "unknown"
     enemies: list[EnemyInfo] = Field(default_factory=list)
+    allies: list[EnemyInfo] = Field(default_factory=list)
+    our_comp_hint: str | None = None
+    player_class: str | None = None
     matchup_slug_hint: str | None = None
 
 
@@ -109,24 +119,40 @@ class CanonicalEnvelope(BaseModel):
 
 
 class SessionState:
-    """Трекер текущей арена-сессии в рамках bridge-процесса."""
+    """Трекер текущей арена-сессии в рамках bridge-процесса.
 
-    def __init__(self) -> None:
+    Args:
+        default_our_comp: fallback-состав из $BRIDGE_OUR_COMP (напр. "rogue+mage")
+            на случай, если аддон старый и не шлёт союзников.
+    """
+
+    def __init__(self, default_our_comp: str | None = None) -> None:
         self._session_id: str = ""
         self._match: MatchInfo = MatchInfo()
+        self._default_our_comp = default_our_comp or None
 
     def start_session(self, event: ArenaStartEvent) -> None:
-        self._session_id = str(uuid.uuid4())
+        # Повторный ARENA_START той же сессии (враг вышел из стелса, аддон
+        # дослал уточнённый состав) — session_id сохраняем.
+        if not self._session_id:
+            self._session_id = str(uuid.uuid4())
+        our_comp = _build_comp_hint(event.allies) or self._default_our_comp
+        player_class = event.allies[0].wow_class if event.allies else None
         self._match = MatchInfo(
             bracket=event.bracket,
             enemies=event.enemies,
+            allies=event.allies,
+            our_comp_hint=our_comp,
+            player_class=player_class,
             matchup_slug_hint=_build_slug_hint(event.enemies),
         )
         log.info(
-            "Сессия начата %s: %s, matchup=%s",
+            "Сессия начата %s: %s, matchup=%s, our_comp=%s, player_class=%s",
             self._session_id,
             event.bracket,
             self._match.matchup_slug_hint,
+            our_comp,
+            player_class,
         )
 
     def end_session(self) -> None:
@@ -147,7 +173,7 @@ def _build_slug_hint(enemies: list[EnemyInfo]) -> str | None:
     """Строим matchup_slug_hint из классов врагов в алфавитном порядке.
 
     Формат: 'mage-rogue' (сортируем, приводим к lowercase).
-    Backend сопоставляет с KB-документами по composition поля.
+    Backend сопоставляет с KB-документами по vs-полю (class-level match).
     """
     if not enemies:
         return None
@@ -155,7 +181,28 @@ def _build_slug_hint(enemies: list[EnemyInfo]) -> str | None:
     return "-".join(classes)
 
 
+def _build_comp_hint(allies: list[EnemyInfo]) -> str | None:
+    """Наш состав из классов союзников: 'mage+rogue' (sorted, lowercase).
+
+    Совпадает с форматом composition в KB (после нормализации на бэке).
+    """
+    if not allies:
+        return None
+    classes = sorted(a.wow_class.lower() for a in allies)
+    return "+".join(classes)
+
+
 # ── Парсер AC-строк → pydantic событий ──────────────────────────────────────
+
+
+def _parse_units(units_str: str) -> list[EnemyInfo]:
+    """'ROGUE/HUMAN,MAGE/GNOME' → [EnemyInfo, ...]. Пустая строка → []."""
+    units: list[EnemyInfo] = []
+    for u in units_str.split(","):
+        u = u.strip()
+        if u:
+            units.append(EnemyInfo.from_str(u))
+    return units
 
 
 def parse_event(raw: str) -> AnyEvent | None:
@@ -175,16 +222,12 @@ def parse_event(raw: str) -> AnyEvent | None:
 
     try:
         if event_type == "ARENA_START":
-            # [ARENA_START|2v2|ROGUE/HUMAN,MAGE/GNOME]
+            # [ARENA_START|2v2|WARRIOR/ORC,PALADIN/BLOODELF|ROGUE/HUMAN,MAGE/GNOME]
+            # 4-е поле (союзники, игрок первый) — опционально (addon >= 0.2.0)
             bracket = parts[1] if len(parts) > 1 else "unknown"
-            enemy_str = parts[2] if len(parts) > 2 else ""
-            enemies: list[EnemyInfo] = []
-            if enemy_str:
-                for e in enemy_str.split(","):
-                    e = e.strip()
-                    if e:
-                        enemies.append(EnemyInfo.from_str(e))
-            return ArenaStartEvent(bracket=bracket, enemies=enemies)
+            enemies = _parse_units(parts[2] if len(parts) > 2 else "")
+            allies = _parse_units(parts[3] if len(parts) > 3 else "")
+            return ArenaStartEvent(bracket=bracket, enemies=enemies, allies=allies)
 
         elif event_type == "TRINKET":
             # [TRINKET|EnemyName|42292|pvp_trinket]

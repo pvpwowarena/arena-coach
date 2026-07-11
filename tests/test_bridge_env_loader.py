@@ -124,3 +124,20 @@ def test_apply_override_replaces_env(tmp_path: Path, monkeypatch: pytest.MonkeyP
     f.write_text("TEST_BRIDGE_BAZ=new_value\n", encoding="utf-8")
     apply_env_file(f, override=True)
     assert os.environ["TEST_BRIDGE_BAZ"] == "new_value"
+
+
+def test_load_utf8_bom(tmp_path: Path) -> None:
+    """Блокнот Windows сохраняет UTF-8 с BOM — первый ключ должен читаться."""
+    f = tmp_path / "bridge.env"
+    f.write_bytes(b"\xef\xbb\xbfWOW_INSTALL_PATH=C:/WoW\nBRIDGE_PLAYER_NAME=Vlad\n")
+    result = load_env_file(f)
+    assert result["WOW_INSTALL_PATH"] == "C:/WoW"
+    assert result["BRIDGE_PLAYER_NAME"] == "Vlad"
+
+
+def test_load_cp1251_does_not_crash(tmp_path: Path) -> None:
+    """Файл, сохранённый в cp1251 с кириллицей, не роняет загрузку."""
+    f = tmp_path / "bridge.env"
+    f.write_bytes("BRIDGE_PLAYER_NAME=Владислав\n".encode("cp1251"))
+    result = load_env_file(f)
+    assert "BRIDGE_PLAYER_NAME" in result  # значение с replacement-символами, но не crash
