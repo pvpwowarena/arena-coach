@@ -92,15 +92,33 @@ TRACKED_SPELLS: dict[int, str] = {
 # spell_id → класс: для вывода состава из кастов. Не исчерпывающе — достаточно
 # нескольких сигнатурных спеллов на класс (TBC 2.4.3 ранги).
 _CLASS_SPELLS: dict[str, set[int]] = {
-    "ROGUE": {1856, 26669, 31224, 14185, 2094, 408, 1833, 6770, 26862, 26865, 1766},
+    # Пополнено реальными id из живого combat-лога 2026-07-23 (скирмиш):
+    # Lifebloom/Regrowth/Mangle/Bash (друиды), Wound Poison (рога),
+    # Fel Armor (лок), Flare (хант).
+    "ROGUE": {1856, 26669, 31224, 14185, 2094, 408, 1833, 6770, 26862, 26865, 1766, 27188},
     "MAGE": {45438, 2139, 118, 122, 27070, 27072, 30455, 12042, 11129},
     "WARRIOR": {871, 1161, 5246, 20230, 30330, 25212, 11578, 23920, 12292},
-    "DRUID": {33786, 22812, 29166, 26988, 26985, 26982, 16979, 33357, 22570},
+    "DRUID": {
+        33786,
+        22812,
+        29166,
+        26988,
+        26985,
+        26982,
+        16979,
+        33357,
+        22570,
+        33763,
+        26980,
+        33983,
+        8983,
+        9634,
+    },
     "PRIEST": {33206, 8122, 10060, 25218, 25375, 34917, 32379, 25368},
-    "WARLOCK": {5782, 6789, 27209, 27216, 30414, 30546, 19647},
+    "WARLOCK": {5782, 6789, 27209, 27216, 30414, 30546, 19647, 28189, 688},
     "PALADIN": {853, 642, 1044, 27136, 27137, 31884, 20066, 24275},
-    "HUNTER": {27065, 34026, 27018, 19503, 19386, 14311, 27044, 34490},
-    "SHAMAN": {25454, 2825, 16166, 8177, 8012, 25457, 25396, 32182},
+    "HUNTER": {27065, 34026, 27018, 19503, 19386, 14311, 27044, 34490, 1543},
+    "SHAMAN": {25454, 2825, 16166, 8177, 8012, 25457, 25396, 32182, 25423},
 }
 SPELL_TO_CLASS: dict[int, str] = {sid: cls for cls, ids in _CLASS_SPELLS.items() for sid in ids}
 
@@ -109,8 +127,9 @@ _FLAG_TYPE_PLAYER = 0x0400
 _FLAG_REACTION_HOSTILE = 0x0040
 _FLAG_REACTION_FRIENDLY = 0x0010
 
-_ARENA_END_QUIET_S = 90.0  # тишина hostile-активности → конец матча
+_ARENA_END_QUIET_S = 90.0  # тишина активности ВРАГОВ МАТЧА → конец
 _DUP_WINDOW_S = 5.0  # cast+aura одного спелла → одно событие
+_MAX_ENEMY_FALLBACK = 5  # кап ростера врагов, если размер команды не определился
 
 _TS_FORMAT = "%m/%d/%Y %H:%M:%S.%f"
 
@@ -189,6 +208,8 @@ class CombatInterpreter:
     _last_hostile_ts: datetime | None = field(default=None, init=False)
     _recent: dict[tuple[str, int], datetime] = field(default_factory=dict, init=False)
     _event_count: int = field(default=0, init=False)
+    _team_size: int = field(default=0, init=False)
+    _last_enemies_key: str | None = field(default=None, init=False)
 
     # ── публичный вход ──────────────────────────────────────────────────
 
@@ -239,7 +260,15 @@ class CombatInterpreter:
                 self._session = True
                 self._last_hostile_ts = ts
                 self._event_count = 0
-                out.append(self._emit_arena_start())
+                # Размер команды фиксируем на воротах: он ограничивает ростер
+                # врагов (в 2v2 их не может быть больше двух). Иначе после
+                # матча ордынцы из открытого мира (тоже hostile player, 0x548)
+                # записывались бы во «врагов» — реальный кейс живого теста.
+                self._team_size = len(self._allies) if len(self._allies) in (2, 3, 5) else 0
+                self._last_enemies_key = None
+                start = self._emit_arena_start()
+                if start:
+                    out.append(start)
             return out
 
         if not self._session:
@@ -250,19 +279,28 @@ class CombatInterpreter:
 
         # ── внутри матча ────────────────────────────────────────────────
         if _is_hostile_player(src_flags):
+            enemy_cap = self._team_size or _MAX_ENEMY_FALLBACK
+            if src_guid not in self._enemies and len(self._enemies) >= enemy_cap:
+                # Ростер врагов полон — это hostile-игрок ВНЕ матча (мир после
+                # арены). Не регистрируем, не хинтим и НЕ продлеваем сессию.
+                return out
+
             self._last_hostile_ts = ts
             newly = self._note_class(self._enemies, src_guid, src_name, spell_id)
             if newly:
-                out.append(self._emit_arena_start())  # уточнение состава
+                start = self._emit_arena_start()
+                if start:
+                    out.append(start)  # уточнение состава врагов
 
             if event == "SPELL_CAST_SUCCESS" or event == "SPELL_AURA_APPLIED":
                 payload = self._emit_hostile_action(ts, src_guid, src_name, spell_id)
                 if payload:
                     out.append(payload)
         elif _is_friendly_player(src_flags):
-            newly = self._note_class(self._allies, src_guid, src_name, spell_id)
-            if newly:
-                out.append(self._emit_arena_start())
+            # Классы союзников копим для таргетинга, но re-emit НЕ делаем:
+            # в DM видны только враги, и каждый такой повтор выглядел бы
+            # дублем «Арена началась» (спам из живого теста 2026-07-23).
+            self._note_class(self._allies, src_guid, src_name, spell_id)
 
         return out
 
@@ -276,6 +314,8 @@ class CombatInterpreter:
     def _end_session(self) -> str:
         self._session = False
         self._in_prep = False
+        self._team_size = 0
+        self._last_enemies_key = None
         count, self._event_count = self._event_count, 0
         self._recent.clear()
         log.info("Combat-канал: матч завершён (%d событий)", count)
@@ -312,10 +352,19 @@ class CombatInterpreter:
         log.info("Combat-канал: %s определён как %s", name, wow_class)
         return True
 
-    def _emit_arena_start(self) -> str:
+    def _emit_arena_start(self) -> str | None:
+        """ARENA_START-payload; None, если состав ВРАГОВ не изменился.
+
+        Дедуп по врагам, а не по всему payload: раскрытие класса союзника
+        меняет allies-часть, но DM показывает только врагов — повтор выглядел
+        бы дублем «Арена началась» (наблюдалось на живом тесте 2026-07-23).
+        """
         team = max(len(self._allies), 1)
         bracket = f"{team}v{team}" if team in (2, 3, 5) else "unknown"
         enemies = ",".join(f"{u.wow_class}/UNKNOWN" for u in self._enemies.values() if u.wow_class)
+        if self._last_enemies_key is not None and enemies == self._last_enemies_key:
+            return None
+        self._last_enemies_key = enemies
         allies_units = sorted(
             self._allies.values(),
             key=lambda u: (u.name != self.player_name, u.name),

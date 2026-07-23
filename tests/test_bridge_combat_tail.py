@@ -188,3 +188,65 @@ def test_payloads_flow_through_normalizer() -> None:
     envelopes = [e for e in envelopes if e is not None]
     types = [e.event["type"] if isinstance(e.event, dict) else e.event.type for e in envelopes]
     assert "ARENA_START" in str(types).upper() or len(envelopes) >= 1
+
+
+# ── v0.4.1: шумоподавление (реальный скирмиш 2026-07-23) ─────────────────────
+
+
+def _setup_2v2(it: CombatInterpreter) -> None:
+    it.feed_line(_line("12:00:00.0000", PREP_ON_ME))
+    it.feed_line(_line("12:00:01.0000", PREP_ON_ALLY))
+    it.feed_line(_line("12:00:30.0000", PREP_OFF_ME))
+
+
+def _friendly_cast(guid: str, name: str, spell_id: int, spell: str) -> str:
+    return (
+        f'SPELL_CAST_SUCCESS,{guid},"{name}",{FRIENDLY},0x0,'
+        f'{guid},"{name}",{FRIENDLY},0x0,{spell_id},"{spell}",0x8'
+    )
+
+
+def test_ally_class_reveal_does_not_reemit() -> None:
+    """Раскрытие класса союзника не должно слать повторный ARENA_START."""
+    it = CombatInterpreter(player_name="Arenacoach")
+    _setup_2v2(it)
+    out = it.feed_line(
+        _line("12:00:35.0000", _friendly_cast("Player-1-AL", "Syskilla-X", 25454, "Earth Shock"))
+    )
+    assert not any(p.startswith("ARENA_START") for p in out)
+
+
+def test_same_enemy_comp_not_reemitted() -> None:
+    it = CombatInterpreter(player_name="Arenacoach")
+    _setup_2v2(it)
+    first = it.feed_line(
+        _line("12:00:40.0000", _enemy_cast("Player-1-E1", "Evildruid-X", 26982, "Rejuvenation"))
+    )
+    assert any(p.startswith("ARENA_START#2v2#DRUID/UNKNOWN") for p in first)
+    # Тот же друид кастует дальше — состав врагов не изменился, повторов нет
+    again = it.feed_line(
+        _line("12:00:44.0000", _enemy_cast("Player-1-E1", "Evildruid-X", 26985, "Wrath"))
+    )
+    assert not any(p.startswith("ARENA_START") for p in again)
+
+
+def test_world_hostiles_ignored_when_roster_full() -> None:
+    """После заполнения ростера 2v2 мировые ордынцы не считаются врагами."""
+    it = CombatInterpreter(player_name="Arenacoach")
+    _setup_2v2(it)
+    it.feed_line(
+        _line("12:00:40.0000", _enemy_cast("Player-1-E1", "Evildruid-X", 26982, "Rejuvenation"))
+    )
+    it.feed_line(
+        _line("12:00:42.0000", _enemy_cast("Player-1-E2", "Evilwar-X", 30330, "Mortal Strike"))
+    )
+    # «Мировой» хант после матча: ростер полон → игнор (ни ARENA_START, ни ABILITY)
+    out = it.feed_line(
+        _line("12:01:00.0000", _enemy_cast("Player-9-WORLD", "Zonof-X", 1543, "Flare"))
+    )
+    assert out == []
+    # И он же НЕ продлевает сессию: 90с тишины врагов матча → ARENA_END
+    out = it.feed_line(
+        _line("12:02:20.0000", _enemy_cast("Player-9-WORLD", "Zonof-X", 1543, "Flare"))
+    )
+    assert any(p.startswith("ARENA_END#") for p in out)
