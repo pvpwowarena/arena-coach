@@ -1,11 +1,13 @@
 """Нормализация raw addon-событий в canonical schema для backend.
 
-Формат AC-сообщений из Tracker.lua (addon >= 0.2.0 шлёт и союзников):
-  [AC|ARENA_START|2v2|WARRIOR/ORC,PALADIN/BLOODELF|ROGUE/HUMAN,MAGE/GNOME]
-  [AC|ARENA_START|2v2|WARRIOR/ORC,PALADIN/BLOODELF]      # addon 0.1.x — без союзников
-  [AC|TRINKET|EnemyName|42292|pvp_trinket]
-  [AC|ABILITY|EnemyName|33786|cyclone]
-  [AC|ARENA_END|42]
+Формат AC-сообщений из Tracker.lua (addon >= 0.2.0 шлёт и союзников;
+разделитель «#» с addon 0.2.1 — «|» запрещён клиентом в SendChatMessage,
+легаси «|»-формат по-прежнему принимается, см. chat_tail._AC_RE):
+  [AC#ARENA_START#2v2#WARRIOR/ORC,PALADIN/BLOODELF#ROGUE/HUMAN,MAGE/GNOME]
+  [AC#ARENA_START#2v2#WARRIOR/ORC,PALADIN/BLOODELF]      # addon 0.1.x — без союзников
+  [AC#TRINKET#EnemyName#42292#pvp_trinket]
+  [AC#ABILITY#EnemyName#33786#cyclone]
+  [AC#ARENA_END#42]
 
 В allies игрок ВСЕГДА первый — backend таргетирует советы под его класс.
 
@@ -206,10 +208,11 @@ def _parse_units(units_str: str) -> list[EnemyInfo]:
 
 
 def parse_event(raw: str) -> AnyEvent | None:
-    """Разобрать payload [AC|...] в typed event.
+    """Разобрать payload [AC#...] в typed event.
 
     Args:
-        raw: payload без обрамляющих [AC| и ] — например «TRINKET|EnemyName|42292|pvp_trinket»
+        raw: payload без обрамляющих [AC# и ] — например «TRINKET#EnemyName#42292#pvp_trinket»
+             (легаси-разделитель «|» тоже принимается)
 
     Returns:
         Typed event или None при ошибке парсинга.

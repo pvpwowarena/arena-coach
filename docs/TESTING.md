@@ -100,12 +100,18 @@ sudo grep BRIDGE_BEARER_TOKEN /etc/arena-coach/api.env
 | **Mac** | `/Applications/World of Warcraft/_anniversary_/Logs/WoWChatLog.txt` (или `Chat-ГГГГ-ММ-ДД.txt`) |
 | **Windows** | `C:\Program Files (x86)\World of Warcraft\_anniversary_\Logs\WoWChatLog.txt` (или `Chat-ГГГГ-ММ-ДД.txt`) |
 
-В нём должны появиться строки вида:
+В нём должны появиться строки вида (разделитель `#` — аддон 0.2.1+):
 
 ```
-To ИмяРоги: [AC|ARENA_START|2v2|ROGUE/HUMAN,MAGE/UNDEAD]
-To ИмяРоги: [AC|TRINKET|TestEnemy|42292|pvp_trinket]
+To ИмяРоги: [AC#ARENA_START#2v2#ROGUE/HUMAN,MAGE/UNDEAD]
+To ИмяРоги: [AC#TRINKET#TestEnemy#42292#pvp_trinket]
 ```
+
+> ⚠️ Аддон **0.2.0 в Anniversary-клиенте не отправлял события вовсе**: формат
+> использовал разделитель `|`, а современный движок запрещает сырой `|` в
+> SendChatMessage (тихая Lua-ошибка — счётчик «Событий» рос, файл оставался
+> пустым; найдено на первом живом тесте 2026-07-23). С 0.2.1 разделитель `#`;
+> bridge ≥ 0.3.2 принимает оба варианта.
 
 ✅ Если строки есть — канал аддон → файл работает.
 ❌ Если файла/строк нет — см. Troubleshooting (whisper-to-self).
@@ -115,7 +121,7 @@ To ИмяРоги: [AC|TRINKET|TestEnemy|42292|pvp_trinket]
 ## Шаг 2 — Bridge (сразу после шага 1, ДО арены)
 
 Bridge запускается на **той же машине**, где WoW (он читает локальный Chat-лог).
-Качать со страницы `/download` или из GitHub Releases (тег **`v0.3.1`+**).
+Качать со страницы `/download` или из GitHub Releases (тег **`v0.3.2`+**).
 
 > ⚠️ **Бинари релиза v0.3.0 битые** (и .exe, и macOS): падают на старте с
 > `ImportError: attempted relative import with no known parent package`
@@ -259,7 +265,8 @@ BRIDGE_PLAYER_NAME=ИмяРоги
 |---|---|
 | `ImportError: attempted relative import…` + `[PYI-…] Failed to execute script '__main__'` | Битый бинарь из релиза v0.3.0 — скачай v0.3.1+. |
 | `No module named 'email'` в Modules-строке check-config | Тот же битый релиз v0.3.0 (излишние excludes в spec) — скачай v0.3.1+. |
-| В `Logs/` нет `[AC|…]` | `/ac log` для принудительного включения. Если всё равно пусто — whisper-to-self заблокирован клиентом (редко в 2.4.3); напиши, добавим запасной канал. |
+| В `Logs/` нет `[AC#…]`, а `/ac status` показывает растущий счётчик «Событий» | Аддон 0.2.0 со старым `\|`-форматом — SendChatMessage молча падает в Anniversary-клиенте. Обнови аддон до 0.2.1 (релиз v0.3.2+). |
+| В `Logs/` нет `[AC#…]` | `/ac log` для принудительного включения. Если всё равно пусто — проверь whisper-to-self вручную: `/w СвоёИмя тест` (фиолетовая строка = работает). |
 | bridge: `no_player` | Не добавлен в whitelist или `character` не совпадает с `BRIDGE_PLAYER_NAME` (регистр!). |
 | bridge: `401 Unauthorized` | Неверный `BRIDGE_BEARER_TOKEN` — сверь с `api.env` на VPS. |
 | bridge: `Forbidden 403` | Игрок есть, но роль не `player`. |

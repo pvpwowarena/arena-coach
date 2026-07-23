@@ -71,13 +71,15 @@ def _write_synthetic_chatlog(tmp: str) -> pathlib.Path:
     chat.write_text(
         "\n".join(
             [
+                # Канонический формат addon >= 0.2.1: разделитель «#»
                 f"7/11 12:00:00.000  To {PLAYER}: "
-                "[AC|ARENA_START|2v2|WARRIOR/ORC,PALADIN/BLOODELF|ROGUE/HUMAN,MAGE/UNDEAD]",
-                f"7/11 12:00:05.123  To {PLAYER}: [AC|TRINKET|EnemyWarrior|42292|pvp_trinket]",
-                f"7/11 12:00:06.456  To {PLAYER}: [AC|ABILITY|EnemyWarrior|871|shield_wall]",
+                "[AC#ARENA_START#2v2#WARRIOR/ORC,PALADIN/BLOODELF#ROGUE/HUMAN,MAGE/UNDEAD]",
+                f"7/11 12:00:05.123  To {PLAYER}: [AC#TRINKET#EnemyWarrior#42292#pvp_trinket]",
+                f"7/11 12:00:06.456  To {PLAYER}: [AC#ABILITY#EnemyWarrior#871#shield_wall]",
+                # Легаси-формат «|» (synthetic/старые логи) — bridge обязан принять
                 f"7/11 12:00:07.000  To {PLAYER}: [AC|ABILITY|EnemyWarrior|871|shield_wall]",
-                f"7/11 12:00:08.500  To {PLAYER}: [AC|ABILITY|EnemyMage|33786|cyclone]",
-                f"7/11 12:00:30.000  To {PLAYER}: [AC|ARENA_END|5]",
+                f"7/11 12:00:08.500  To {PLAYER}: [AC#ABILITY#EnemyMage#33786#cyclone]",
+                f"7/11 12:00:30.000  To {PLAYER}: [AC#ARENA_END#5]",
                 "7/11 12:00:31.000  [2. Trade] WTS [Some Item] — мусор, должно игнориться",
             ]
         )

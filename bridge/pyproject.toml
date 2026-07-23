@@ -1,6 +1,6 @@
 [project]
 name = "arena-coach-bridge"
-version = "0.3.1"
+version = "0.3.2"
 description = "Локальный демон: tail SavedVariables + chat-log → WSS на backend"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -9,7 +9,8 @@
 Мы НЕ знаем заранее, какой формат у Anniversary-клиента, поэтому tailer
 следит за обоими кандидатами и переключается на тот, который реально растёт.
 
-Аддон отправляет события в формате [AC|TYPE|field1|field2|...].
+Аддон отправляет события в формате [AC#TYPE#field1#field2#...]
+(разделитель «#» с addon 0.2.1; легаси «|» тоже принимается — см. _AC_RE).
 Bridge читает файл раз в poll_interval секунд и извлекает AC-строки.
 
 Устойчивость:
@@ -32,10 +33,17 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 # Регулярка для строк аддона в chat-логе.
-# WoW пишет whisper-to-self как «To PlayerName: [AC|...]»
-# В русском клиенте может быть «Кому PlayerName: [AC|...]»
-# Мы ищем [AC|...] независимо от языка интерфейса.
-_AC_RE = re.compile(r"\[AC\|([^\]]+)\]")
+# WoW пишет whisper-to-self как «To PlayerName: [AC#...]»
+# В русском клиенте может быть «Кому PlayerName: [AC#...]»
+# Мы ищем [AC#...] независимо от языка интерфейса.
+#
+# Разделитель полей:
+#   «#» — канонический (аддон >= 0.2.1). Символ «|» запрещён современным
+#         Anniversary-клиентом в SendChatMessage (Lua-ошибка «invalid escape»),
+#         из-за чего аддон 0.2.0 вообще не мог отправить события.
+#   «|» — легаси (ADR-0003, synthetic-логи e2e_dryrun и старые фикстуры) —
+#         поддерживаем для обратной совместимости.
+_AC_RE = re.compile(r"\[AC[#|]([^\]]+)\]")
 
 # Стандартное имя chat-лога (``/chatlog`` во всех известных клиентах).
 _FIXED_CHAT_LOG = "WoWChatLog.txt"
@@ -192,23 +200,28 @@ class ChatTailer:
 
 
 def parse_ac_line(raw: str) -> list[str] | None:
-    """Разобрать payload из [AC|...] в список полей [type, field1, field2, ...].
+    """Разобрать payload из [AC#...] в список полей [type, field1, field2, ...].
+
+    Разделитель — «#» (аддон >= 0.2.1) или легаси «|» (см. коммент к _AC_RE).
+    В одном сообщении используется ровно один разделитель; поля не могут
+    содержать ни «#», ни «|» (имена персонажей/слаги WoW их не допускают).
 
     Args:
-        raw: содержимое внутри [AC|...] — строка вида «TYPE|field1|field2»
+        raw: содержимое внутри [AC#...] — строка вида «TYPE#field1#field2»
 
     Returns:
         Список строк (type, fields...) или None если формат нераспознан.
 
     Examples:
-        >>> parse_ac_line("TRINKET|EnemyName|42292|pvp_trinket")
+        >>> parse_ac_line("TRINKET#EnemyName#42292#pvp_trinket")
         ['TRINKET', 'EnemyName', '42292', 'pvp_trinket']
         >>> parse_ac_line("ARENA_START|2v2|ROGUE/HUMAN,MAGE/GNOME")
         ['ARENA_START', '2v2', 'ROGUE/HUMAN,MAGE/GNOME']
     """
     if not raw:
         return None
-    parts = raw.split("|")
+    delimiter = "#" if "#" in raw else "|"
+    parts = raw.split(delimiter)
     if not parts:
         return None
     return parts

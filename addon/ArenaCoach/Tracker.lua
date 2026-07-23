@@ -115,8 +115,12 @@ end
 -- ВАЖНО: клиент буферизует запись — на диск строки попадают с задержкой.
 -- Поэтому после критических событий дёргаем LoggingChat(false→true):
 -- закрытие лога сбрасывает буфер (форс-флаш), bridge видит событие сразу.
--- Формат: [AC|TYPE|field1|field2|...]  (символы | и ] в именах игроков не встречаются)
--- Bridge (Python) читает файл каждые ~0.5с и фильтрует строки с [AC|.
+-- Формат: [AC#TYPE#field1#field2#...]  (символы # и ] в именах игроков не встречаются)
+-- Bridge (Python) читает файл каждые ~0.5с и фильтрует строки с [AC# (и легаси [AC|).
+--
+-- ⚠ Разделитель «#», а НЕ «|» (v0.2.1): современный Anniversary-клиент запрещает
+-- сырой «|» в SendChatMessage — Lua-ошибка «invalid escape», события вообще не
+-- отправлялись (первый живой тест 2026-07-23). В оригинальном 2.4.3 «|» проходил.
 
 local bridgeEnabled = true   -- выключается через /ac coach pause
 
@@ -127,7 +131,7 @@ function AC.EmitToChat(eventType, ...)
         local v = select(i, ...)
         table.insert(parts, tostring(v or ""))
     end
-    local msg = table.concat(parts, "|") .. "]"
+    local msg = table.concat(parts, "#") .. "]"
     -- Whisper к самому игроку: не виден другим, попадает в Chat-лог
     local playerName = UnitName("player")
     if playerName then
@@ -196,7 +200,7 @@ function AC.RunBridgeTest()
     AC.EmitToChat("TRINKET", "TestEnemy", "42292", "pvp_trinket")
     AC.RequestChatFlush()
     AC.Print("2) Отправлены тестовые ARENA_START + TRINKET (+ форс-флаш через ~1с).")
-    AC.Print("3) Проверь Logs/WoWChatLog.txt (или Chat-<дата>.txt) — строки [AC|...].")
+    AC.Print("3) Проверь Logs/WoWChatLog.txt (или Chat-<дата>.txt) — строки [AC#...].")
     AC.Print("4) Если bridge запущен — в Discord придёт DM.")
 end
 
@@ -438,7 +442,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
     elseif event == "PLAYER_LOGIN" then
         -- КРИТИЧНО для bridge: включаем запись чата в файл.
         -- Без этого whisper-to-self не попадёт в Logs/Chat-*.txt и
-        -- bridge не увидит ни одного [AC|...] события.
+        -- bridge не увидит ни одного [AC#...] события.
         AC.EnsureChatLogging()
 
     elseif event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
