@@ -46,21 +46,32 @@ jobs:
         working-directory: bridge
         run: pyinstaller arena-bridge.spec --clean --noconfirm
 
-      - name: Smoke-test .exe (--check-config без config → exit 1 ожидается)
+      - name: Smoke-test .exe (валидный конфиг → строго exit 0)
         working-directory: bridge
         shell: pwsh
         run: |
-          # --check-config без настроек должен вернуть код 1 (ошибки конфига)
-          # Главное что .exe запускается и не падает с segfault/ImportError
+          # Валидный bridge.env рядом с .exe: --check-config обязан вернуть
+          # РОВНО 0. Прежний smoke принимал и exit 1 — и пропустил бинари
+          # v0.3.0, падавшие с ImportError (bootloader тоже выходит с 1).
+          # Наличие bridge.env дополнительно прогоняет env_loader,
+          # а сам --check-config теперь импортирует runtime-модули.
+          New-Item -ItemType Directory -Force -Path "smoke\wow\Logs" | Out-Null
+          $envLines = @(
+            "WOW_INSTALL_PATH=$PWD\smoke\wow",
+            "BACKEND_URL=https://example.com",
+            "BRIDGE_BEARER_TOKEN=smoke-token",
+            "BRIDGE_PLAYER_NAME=SmokeTester"
+          )
+          Set-Content -Path "dist\bridge.env" -Value $envLines -Encoding UTF8
           $proc = Start-Process -FilePath "dist\arena-bridge.exe" `
                     -ArgumentList "--check-config" `
                     -Wait -PassThru -NoNewWindow
-          if ($proc.ExitCode -eq 0 -or $proc.ExitCode -eq 1) {
-            Write-Host "Smoke-test passed (exit $($proc.ExitCode))"
-          } else {
-            Write-Error "Unexpected exit code: $($proc.ExitCode)"
+          if ($proc.ExitCode -ne 0) {
+            Write-Error "Smoke-test failed: exit $($proc.ExitCode), ожидался 0"
             exit 1
           }
+          Write-Host "Smoke-test passed (exit 0)"
+          Remove-Item "dist\bridge.env"
 
       - name: Upload .exe as artifact
         uses: actions/upload-artifact@v4
@@ -111,21 +122,26 @@ jobs:
         working-directory: bridge
         run: pyinstaller arena-bridge.spec --clean --noconfirm
 
-      - name: Smoke-test binary (--check-config без config → exit 1 ожидается)
+      - name: Smoke-test binary (валидный конфиг → строго exit 0)
         working-directory: bridge
         shell: bash
         run: |
+          # Валидный bridge.env рядом с бинарём: --check-config обязан вернуть
+          # РОВНО 0. Прежний smoke принимал и exit 1 — и пропустил бинари
+          # v0.3.0, падавшие с ImportError (bootloader тоже выходит с 1).
+          # Наличие bridge.env дополнительно прогоняет env_loader,
+          # а сам --check-config теперь импортирует runtime-модули.
           chmod +x dist/arena-bridge
-          set +e
+          mkdir -p smoke/wow/Logs
+          {
+            echo "WOW_INSTALL_PATH=$PWD/smoke/wow"
+            echo "BACKEND_URL=https://example.com"
+            echo "BRIDGE_BEARER_TOKEN=smoke-token"
+            echo "BRIDGE_PLAYER_NAME=SmokeTester"
+          } > dist/bridge.env
           ./dist/arena-bridge --check-config
-          code=$?
-          set -e
-          if [ "$code" -eq 0 ] || [ "$code" -eq 1 ]; then
-            echo "Smoke-test passed (exit $code)"
-          else
-            echo "Unexpected exit code: $code"
-            exit 1
-          fi
+          echo "Smoke-test passed (exit 0)"
+          rm dist/bridge.env
 
       # Готовим bundle: binary + sample bridge.env + README с инструкцией по Gatekeeper
       - name: Assemble macOS bundle

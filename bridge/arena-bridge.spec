@@ -23,6 +23,16 @@ pkg_root = Path(SPECPATH)  # noqa: F821  — injected by PyInstaller
 # PyInstaller на macOS не сможет найти Windows-only модули и упадёт —
 # поэтому добавляем их условно.
 _common_hidden = [
+    # Пакет bridge целиком: entry-скрипт (bridge_entry.py) импортирует его
+    # абсолютно, а runtime-модули подгружаются лениво внутри функций —
+    # перечисляем явно, чтобы Analysis гарантированно включил их в сборку.
+    "arena_bridge",
+    "arena_bridge.chat_tail",
+    "arena_bridge.config",
+    "arena_bridge.env_loader",
+    "arena_bridge.normalizer",
+    "arena_bridge.sv_tail",
+    "arena_bridge.ws_client",
     # pydantic использует dynamic import для validators
     "pydantic",
     "pydantic.v1",
@@ -53,8 +63,11 @@ elif sys.platform == "darwin":
 else:
     _platform_hidden = []
 
+# ⚠ Entry — ТОЛЬКО обёртка bridge_entry.py. Прямой запуск
+# arena_bridge/__main__.py ломает относительные импорты пакета
+# (баг бинарей v0.3.0: "attempted relative import with no known parent package").
 a = Analysis(
-    [str(pkg_root / "arena_bridge" / "__main__.py")],
+    [str(pkg_root / "bridge_entry.py")],
     pathex=[str(pkg_root)],
     binaries=[],
     datas=[],
@@ -63,17 +76,12 @@ a = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
-        # Не нужны в CLI-демоне
+        # ⚠ Исключаем ТОЛЬКО tkinter. Прежний агрессивный список ломал
+        # runtime: httpx тянет stdlib "email" (заодно "html"/"http") лениво —
+        # с excludes демон падал "No module named 'email'" при первом
+        # импорте ws_client. Экономия на stdlib-текстовых модулях копеечная,
+        # корректность важнее.
         "tkinter",
-        "unittest",
-        "email",
-        "html",
-        "http.server",
-        "xmlrpc",
-        "pdb",
-        "doctest",
-        "difflib",
-        "distutils",
     ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,

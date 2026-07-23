@@ -273,6 +273,19 @@ def main() -> int:
         print(f"  Our comp    : {args.our_comp or '(из аддона)'}")
         print(f"  Token       : {'***' if args.token else 'НЕ ЗАДАН'}")
         print(f"  Poll        : {args.poll_interval}s")
+
+        # Самопроверка: runtime-модули пакета должны импортироваться.
+        # В обычном запуске они грузятся лениво внутри _run_bridge — битая
+        # сборка (как onefile v0.3.0 с relative-import багом) прошла бы
+        # check-config и упала только на арене. Здесь ловим это заранее,
+        # а CI smoke-тест требует от этой команды ровно exit 0.
+        try:
+            from . import chat_tail, env_loader, normalizer, ws_client  # noqa: F401
+
+            print("  Modules     : ✓ runtime-модули загружаются")
+        except ImportError as exc:
+            print(f"  Modules     : НЕ загружаются — {exc}")
+            errors.append(f"Runtime-модули не импортируются (битая сборка?): {exc}")
         if errors:
             print("\n⚠️  Ошибки конфигурации:")
             for e in errors:
@@ -295,6 +308,17 @@ def main() -> int:
         log.info("Получен сигнал %s, завершаю...", signal.Signals(sig).name)
         stop_event.set()
 
+    async def _stop_watcher(task: asyncio.Task[None]) -> None:
+        """Отменить bridge-task сразу по сигналу.
+
+        Без этого stop_event проверялся только при СЛЕДУЮЩЕЙ строке в
+        chat-логе — на тихом логе Ctrl+C/SIGTERM «не работали» (демон
+        висел в tailer.lines() до бесконечности). _run_bridge корректно
+        обрабатывает CancelledError: останавливает tailer и закрывает client.
+        """
+        await stop_event.wait()
+        task.cancel()
+
     async def _main_async() -> None:
         loop = asyncio.get_running_loop()
         for sig in (signal.SIGINT, signal.SIGTERM):
@@ -302,15 +326,25 @@ def main() -> int:
                 # Windows не поддерживает add_signal_handler
                 loop.add_signal_handler(sig, _handle_signal, sig)
 
-        await _run_bridge(
-            log_dir=log_dir,
-            backend_url=args.backend_url,
-            bearer_token=args.token,
-            player_name=args.player_name,
-            poll_interval=args.poll_interval,
-            stop_event=stop_event,
-            our_comp=args.our_comp or None,
+        bridge_task = asyncio.create_task(
+            _run_bridge(
+                log_dir=log_dir,
+                backend_url=args.backend_url,
+                bearer_token=args.token,
+                player_name=args.player_name,
+                poll_interval=args.poll_interval,
+                stop_event=stop_event,
+                our_comp=args.our_comp or None,
+            )
         )
+        watcher = asyncio.create_task(_stop_watcher(bridge_task))
+
+        with contextlib.suppress(asyncio.CancelledError):
+            await bridge_task
+
+        watcher.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await watcher
 
     try:
         asyncio.run(_main_async())

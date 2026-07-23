@@ -115,7 +115,12 @@ To ИмяРоги: [AC|TRINKET|TestEnemy|42292|pvp_trinket]
 ## Шаг 2 — Bridge (сразу после шага 1, ДО арены)
 
 Bridge запускается на **той же машине**, где WoW (он читает локальный Chat-лог).
-Качать со страницы `/download` или из GitHub Releases (тег `v0.3.0`+).
+Качать со страницы `/download` или из GitHub Releases (тег **`v0.3.1`+**).
+
+> ⚠️ **Бинари релиза v0.3.0 битые** (и .exe, и macOS): падают на старте с
+> `ImportError: attempted relative import with no known parent package`
+> (`[PYI-…] Failed to execute script '__main__'`). Починено в v0.3.1
+> (entry-обёртка PyInstaller). Если видишь эту ошибку — просто скачай v0.3.1+.
 
 ### 2.1 Mac (Apple Silicon arm64)
 
@@ -252,6 +257,8 @@ BRIDGE_PLAYER_NAME=ИмяРоги
 
 | Симптом | Причина / решение |
 |---|---|
+| `ImportError: attempted relative import…` + `[PYI-…] Failed to execute script '__main__'` | Битый бинарь из релиза v0.3.0 — скачай v0.3.1+. |
+| `No module named 'email'` в Modules-строке check-config | Тот же битый релиз v0.3.0 (излишние excludes в spec) — скачай v0.3.1+. |
 | В `Logs/` нет `[AC|…]` | `/ac log` для принудительного включения. Если всё равно пусто — whisper-to-self заблокирован клиентом (редко в 2.4.3); напиши, добавим запасной канал. |
 | bridge: `no_player` | Не добавлен в whitelist или `character` не совпадает с `BRIDGE_PLAYER_NAME` (регистр!). |
 | bridge: `401 Unauthorized` | Неверный `BRIDGE_BEARER_TOKEN` — сверь с `api.env` на VPS. |
