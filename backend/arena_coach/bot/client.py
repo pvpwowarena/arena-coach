@@ -87,15 +87,22 @@ class ArenaCoachBot(commands.Bot):
         #    dispatch to bot.on_app_command_error by default when method-overridden).
         self.tree.on_error = self._tree_error_handler  # type: ignore[method-assign]
 
-        # 5. Sync commands to guild (private server → instant registration)
+        # 5. Sync commands GLOBALLY so KB-lookup commands (/matchup, /opener,
+        #    /glossary, /list_comps, /source) and /coach are usable in DMs too.
+        #    Guild-scoped commands are never offered in DMs (Discord rule), so a
+        #    global sync is required. /access is marked guild_only (needs guild
+        #    context for get_member) → Discord keeps it server-only automatically.
+        #    Realtime coaching DMs are proactive messages (not commands) and are
+        #    unaffected. NB: global command propagation can take up to ~1h.
         guild_id = self.settings.discord_guild_id
         if guild_id:
+            # Drop any previously guild-scoped registrations so they don't linger
+            # in the server alongside the new global commands.
             guild_obj = discord.Object(id=guild_id)
-            self.tree.copy_global_to(guild=guild_obj)
-            synced = await self.tree.sync(guild=guild_obj)
-            logger.info("Synced %d commands to guild %d", len(synced), guild_id)
-        else:
-            logger.warning("DISCORD_GUILD_ID not set — skipping guild sync")
+            self.tree.clear_commands(guild=guild_obj)
+            await self.tree.sync(guild=guild_obj)
+        synced = await self.tree.sync()
+        logger.info("Synced %d commands globally (DM-enabled; /access guild-only)", len(synced))
 
     # ── on_ready ──────────────────────────────────────────────────────────
 

@@ -38,6 +38,7 @@ class AccessCog(commands.Cog, name="access"):
     access_group = app_commands.Group(
         name="access",
         description="Управление whitelist'ом арена-коуча",
+        guild_only=True,  # нужен guild-контекст (get_member); в ДМ не показываем
     )
 
     # ── /access add ──────────────────────────────────────────────────────
