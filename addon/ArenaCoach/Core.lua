@@ -6,7 +6,7 @@ ArenaCoach = ArenaCoach or {}
 local AC = ArenaCoach
 
 -- ── Версия ──────────────────────────────────────────────────────────────────
-AC.VERSION = "0.2.1"
+AC.VERSION = "0.2.2"
 
 -- ── SavedVariables schema ────────────────────────────────────────────────────
 -- ArenaCoachDB инициализируется один раз при первом логине.
@@ -85,6 +85,12 @@ SlashCmdList["ARENACOACH"] = function(msg)
         else
             if AC.EnsureChatLogging then AC.EnsureChatLogging() end
             AC.Print("Запись чата: была ВЫКЛ — включил сейчас.")
+        end
+        if LoggingCombat and LoggingCombat() then
+            AC.Print("Запись боя: ВКЛ (Logs/WoWCombatLog-*.txt пишется — канал bridge).")
+        else
+            if AC.EnsureCombatLogging then AC.EnsureCombatLogging() end
+            AC.Print("Запись боя: была ВЫКЛ — включил сейчас (канал bridge, Phase 4.2).")
         end
     elseif cmd:match("^flush") then
         local arg = cmd:match("^flush%s+(%S+)")

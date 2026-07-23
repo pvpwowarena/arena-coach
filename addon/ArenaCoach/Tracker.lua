@@ -186,6 +186,17 @@ function AC.EnsureChatLogging()
     return false
 end
 
+-- Phase 4.2: главный realtime-канал bridge — COMBAT-лог (chat-лог клиент
+-- не флашит до выхода из игры). Включаем запись боя при логине, чтобы
+-- игроку не приходилось помнить про /combatlog. LoggingCombat идемпотентна.
+function AC.EnsureCombatLogging()
+    if LoggingCombat then
+        LoggingCombat(true)
+        return true
+    end
+    return false
+end
+
 -- Self-test канала addon→bridge без захода на арену.
 -- Включает логирование и шлёт тестовые ARENA_START + TRINKET (оба — hint-события
 -- на бэке, т.е. при поднятом bridge должен прийти Discord DM).
@@ -444,6 +455,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
         -- Без этого whisper-to-self не попадёт в Logs/Chat-*.txt и
         -- bridge не увидит ни одного [AC#...] события.
         AC.EnsureChatLogging()
+        -- Phase 4.2: realtime-канал bridge читает COMBAT-лог — включаем и его.
+        AC.EnsureCombatLogging()
 
     elseif event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
         local _, instanceType = IsInInstance()

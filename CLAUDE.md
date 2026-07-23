@@ -44,7 +44,15 @@
 [Discord DM — текстовые подсказки игрокам]
 ```
 
-**Канал addon ⇄ bridge:** chat-frame с префиксом `[AC|...]` (см. ADR-0003). SavedVariables как realtime-канал отвергнут — пишутся только при /reload и logout.
+**Realtime-канал (Phase 4.2, 2026-07-23):** bridge читает **COMBAT-лог**
+(`Logs/WoWCombatLog-MMDDYY_HHMMSS.txt`, автодетект свежего) и сам собирает события:
+ARENA_START по ауре Arena Preparation (32727/32728), классы игроков из кастов
+(re-emit при уточнении), TRINKET/ABILITY по spell id. Причина: **chat-лог в
+Anniversary-клиенте не флашится до полного выхода из игры** (буфер ~48КБ,
+LoggingChat(false→true) — no-op; проверено живым тестом), combat-лог флашится в бою.
+Аддон 0.2.2 включает LoggingCombat при логине. Chat-frame канал `[AC#...]`
+(ADR-0003, разделитель `#` с 0.2.1 — «|» запрещён клиентом) остаётся легаси-режимом
+(`--no-combat-log`); SavedVariables как realtime отвергнуты (только /reload и logout).
 
 **Имя chat-лога (v0.3.0):** стандартно `/chatlog` пишет в `Logs/WoWChatLog.txt` (не `Chat-YYYY-MM-DD.txt`, как предполагал ADR-0003). Bridge следит за обоими кандидатами и выбирает растущий. Клиент буферизует запись → аддон форс-флашит `LoggingChat(false→true)` после критических событий (отключается `/ac flush off`).
 
@@ -167,6 +175,26 @@ bracket через `GetBattlefieldStatus` (teamSize) вместо подсчёт
   к усечению файла и оборванным строкам, `utf-8-sig` для bridge.env (BOM Блокнота),
   `$BRIDGE_OUR_COMP`/`--our-comp` fallback. Windows-ревью: `docs/TESTING.md` (внизу).
 - **macOS поддержка (MVP, май 2026):** Apple Silicon arm64 unsigned binary, .tar.gz с sample env-файлом и инструкцией по обходу Gatekeeper. Apple Developer signing/notarization отложены — добавим если выйдем за пределы 5-10 юзеров. Intel-mac сборка пока не делается.
+
+### ✅ Phase 4.2 — Combat-лог канал (2026-07-23, v0.4.0)
+Живой тест показал: chat-лог не флашится до выхода из игры → realtime через
+whisper-to-self невозможен. Решение — bridge парсит combat-лог напрямую:
+- `bridge/arena_bridge/combat_tail.py`: `CombatTailer` (tail свежего
+  `WoWCombatLog*.txt` по mtime, переключение на новее) + `CombatInterpreter`
+  (CLEU → те же AC-payload строки → существующий `normalize_raw`, backend не тронут).
+- Границы матча: аура Arena Preparation — APPLIED=prep-фаза (копим свою команду,
+  bracket по её размеру), REMOVED=ворота → ARENA_START. ARENA_END: 90с тишины
+  hostile-активности или новая prep-фаза.
+- Классы обеих команд из кастов (`SPELL_TO_CLASS`, сигнатурные спеллы TBC) →
+  re-emit ARENA_START с уточнением (session id сохраняется, backend обновляет матч).
+  Расы неизвестны → `CLASS/UNKNOWN`. Рекомендуется `BRIDGE_OUR_COMP` как fallback.
+- TRINKET/ABILITY: зеркала таблиц аддона (TRINKET_IDS/TRACKED_SPELLS), дедуп
+  cast+aura 5с. Работает и в скирмише (prep-аура там есть).
+- Аддон 0.2.2: `EnsureCombatLogging()` при логине + расширен `/ac log`.
+- Chat-канал в combat-режиме ОТКЛЮЧЁН (иначе при выходе из клиента буфер выплюнет
+  пачку устаревших [AC#...]). Легаси: `--no-combat-log` / `BRIDGE_COMBAT_LOG=0`.
+- Тесты: `tests/test_bridge_combat_tail.py` (10 шт., всего 153); E2E onefile
+  с синтетическим combat-логом зелёный.
 
 ### ⏳ Phase 5 — CV/OCR (не начата)
 
@@ -409,7 +437,7 @@ ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
    `#`); e2e_dryrun переведён на `#` + одна легаси-строка; +6 тестов
    (`tests/test_bridge_delimiter.py`, всего 143). Проверено: dryrun зелёный
    (3 DM), пересобранный onefile парсит `#`-события из лога.
-5. **Живой тест аддона + bridge (Mac arm64 и Windows)** — по гайду `docs/TESTING.md`. Прогресс 2026-07-23: бинарь v0.3.1 на маке Влада работает (check-config ок, WoWChatLog.txt создаётся при логине — LoggingChat-автостарт подтверждён, whisper-to-self в клиенте работает), но события не отправлялись из-за `|`-бага аддона 0.2.0 (см. п. 4) — продолжать на **v0.3.2** (аддон 0.2.1, `/ac status` должен показать 0.2.1). Можно начать ДО арены: `/ac test` гоняет канал до Discord DM прямо в открытом мире. Аддон теперь сам включает Chat-логирование. Предусловие: добавить игрока через `/access add … role:player` (даже owner — иначе `no_player`). На живом тесте проверить: какой файл лога открыл bridge; реальную задержку доставки DM (буферизация); не бесит ли форс-флаш системными сообщениями (если да — `/ac flush off`).
+5. **Живой тест аддона + bridge (Mac arm64 и Windows)** — по гайду `docs/TESTING.md`. Прогресс 2026-07-23: v0.3.x цепочка фиксов доведена до рабочих шёпотов `[AC#...]`, но выяснилось, что chat-лог не флашится до выхода из игры → **Phase 4.2** (combat-лог канал, v0.4.0). Продолжать на **v0.4.0**: аддон 0.2.2 (`/ac status` → 0.2.2, `/ac log` → «Запись боя: ВКЛ»), bridge 0.4.0 (`--check-config` → «Канал: combat-лог»). E2E-проверка теперь = скирмиш (prep-аура есть и там): на воротах DM с матчапом (уточняется по кастам), тринкет/дефы врагов — realtime-DM. Рекомендовано вписать `BRIDGE_OUR_COMP` в bridge.env каждому. Можно начать ДО арены: `/ac test` гоняет канал до Discord DM прямо в открытом мире. Аддон теперь сам включает Chat-логирование. Предусловие: добавить игрока через `/access add … role:player` (даже owner — иначе `no_player`). На живом тесте проверить: какой файл лога открыл bridge; реальную задержку доставки DM (буферизация); не бесит ли форс-флаш системными сообщениями (если да — `/ac flush off`).
 6. ✅ ~~Phase 4.1 — починить KB-матчинг~~ — сделано 2026-07-11 (см. Phase 4).
 
 ### Среднесрочно

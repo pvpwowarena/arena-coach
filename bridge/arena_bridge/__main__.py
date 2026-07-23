@@ -100,6 +100,7 @@ def _load_config_from_env() -> dict[str, str]:
         "our_comp": os.environ.get("BRIDGE_OUR_COMP", ""),
         "log_level": os.environ.get("LOG_LEVEL", "INFO"),
         "poll_interval": os.environ.get("BRIDGE_POLL_INTERVAL", "0.5"),
+        "combat_log": os.environ.get("BRIDGE_COMBAT_LOG", "1"),
     }
 
 
@@ -111,10 +112,12 @@ async def _run_bridge(
     poll_interval: float,
     stop_event: asyncio.Event,
     our_comp: str | None = None,
+    combat_log: bool = True,
 ) -> None:
-    """Основной asyncio-loop: chat_tail → normalizer → http POST."""
+    """Основной asyncio-loop: (combat|chat)_tail → normalizer → http POST."""
     # Импортируем здесь чтобы не мешать argparse при --check-config
     from .chat_tail import ChatTailer
+    from .combat_tail import CombatInterpreter, CombatTailer
     from .normalizer import SessionState, normalize_raw
     from .ws_client import EventClient
 
@@ -127,7 +130,23 @@ async def _run_bridge(
     else:
         log.warning("Backend недоступен при старте — буду повторять при отправке")
 
-    tailer = ChatTailer(log_dir, poll_interval)
+    # Phase 4.2: основной realtime-канал — combat-лог (chat-лог в Anniversary
+    # не флашится до выхода из игры). Chat-канал при этом ОТКЛЮЧЁН, иначе при
+    # выходе из клиента его буфер выплюнет пачку устаревших [AC#...] событий.
+    # Легаси-режим: --no-combat-log / BRIDGE_COMBAT_LOG=0.
+    interpreter: CombatInterpreter | None
+    tailer: CombatTailer | ChatTailer
+    if combat_log:
+        tailer = CombatTailer(log_dir, poll_interval)
+        interpreter = CombatInterpreter(player_name=player_name)
+        log.info(
+            "Канал: combat-лог (Phase 4.2). Включи /combatlog в игре "
+            "(аддон 0.2.2+ делает это сам при логине)."
+        )
+    else:
+        tailer = ChatTailer(log_dir, poll_interval)
+        interpreter = None
+        log.info("Канал: chat-лог (легаси-режим)")
 
     log.info(
         "Arena Bridge запущен | лог: %s | игрок: %s | backend: %s",
@@ -137,19 +156,21 @@ async def _run_bridge(
     )
 
     try:
-        async for raw_payload in tailer.lines():
+        async for raw_line in tailer.lines():
             if stop_event.is_set():
                 tailer.stop()
                 break
 
-            envelope = normalize_raw(raw_payload, session, player_name)
-            if envelope is None:
-                continue
+            payloads = interpreter.feed_line(raw_line) if interpreter else [raw_line]
+            for raw_payload in payloads:
+                envelope = normalize_raw(raw_payload, session, player_name)
+                if envelope is None:
+                    continue
 
-            payload = envelope.model_dump()
-            ok = await client.send(payload)
-            if not ok:
-                log.warning("Событие потеряно: %s", raw_payload)
+                payload = envelope.model_dump()
+                ok = await client.send(payload)
+                if not ok:
+                    log.warning("Событие потеряно: %s", raw_payload)
 
     except asyncio.CancelledError:
         log.info("Bridge: получен CancelledError, завершаю")
@@ -242,6 +263,16 @@ def main() -> int:
         help="Уровень логирования (default: INFO)",
     )
     parser.add_argument(
+        "--no-combat-log",
+        action="store_true",
+        default=env["combat_log"].strip().lower() in ("0", "false", "off"),
+        help=(
+            "Легаси-режим: читать chat-лог вместо combat-лога. "
+            "По умолчанию канал — combat-лог (Phase 4.2); "
+            "переключается и через $BRIDGE_COMBAT_LOG=0."
+        ),
+    )
+    parser.add_argument(
         "--check-config",
         action="store_true",
         help="Проверить конфигурацию и выйти (не запускать демон)",
@@ -289,9 +320,10 @@ def main() -> int:
         print(f"  Logs dir    : {log_dir or 'НЕ НАЙДЕНА'}")
         print(f"  Backend URL : {args.backend_url or 'НЕ ЗАДАН'}")
         print(f"  Player      : {args.player_name or 'НЕ ЗАДАН'}")
-        print(f"  Our comp    : {args.our_comp or '(из аддона)'}")
+        print(f"  Our comp    : {args.our_comp or '(из аддона/кастов)'}")
         print(f"  Token       : {'***' if args.token else 'НЕ ЗАДАН'}")
         print(f"  Poll        : {args.poll_interval}s")
+        print(f"  Канал       : {'chat-лог (легаси)' if args.no_combat_log else 'combat-лог'}")
 
         # Самопроверка: runtime-модули пакета должны импортироваться.
         # В обычном запуске они грузятся лениво внутри _run_bridge — битая
@@ -299,7 +331,13 @@ def main() -> int:
         # check-config и упала только на арене. Здесь ловим это заранее,
         # а CI smoke-тест требует от этой команды ровно exit 0.
         try:
-            from . import chat_tail, env_loader, normalizer, ws_client  # noqa: F401
+            from . import (  # noqa: F401
+                chat_tail,
+                combat_tail,
+                env_loader,
+                normalizer,
+                ws_client,
+            )
 
             print("  Modules     : ✓ runtime-модули загружаются")
         except ImportError as exc:
@@ -354,6 +392,7 @@ def main() -> int:
                 poll_interval=args.poll_interval,
                 stop_event=stop_event,
                 our_comp=args.our_comp or None,
+                combat_log=not args.no_combat_log,
             )
         )
         watcher = asyncio.create_task(_stop_watcher(bridge_task))
