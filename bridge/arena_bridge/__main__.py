@@ -47,6 +47,23 @@ from pathlib import Path
 log = logging.getLogger("arena_bridge")
 
 
+def _force_utf8_stdio() -> None:
+    """Перенастроить stdout/stderr на UTF-8 с errors='replace'.
+
+    На Windows перенаправленный вывод (CI-пайп, `arena-bridge.exe > лог.txt`)
+    получает locale-кодировку cp1252 — кириллица и «✓» роняли процесс с
+    UnicodeEncodeError (так упал smoke v0.3.1 на windows-runner; на
+    интерактивной консоли не проявлялось — там WriteConsoleW/UTF-8).
+    Для потоков без reconfigure (замоканных в тестах) — no-op.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        with contextlib.suppress(Exception):
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def _setup_logging(level: str = "INFO") -> None:
     logging.basicConfig(
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -143,6 +160,8 @@ async def _run_bridge(
 
 
 def main() -> int:
+    _force_utf8_stdio()
+
     # ── Предварительный парсинг --env-file / авто-детект ────────────────────
     # Нужно сделать это ДО основного argparse, чтобы переменные из файла
     # были доступны как defaults, но системные env-переменные имели приоритет.

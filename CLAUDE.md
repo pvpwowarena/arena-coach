@@ -389,6 +389,10 @@ ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
      `email`, нужный httpx → «No module named 'email'» при импорте ws_client;
    - SIGINT/SIGTERM теперь реально останавливают демон (раньше stop_event
      проверялся только на следующей строке лога — Ctrl+C «не работал»);
+   - принудительный UTF-8 stdio с errors=replace (`_force_utf8_stdio`) — на
+     Windows перенаправленный вывод (CI-пайп, `> файл`) получает cp1252, и
+     кириллица/«✓» роняли процесс UnicodeEncodeError (первый прогон строгого
+     smoke на windows-runner поймал ровно это);
    - `--check-config` импортирует runtime-модули (ловит битую сборку);
    - CI smoke: валидный bridge.env + строго exit 0 на обеих платформах.
    ⚠ Для живого теста нужен именно **v0.3.1**: в ≤ v0.2.0 — аддон 0.1.0 без
