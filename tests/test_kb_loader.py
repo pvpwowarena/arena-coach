@@ -77,7 +77,7 @@ class TestGlossaryResolution:
 
 
 class TestValidateDirectory:
-    """Контракт: validate_directory(kb/drafts/) валидирует все 44 сгенерированных draft'ов."""
+    """Контракт: validate_directory(kb/drafts/) валидирует все 64 сгенерированных draft'ов."""
 
     def test_all_drafts_valid(self, drafts_dir: Path) -> None:
         if not drafts_dir.is_dir():
@@ -100,7 +100,16 @@ class TestValidateDirectory:
         # (Skill Capped comps-страницы S2/2.5.5: пара названа «C Tier: Holy Paladin +
         # Frost Mage» с обеих сторон — hpala-comps и fmage-comps; RP + Deadlycoward
         # class-handling как помеченная обвязка).
-        assert ok == 51, f"Ожидалось 51 валидных draft'ов, получено {ok}"
+        # +8 (2026-07-23): rl-vs-* — новый состав Rogue/Warlock 2v2 (RL), топ-мета
+        # матчапы (RM, Warr/RDruid, SL/Druid, Rogue/Druid, Mage/Priest, SL/Disc,
+        # Warr/RSham, Rogue/Disc) засорсены из Icy Veins 2v2 rankings (SL/SL
+        # Warlock/Rogue best-tier) + Wowhead Warlock arena guide (Rogue/Warlock
+        # «premier pairing»); execution синтезировано (теги synthesized-execution/new-comp-rl).
+        # +5 (2026-07-23): rrd-vs-* — новый состав Rogue/Rogue/Resto Druid 3v3 (RRD,
+        # off-meta: не тирится в 3v3 tier-листах). Каркас — OwnedCore Double Rogue
+        # Guide (эпоха TBC 2.x подтверждена) + Icy Veins Rogue/Druid синергия + Skill
+        # Capped/Icy Veins 3v3 enemy-тир; execution синтезирован (off-meta-comp/new-comp-rrd).
+        assert ok == 64, f"Ожидалось 64 валидных draft'ов, получено {ok}"
 
     def test_all_drafts_have_resolved_abilities(
         self, drafts_dir: Path, glossary_path: Path

@@ -22,8 +22,8 @@ HYPO = REPO / "kb" / "hypotheses"
 OUT = REPO / "docs" / "COVERAGE.md"
 
 CLASSES = ["warrior", "paladin", "hunter", "rogue", "priest", "shaman", "mage", "warlock", "druid"]
-OUR_2V2 = [("rogue+mage", "RM"), ("rogue+priest", "RP")]
-OUR_3V3 = [("rogue+mage+priest", "RMP")]
+OUR_2V2 = [("rogue+mage", "RM"), ("rogue+priest", "RP"), ("rogue+warlock", "RL")]
+OUR_3V3 = [("rogue+mage+priest", "RMP"), ("rogue+rogue+resto-druid", "RRD")]
 
 # Спек-варианты: ячейки, где спек врага меняет тактику настолько, что класс-уровень
 # недостаточен. Перечисляются ЯВНО и матчатся по ТОЧНОМУ vs-составу (без сведения к

@@ -7,7 +7,11 @@
     "dr": null,
     "cd": null,
     "id": null,
-    "aliases": ["dr", "diminishing returns", "diminishing"]
+    "aliases": [
+      "dr",
+      "diminishing returns",
+      "diminishing"
+    ]
   },
   "ambush": {
     "slug": "ambush",
@@ -20,7 +24,9 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["ambush"]
+    "aliases": [
+      "ambush"
+    ]
   },
   "blind": {
     "slug": "blind",
@@ -33,7 +39,12 @@
     "cd": "60с",
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["Blind", "blind", "blinded and", "blinds"]
+    "aliases": [
+      "Blind",
+      "blind",
+      "blinded and",
+      "blinds"
+    ]
   },
   "cheap-shot": {
     "slug": "cheap-shot",
@@ -46,7 +57,10 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["cheap shot", "cheap shotting"]
+    "aliases": [
+      "cheap shot",
+      "cheap shotting"
+    ]
   },
   "cloak": {
     "slug": "cloak",
@@ -59,7 +73,9 @@
     "cd": "90с",
     "school": null,
     "class_": "rogue",
-    "aliases": ["cloak"]
+    "aliases": [
+      "cloak"
+    ]
   },
   "cloak-of-shadows": {
     "slug": "cloak-of-shadows",
@@ -72,7 +88,9 @@
     "cd": "90с",
     "school": null,
     "class_": "rogue",
-    "aliases": ["cloak of shadows"]
+    "aliases": [
+      "cloak of shadows"
+    ]
   },
   "counterspell": {
     "slug": "counterspell",
@@ -85,7 +103,10 @@
     "cd": "24с",
     "school": "arcane",
     "class_": "mage",
-    "aliases": ["counterspell", "counterspells"]
+    "aliases": [
+      "counterspell",
+      "counterspells"
+    ]
   },
   "cyclone": {
     "slug": "cyclone",
@@ -98,7 +119,9 @@
     "cd": null,
     "school": "nature",
     "class_": "druid",
-    "aliases": ["cyclone"]
+    "aliases": [
+      "cyclone"
+    ]
   },
   "deadly-throw": {
     "slug": "deadly-throw",
@@ -111,7 +134,9 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["deadly throw"]
+    "aliases": [
+      "deadly throw"
+    ]
   },
   "death-coil": {
     "slug": "death-coil",
@@ -124,7 +149,9 @@
     "cd": "120с",
     "school": "shadow",
     "class_": "warlock",
-    "aliases": ["death coil"]
+    "aliases": [
+      "death coil"
+    ]
   },
   "evasion": {
     "slug": "evasion",
@@ -137,7 +164,9 @@
     "cd": "5 мин",
     "school": null,
     "class_": "rogue",
-    "aliases": ["evasion"]
+    "aliases": [
+      "evasion"
+    ]
   },
   "evisc": {
     "slug": "evisc",
@@ -150,7 +179,10 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["evisc", "eviscerate"]
+    "aliases": [
+      "evisc",
+      "eviscerate"
+    ]
   },
   "expose-armor": {
     "slug": "expose-armor",
@@ -163,7 +195,10 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["Expose armor", "expose armor"]
+    "aliases": [
+      "Expose armor",
+      "expose armor"
+    ]
   },
   "fear": {
     "slug": "fear",
@@ -176,7 +211,11 @@
     "cd": null,
     "school": "shadow",
     "class_": "warlock",
-    "aliases": ["Fear", "fear", "fears"]
+    "aliases": [
+      "Fear",
+      "fear",
+      "fears"
+    ]
   },
   "garrote": {
     "slug": "garrote",
@@ -189,7 +228,9 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["garrote"]
+    "aliases": [
+      "garrote"
+    ]
   },
   "gouge": {
     "slug": "gouge",
@@ -202,7 +243,9 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["gouge"]
+    "aliases": [
+      "gouge"
+    ]
   },
   "hammer-of-justice": {
     "slug": "hammer-of-justice",
@@ -215,7 +258,10 @@
     "cd": "40с",
     "school": "holy",
     "class_": "paladin",
-    "aliases": ["hammer of justice", "hoj"]
+    "aliases": [
+      "hammer of justice",
+      "hoj"
+    ]
   },
   "hemo": {
     "slug": "hemo",
@@ -228,7 +274,12 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["hemo", "hemo once", "hemo twice", "hemorrhage"]
+    "aliases": [
+      "hemo",
+      "hemo once",
+      "hemo twice",
+      "hemorrhage"
+    ]
   },
   "ice-block": {
     "slug": "ice-block",
@@ -241,7 +292,10 @@
     "cd": "5 мин",
     "school": null,
     "class_": "mage",
-    "aliases": ["ice block", "ice blocks it"]
+    "aliases": [
+      "ice block",
+      "ice blocks it"
+    ]
   },
   "icy-veins": {
     "slug": "icy-veins",
@@ -254,7 +308,9 @@
     "cd": "3 мин",
     "school": null,
     "class_": "mage",
-    "aliases": ["icy veins"]
+    "aliases": [
+      "icy veins"
+    ]
   },
   "kidney": {
     "slug": "kidney",
@@ -267,7 +323,9 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["kidney"]
+    "aliases": [
+      "kidney"
+    ]
   },
   "kidney-shot": {
     "slug": "kidney-shot",
@@ -280,7 +338,11 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["Kidney shot", "kidney shot", "kidney shots"]
+    "aliases": [
+      "Kidney shot",
+      "kidney shot",
+      "kidney shots"
+    ]
   },
   "mana-burn": {
     "slug": "mana-burn",
@@ -293,7 +355,11 @@
     "cd": null,
     "school": "shadow",
     "class_": "priest",
-    "aliases": ["mana burn", "mana burning him early", "mana burns whenever convenient"]
+    "aliases": [
+      "mana burn",
+      "mana burning him early",
+      "mana burns whenever convenient"
+    ]
   },
   "nova": {
     "slug": "nova",
@@ -306,7 +372,10 @@
     "cd": "25с",
     "school": "frost",
     "class_": "mage",
-    "aliases": ["nova", "frost nova"]
+    "aliases": [
+      "nova",
+      "frost nova"
+    ]
   },
   "pain-suppression": {
     "slug": "pain-suppression",
@@ -319,7 +388,9 @@
     "cd": "3 мин",
     "school": "holy",
     "class_": "priest",
-    "aliases": ["pain suppression"]
+    "aliases": [
+      "pain suppression"
+    ]
   },
   "premed": {
     "slug": "premed",
@@ -332,7 +403,11 @@
     "cd": "20с",
     "school": null,
     "class_": "rogue",
-    "aliases": ["Premed", "premed", "premeditation"]
+    "aliases": [
+      "Premed",
+      "premed",
+      "premeditation"
+    ]
   },
   "preparation": {
     "slug": "preparation",
@@ -345,7 +420,11 @@
     "cd": "10 мин",
     "school": null,
     "class_": "rogue",
-    "aliases": ["Preparation", "preparation", "prep"]
+    "aliases": [
+      "Preparation",
+      "preparation",
+      "prep"
+    ]
   },
   "rupture": {
     "slug": "rupture",
@@ -358,7 +437,9 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["rupture"]
+    "aliases": [
+      "rupture"
+    ]
   },
   "sap": {
     "slug": "sap",
@@ -371,7 +452,10 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["Sap", "sap"]
+    "aliases": [
+      "Sap",
+      "sap"
+    ]
   },
   "scatter-shot": {
     "slug": "scatter-shot",
@@ -384,7 +468,9 @@
     "cd": "30с",
     "school": "physical",
     "class_": "hunter",
-    "aliases": ["scatter shot"]
+    "aliases": [
+      "scatter shot"
+    ]
   },
   "shadowstep": {
     "slug": "shadowstep",
@@ -397,7 +483,9 @@
     "cd": "30с",
     "school": null,
     "class_": "rogue",
-    "aliases": ["shadowstep"]
+    "aliases": [
+      "shadowstep"
+    ]
   },
   "sheep": {
     "slug": "sheep",
@@ -410,7 +498,11 @@
     "cd": null,
     "school": "arcane",
     "class_": "mage",
-    "aliases": ["sheep", "polymorph", "poly"]
+    "aliases": [
+      "sheep",
+      "polymorph",
+      "poly"
+    ]
   },
   "shiv": {
     "slug": "shiv",
@@ -423,7 +515,11 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["shiv", "shiv crippling", "shiv twice"]
+    "aliases": [
+      "shiv",
+      "shiv crippling",
+      "shiv twice"
+    ]
   },
   "slice-and-dice": {
     "slug": "slice-and-dice",
@@ -436,7 +532,11 @@
     "cd": null,
     "school": "physical",
     "class_": "rogue",
-    "aliases": ["Slice and dice", "slice and dice", "snd"]
+    "aliases": [
+      "Slice and dice",
+      "slice and dice",
+      "snd"
+    ]
   },
   "step": {
     "slug": "step",
@@ -449,7 +549,9 @@
     "cd": "30с",
     "school": null,
     "class_": "rogue",
-    "aliases": ["step"]
+    "aliases": [
+      "step"
+    ]
   },
   "vanish": {
     "slug": "vanish",
@@ -462,7 +564,9 @@
     "cd": "3 мин",
     "school": null,
     "class_": "rogue",
-    "aliases": ["vanish"]
+    "aliases": [
+      "vanish"
+    ]
   },
   "will-of-the-forsaken": {
     "slug": "will-of-the-forsaken",
@@ -475,6 +579,321 @@
     "cd": "2 мин",
     "school": null,
     "class_": "undead racial",
-    "aliases": ["will of the forsaken", "wotf"]
+    "aliases": [
+      "will of the forsaken",
+      "wotf"
+    ]
+  },
+  "howl-of-terror": {
+    "slug": "howl-of-terror",
+    "en_name": "Howl of Terror",
+    "description": "AoE fear вокруг варлока на 8/4/2 сек (с DR). DR: fear (делится с Fear, Death Coil, WotF). Instant-cast с талантом Improved Howl — мгновенный peel/сброс давления.",
+    "icon": "spell_shadow_deathscream",
+    "id": 5484,
+    "dr": "fear",
+    "duration": "8с (1st) / 4с (2nd) / 2с (3rd)",
+    "cd": "40с",
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "howl of terror",
+      "howl",
+      "hot"
+    ]
+  },
+  "spell-lock": {
+    "slug": "spell-lock",
+    "en_name": "Spell Lock",
+    "description": "Прерывание Felhunter'а: обрывает каст и блокирует школу магии на 6 сек. Ключевой interrupt варлока против хилеров/кастеров (по kick-эффекту как Counterspell рога-мага нет — это заменитель).",
+    "icon": "spell_shadow_mindrot",
+    "id": 19647,
+    "dr": null,
+    "duration": "6с (lockout школы)",
+    "cd": "24с (пета)",
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "spell lock",
+      "spelllock",
+      "felhunter interrupt"
+    ]
+  },
+  "devour-magic": {
+    "slug": "devour-magic",
+    "en_name": "Devour Magic",
+    "description": "Felhunter снимает один магический бафф с врага (или дебафф с союзника) и лечит пета/варлока (с талантом). Ограниченный dispel — единственный у SL/SL Lock/Rogue (см. слабость «limited dispel from Devour Magic»).",
+    "icon": "spell_nature_removecurse",
+    "id": 19505,
+    "dr": null,
+    "duration": null,
+    "cd": "8с",
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "devour magic",
+      "devour"
+    ]
+  },
+  "seduction": {
+    "slug": "seduction",
+    "en_name": "Seduction",
+    "description": "Succubus каналит контроль на цель (до 15 сек), цель не может действовать. Ломается любым уроном. Дополнительный слой CC варлока для isolate одного врага, пока добивают другого.",
+    "icon": "spell_shadow_mindsteal",
+    "id": 6358,
+    "dr": null,
+    "duration": "15с (канал)",
+    "cd": null,
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "seduction",
+      "seduce"
+    ]
+  },
+  "curse-of-tongues": {
+    "slug": "curse-of-tongues",
+    "en_name": "Curse of Tongues",
+    "description": "+60% ко времени каста цели на 30 сек. Замедляет хил/касты вражеского хилера или кастера. Softlock-инструмент вместе с fear/interrupt.",
+    "icon": "spell_shadow_curseoftounges",
+    "id": 11719,
+    "dr": null,
+    "duration": "30с",
+    "cd": null,
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "curse of tongues",
+      "cot",
+      "tongues"
+    ]
+  },
+  "siphon-life": {
+    "slug": "siphon-life",
+    "en_name": "Siphon Life",
+    "description": "DoT, лечащий варлока на часть нанесённого урона. Основа sustain'а SL/SL без хилера («Siphon Life Soul Link is all about outliving your opponents»).",
+    "icon": "spell_shadow_requiem",
+    "id": 30911,
+    "dr": null,
+    "duration": "30с (DoT)",
+    "cd": null,
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "siphon life",
+      "siphon"
+    ]
+  },
+  "drain-life": {
+    "slug": "drain-life",
+    "en_name": "Drain Life",
+    "description": "Канал: переливает HP цели варлоку. Реактивный self-heal под давлением (нет хилера). Прерывается interrupt/kick/silence — беречь под LoS.",
+    "icon": "spell_shadow_lifedrain",
+    "id": 689,
+    "dr": null,
+    "duration": "5с (канал)",
+    "cd": null,
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "drain life",
+      "drain"
+    ]
+  },
+  "soul-link": {
+    "slug": "soul-link",
+    "en_name": "Soul Link",
+    "description": "Перенаправляет 20% входящего урона на демона. Ядро выживаемости SL/SL — «make you incredible tanky» вместе с Fel Armor и Master Healthstone.",
+    "icon": "spell_shadow_gathershadows",
+    "id": 19028,
+    "dr": null,
+    "duration": null,
+    "cd": null,
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "soul link",
+      "sl"
+    ]
+  },
+  "fel-armor": {
+    "slug": "fel-armor",
+    "en_name": "Fel Armor",
+    "description": "Бафф брони: +spell damage и +increased healing received. Часть sustain-пакета SL/SL (усиливает Siphon/Drain Life). Spell ID из реального combat-лога.",
+    "icon": "spell_shadow_felarmour",
+    "id": 28189,
+    "dr": null,
+    "duration": "30 мин (бафф)",
+    "cd": null,
+    "school": "shadow",
+    "class_": "warlock",
+    "aliases": [
+      "fel armor",
+      "felarmor"
+    ]
+  },
+  "entangling-roots": {
+    "slug": "entangling-roots",
+    "en_name": "Entangling Roots",
+    "description": "Root цели на 8/4/2 сек (с DR). DR: root (делится с Frost Nova). Ломается уроном по DoT-тикам. Друид кайтит/держит дистанцию; Nature's Grasp даёт instant-версию.",
+    "icon": "spell_nature_stranglevines",
+    "id": 26989,
+    "dr": "root",
+    "duration": "8с (1st) / 4с (2nd) / 2с (3rd)",
+    "cd": null,
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "entangling roots",
+      "roots",
+      "root"
+    ]
+  },
+  "natures-grasp": {
+    "slug": "natures-grasp",
+    "en_name": "Nature's Grasp",
+    "description": "Реактивный бафф: следующий атакующий в ближнем бою мгновенно рутится (Entangling Roots). DR: root. Anti-melee инструмент друида против рог/воина.",
+    "icon": "spell_nature_natureswrath",
+    "id": 16689,
+    "dr": "root",
+    "duration": "45с (окно)",
+    "cd": "60с",
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "natures grasp",
+      "nature's grasp",
+      "ng"
+    ]
+  },
+  "innervate": {
+    "slug": "innervate",
+    "en_name": "Innervate",
+    "description": "+400% mana regen на 20 сек. Ключевой mana-CD друида — форсить его расходом маны через CC; можно снять/украсть.",
+    "icon": "spell_nature_lightning",
+    "id": 29166,
+    "dr": null,
+    "duration": "20с",
+    "cd": "6 мин",
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "innervate"
+    ]
+  },
+  "barkskin": {
+    "slug": "barkskin",
+    "en_name": "Barkskin",
+    "description": "-20% входящего урона на 12 сек, не прерывается уроном (можно кастовать под станом? нет — но не сбивается pushback). Не dispel'ится. Реактивный defensive друида под burst.",
+    "icon": "spell_nature_stoneclawtotem",
+    "id": 22812,
+    "dr": null,
+    "duration": "12с",
+    "cd": "60с",
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "barkskin",
+      "bark"
+    ]
+  },
+  "natures-swiftness": {
+    "slug": "natures-swiftness",
+    "en_name": "Nature's Swiftness",
+    "description": "Следующий nature-каст (обычно Healing Touch/Cyclone) — мгновенный. Клатч-хил или инста-[[ability:cyclone]] под давлением. Форсить/трекать перед kill-attempt.",
+    "icon": "spell_nature_ravenform",
+    "id": 17116,
+    "dr": null,
+    "duration": null,
+    "cd": "3 мин",
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "natures swiftness",
+      "nature's swiftness",
+      "ns"
+    ]
+  },
+  "rejuvenation": {
+    "slug": "rejuvenation",
+    "en_name": "Rejuvenation",
+    "description": "Instant HoT. Основа мобильного друид-хила (кастуется на бегу). Диспелится, но друид переналивает; давить надо CC/mana, а не диспелом.",
+    "icon": "spell_nature_rejuvenation",
+    "id": 26982,
+    "dr": null,
+    "duration": "12с (HoT)",
+    "cd": null,
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "rejuvenation",
+      "rejuv",
+      "hot"
+    ]
+  },
+  "regrowth": {
+    "slug": "regrowth",
+    "en_name": "Regrowth",
+    "description": "Direct heal + 21с HoT. Друид-хил; часть роллинг-HoT пакета. Spell ID из реального combat-лога.",
+    "icon": "spell_nature_resistnature",
+    "id": 26980,
+    "dr": null,
+    "duration": "21с (HoT)",
+    "cd": null,
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "regrowth"
+    ]
+  },
+  "lifebloom": {
+    "slug": "lifebloom",
+    "en_name": "Lifebloom",
+    "description": "Стекающийся HoT, при спадении/расходе даёт burst-хил (bloom). Держится на kill-таргете как страховка. Spell ID из реального combat-лога.",
+    "icon": "inv_misc_herb_felblossom",
+    "id": 33763,
+    "dr": null,
+    "duration": "7с (HoT, bloom в конце)",
+    "cd": null,
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "lifebloom",
+      "lb",
+      "bloom"
+    ]
+  },
+  "faerie-fire": {
+    "slug": "faerie-fire",
+    "en_name": "Faerie Fire",
+    "description": "-броня цели + не даёт уйти в stealth/invis на 40 сек. Ломает restealth рога (в т.ч. против ЗЕРКАЛЬНОГО двойного рога). Друид.",
+    "icon": "spell_nature_faeriefire",
+    "id": 26993,
+    "dr": null,
+    "duration": "40с",
+    "cd": null,
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "faerie fire",
+      "ff"
+    ]
+  },
+  "travel-form": {
+    "slug": "travel-form",
+    "en_name": "Travel Form",
+    "description": "Форма +скорость (кайт/пиллар-хаггинг). Друид сбрасывает polymorph/некоторые эффекты сменой формы (shapeshift снимает роуты/снары). Escape-инструмент.",
+    "icon": "ability_druid_travelform",
+    "id": 783,
+    "dr": null,
+    "duration": null,
+    "cd": null,
+    "school": "nature",
+    "class_": "druid",
+    "aliases": [
+      "travel form",
+      "travel",
+      "cat form",
+      "shapeshift"
+    ]
   }
 }

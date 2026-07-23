@@ -6,7 +6,8 @@
   },
   "our_comps": {
     "rogue+mage": { "short": "rm",  "human": "Rogue / Mage" },
-    "rogue+priest": { "short": "rp", "human": "Rogue / Priest (Disc)" }
+    "rogue+priest": { "short": "rp", "human": "Rogue / Priest (Disc)" },
+    "rogue+warlock": { "short": "rl", "human": "Rogue / Warlock (SL/SL)" }
   },
   "enemy_comps_2v2": {
     "warrior+resto-druid":       { "short": "warr-rdruid",   "human": "Warrior / Resto Druid" },
@@ -29,7 +30,8 @@
     "rogue+shadow-priest":       { "short": "rogue-spriest", "human": "Rogue / Shadow Priest (spec-variant)" }
   },
   "our_comps_3v3": {
-    "rogue+mage+priest": { "short": "rmp", "human": "Rogue / Mage / Priest (RMP)" }
+    "rogue+mage+priest": { "short": "rmp", "human": "Rogue / Mage / Priest (RMP)" },
+    "rogue+rogue+resto-druid": { "short": "rrd", "human": "Rogue / Rogue / Resto Druid (RRD)" }
   },
   "enemy_comps_3v3": {
     "warrior+warlock+druid":  { "short": "wld",        "human": "Warrior / Warlock / Druid (WLD)" },
