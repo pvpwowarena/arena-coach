@@ -74,3 +74,31 @@ jobs:
           pip install -e ingest
       - name: Validate every kb/drafts/*.md against schema
         run: python -m arena_coach validate-kb kb/drafts
+
+  deploy:
+    name: Deploy to VPS (main only, after green CI)
+    needs: [lint-and-test, kb-validation]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    concurrency:
+      group: deploy-vps
+      cancel-in-progress: false
+    steps:
+      - name: Deploy over SSH — git pull + restart on VPS
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${VPS_SSH_KEY:-}" ]; then
+            echo "ERROR: secret VPS_SSH_KEY is empty — add it in repo Settings → Secrets → Actions" >&2
+            exit 1
+          fi
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 77.239.120.150 >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh -i ~/.ssh/deploy_key \
+              -o StrictHostKeyChecking=accept-new \
+              -o ConnectTimeout=20 \
+              root@77.239.120.150 \
+              'set -e; cd /opt/arena-coach && sudo -u arenacoach git pull --ff-only && sudo bash ops/scripts/vps-deploy.sh'
