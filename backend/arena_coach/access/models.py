@@ -85,3 +85,21 @@ class WhitelistEntry(Base):
             f"<WhitelistEntry discord_id={self.discord_id!r} "
             f"role={self.role.value!r} active={self.active}>"
         )
+
+
+class PlayerSettings(Base):
+    """Per-player настройки коуча (Phase 4.5).
+
+    voice_mode: 'on' (текст + голос, default) | 'off' (только текст) |
+    'only' (только голос, без text-spam). Таблица общая для api- и
+    bot-процессов (оба смотрят в один coach.db).
+    """
+
+    __tablename__ = "player_settings"
+
+    discord_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    voice_mode: Mapped[str] = mapped_column(String(8), nullable=False, default="on")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<PlayerSettings discord_id={self.discord_id!r} voice_mode={self.voice_mode!r}>"

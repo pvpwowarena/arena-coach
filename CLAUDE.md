@@ -1,6 +1,6 @@
 # Arena Coach — CLAUDE.md (контекст проекта для новых чатов)
 
-> Последнее обновление: 2026-07-23
+> Последнее обновление: 2026-07-24
 > Читай этот файл в начале каждого нового чата перед любой работой.
 > **Живые цифры KB** (драфты/гипотезы/покрытие) — в `docs/NEXT-SESSION-HANDOFF.md` и `docs/COVERAGE.md`, не здесь (этот файл — про архитектуру/инфру).
 
@@ -109,6 +109,9 @@ ARENA_COACH_FERNET_KEY=...
 BRIDGE_BEARER_TOKEN=...
 DATABASE_URL=sqlite+aiosqlite:////var/lib/arena-coach/coach.db
 KB_PATH=/opt/arena-coach/kb
+# Phase 4.5 (опционально) — голосовые подсказки. 0/отсутствует = выкл.
+# Задать ID Discord voice-канала команды, чтобы включить TTS-подсказки:
+# DISCORD_VOICE_CHANNEL_ID=123456789012345678
 ```
 
 ---
@@ -209,6 +212,40 @@ whisper-to-self невозможен. Решение — bridge парсит com
    26980, Mangle(Cat) 33983, Bash 8983, Dire Bear 9634, Fel Armor 28189,
    Flare 1543, Wound Poison 27188, Chain Heal 25423, Summon Imp 688.
 Тесты: 156 (13 combat-канал).
+
+### ✅ Phase 4.3 — Постматч-анализ (2026-07-24)
+После `ARENA_END` бот шлёт игроку DM-разбор боя. `orchestrator/postmatch.py`:
+- `MatchRecorder` копит таймлайн всех TRINKET/ABILITY врагов (per player_name,
+  **не** session_id — bridge ≤0.4.1 сбрасывает сессию до ARENA_END-envelope);
+  запись — ДО хинт-фильтров, поэтому CC-касты (в реалтайме не хинтятся) попадают
+  в разбор. Кап 300 событий/матч, TTL 2ч, ≤32 открытых записей.
+- `build_postmatch_report`: тринкеты с таймстампами (мм:сс от ворот), дефы,
+  CC агрегатом, сравнение с KB (kill_target, «If enemy trinkets», «Common mistakes»).
+- Фикс bridge `normalizer.py`: ARENA_END-envelope теперь собирается ДО
+  `session.end_session()` — уносит session_id+match (иначе backend не привязал бы
+  конец к матчу). Тесты: `tests/test_postmatch.py` (27).
+
+### ✅ Phase 4.4 — Автообновление моста/аддона (2026-07-24, bridge 0.5.0)
+Мост на старте (до демона, best-effort): читает latest GitHub Release,
+раскладывает свежий `ArenaCoach.zip` в `Interface/AddOns/` (staging → бэкап
+`.bak` → rename, анти-traversal, нормализация backslash-путей PowerShell) и
+уведомляет о новой версии моста (self-replace бинаря НЕ делаем — сборки не
+подписаны). Любой сбой (офлайн/битый zip) не мешает запуску. Отключение:
+`--no-update` / `BRIDGE_AUTO_UPDATE=0`. `bridge/arena_bridge/updater.py`,
+тесты: `tests/test_bridge_updater.py` (21).
+
+### ✅ Phase 4.5 — Голосовые подсказки (2026-07-24)
+Бот в Discord voice + TTS (edge-tts, RU-голос). `bot/voice.py`:
+- `VoiceManager` (singleton/guild): очередь коротких фраз, троттлинг 8с, TTL 15с,
+  дедуп 10с, LRU-кэш TTS 256, в пустой канал не заходит, отключается по простою.
+- Короткая RU-фраза строится ОТДЕЛЬНО (`orchestrator/voice_phrases.py`, ≤8 слов,
+  сленг «айсблок/бабл/клок»), не режется из текстового hint.
+- Канал api→bot: POST `/speak` на 127.0.0.1 (voice живёт в bot-процессе,
+  pipeline — в api). Bearer = `BRIDGE_BEARER_TOKEN`.
+- Per-player `/coach voice on|off|only` → SQLite `player_settings` (миграция 0002).
+- **Включается только если `DISCORD_VOICE_CHANNEL_ID` задан в api.env** (default 0 =
+  выкл, деплой ничего не меняет). Нужен `ffmpeg` (ставит `vps-deploy.sh`) + PyNaCl.
+- Тесты: `tests/test_voice.py` (30). Docs: `docs/phase-4.5-voice.md`.
 
 ### ⏳ Phase 5 — CV/OCR (не начата)
 

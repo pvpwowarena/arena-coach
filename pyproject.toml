@@ -65,7 +65,7 @@ mypy_path = "backend:bridge:ingest"
 
 [[tool.mypy.overrides]]
 # Сторонние пакеты без стабов
-module = ["discord.*", "yt_dlp.*", "mss.*"]
+module = ["discord.*", "yt_dlp.*", "mss.*", "edge_tts.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
@@ -118,6 +118,7 @@ filterwarnings = [
   "ignore::DeprecationWarning:sqlalchemy",
   "ignore::DeprecationWarning:aiosqlite",
   # discord.py <2.5 импортирует audioop, который deprecated в Python 3.11+
-  # (удалён в 3.13). Нас не касается — мы не используем voice features.
+  # (удалён в 3.13). Прод-питоны — 3.10-3.12, там модуль есть; предупреждение
+  # просто шум (Phase 4.5 использует voice через FFmpegOpusAudio, не audioop).
   "ignore:.*audioop.*:DeprecationWarning",
 ]

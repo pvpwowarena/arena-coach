@@ -53,6 +53,16 @@ class Settings(BaseSettings):
     wss_public_url: str = "wss://coach.example.com/ws"
     bridge_bearer_token: str = ""
 
+    # ── Voice (Phase 4.5) ─────────────────────────────────────────────────
+    # ID Discord voice-канала для TTS-подсказок. 0 = голос выключен (default,
+    # деплой без правки api.env ничего не меняет).
+    discord_voice_channel_id: int = Field(default=0)
+    # Внутренний HTTP-мостик api-процесс → bot-процесс (localhost-only).
+    voice_http_host: str = "127.0.0.1"
+    voice_http_port: int = 8100
+    # Голос edge-tts (русские: ru-RU-DmitryNeural, ru-RU-SvetlanaNeural)
+    voice_tts_voice: str = "ru-RU-DmitryNeural"
+
     # ── Ops ───────────────────────────────────────────────────────────────
     log_level: str = "INFO"
     sentry_dsn: str = ""

@@ -291,10 +291,16 @@ def normalize_raw(
     if event is None:
         return None
 
-    # Обновляем состояние сессии
+    # Обновляем состояние сессии.
+    # ARENA_START — ДО сборки envelope (match должен отражать новый матч);
+    # ARENA_END — ПОСЛЕ (иначе envelope уходит со свежесгенерённым session_id
+    # и пустым match — backend не может привязать конец к матчу; Phase 4.3).
     if isinstance(event, ArenaStartEvent):
         session.start_session(event)
-    elif isinstance(event, ArenaEndEvent):
+
+    envelope = build_envelope(event, session, player_name)
+
+    if isinstance(event, ArenaEndEvent):
         session.end_session()
 
-    return build_envelope(event, session, player_name)
+    return envelope

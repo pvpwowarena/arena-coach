@@ -77,7 +77,7 @@ class TestGlossaryResolution:
 
 
 class TestValidateDirectory:
-    """Контракт: validate_directory(kb/drafts/) валидирует все 64 сгенерированных draft'ов."""
+    """Контракт: validate_directory(kb/drafts/) валидирует все 68 сгенерированных draft'ов."""
 
     def test_all_drafts_valid(self, drafts_dir: Path) -> None:
         if not drafts_dir.is_dir():
@@ -109,7 +109,7 @@ class TestValidateDirectory:
         # off-meta: не тирится в 3v3 tier-листах). Каркас — OwnedCore Double Rogue
         # Guide (эпоха TBC 2.x подтверждена) + Icy Veins Rogue/Druid синергия + Skill
         # Capped/Icy Veins 3v3 enemy-тир; execution синтезирован (off-meta-comp/new-comp-rrd).
-        assert ok == 64, f"Ожидалось 64 валидных draft'ов, получено {ok}"
+        assert ok == 68, f"Ожидалось 68 валидных draft'ов, получено {ok}"
 
     def test_all_drafts_have_resolved_abilities(
         self, drafts_dir: Path, glossary_path: Path

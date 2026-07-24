@@ -28,10 +28,12 @@ _common_hidden = [
     # перечисляем явно, чтобы Analysis гарантированно включил их в сборку.
     "arena_bridge",
     "arena_bridge.chat_tail",
+    "arena_bridge.combat_tail",
     "arena_bridge.config",
     "arena_bridge.env_loader",
     "arena_bridge.normalizer",
     "arena_bridge.sv_tail",
+    "arena_bridge.updater",
     "arena_bridge.ws_client",
     # pydantic использует dynamic import для validators
     "pydantic",

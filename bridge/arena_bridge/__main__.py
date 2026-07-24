@@ -101,6 +101,7 @@ def _load_config_from_env() -> dict[str, str]:
         "log_level": os.environ.get("LOG_LEVEL", "INFO"),
         "poll_interval": os.environ.get("BRIDGE_POLL_INTERVAL", "0.5"),
         "combat_log": os.environ.get("BRIDGE_COMBAT_LOG", "1"),
+        "auto_update": os.environ.get("BRIDGE_AUTO_UPDATE", "1"),
     }
 
 
@@ -273,6 +274,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--no-update",
+        action="store_true",
+        default=env["auto_update"].strip().lower() in ("0", "false", "off"),
+        help=(
+            "Отключить автообновление при старте (Phase 4.4: мост кладёт свежие "
+            "файлы аддона в Interface/AddOns и сообщает о новой версии моста). "
+            "Отключается и через $BRIDGE_AUTO_UPDATE=0."
+        ),
+    )
+    parser.add_argument(
         "--check-config",
         action="store_true",
         help="Проверить конфигурацию и выйти (не запускать демон)",
@@ -336,6 +347,7 @@ def main() -> int:
                 combat_tail,
                 env_loader,
                 normalizer,
+                updater,
                 ws_client,
             )
 
@@ -355,6 +367,16 @@ def main() -> int:
         for e in errors:
             log.error(e)
         return 1
+
+    # ── Автообновление (Phase 4.4) — до запуска демона, best-effort ─────────
+    assert wow_path is not None  # гарантировано валидацией выше
+    if args.no_update:
+        log.info("Автообновление отключено (--no-update / BRIDGE_AUTO_UPDATE=0)")
+    else:
+        from . import __version__
+        from .updater import run_auto_update
+
+        run_auto_update(wow_path=wow_path, current_version=__version__)
 
     # ── Запуск asyncio ───────────────────────────────────────────────────────
     assert log_dir is not None  # гарантировано выше

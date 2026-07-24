@@ -7,7 +7,7 @@ Phase 2: заглушка под Phase 4 realtime-подсказки.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import discord
 from discord import app_commands
@@ -64,6 +64,43 @@ class CoachCog(commands.Cog, name="coach"):
                 "*(Phase 4 — функция будет полноценной после деплоя bridge)*"
             ),
             color=discord.Color.green(),
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    # ── Phase 4.5: голосовые подсказки ───────────────────────────────────
+
+    _VOICE_MODE_LABELS: ClassVar[dict[str, str]] = {
+        "on": "🔊 текст + голос",
+        "off": "🔇 только текст",
+        "only": "🎧 только голос (без text-spam)",
+    }
+
+    @coach_group.command(
+        name="voice",
+        description="Голосовые подсказки: on = текст+голос, off = только текст, only = только голос",
+    )
+    @app_commands.describe(mode="Режим голосовых подсказок")
+    @app_commands.choices(
+        mode=[
+            app_commands.Choice(name="on — текст + голос (default)", value="on"),
+            app_commands.Choice(name="off — только текст", value="off"),
+            app_commands.Choice(name="only — только голос", value="only"),
+        ]
+    )
+    @whitelist_required(Role.PLAYER)
+    async def coach_voice(self, interaction: discord.Interaction, mode: str) -> None:
+        await self.bot.player_settings.set_voice_mode(str(interaction.user.id), mode)
+
+        voice_configured = bool(self.bot.settings.discord_voice_channel_id)
+        note = (
+            ""
+            if voice_configured
+            else "\n⚠️ Voice-канал на сервере пока не настроен — режим сохранён и заработает после настройки."
+        )
+        embed = discord.Embed(
+            title="🎙 Режим голосовых подсказок обновлён",
+            description=f"Твой режим: **{self._VOICE_MODE_LABELS.get(mode, mode)}**{note}",
+            color=discord.Color.blurple(),
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
 

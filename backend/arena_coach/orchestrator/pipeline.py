@@ -13,6 +13,10 @@
 События: ARENA_START (опенер + килл-таргет), TRINKET (post-trinket план),
 ABILITY (только ключевые дефы из _ABILITY_HINT_KEYS, с троттлингом).
 Нет в KB → generic DM только при ARENA_START, остальное молчим.
+
+Phase 4.3: все TRINKET/ABILITY (включая CC, которые в реалтайме не хинтятся)
+пишутся в MatchRecorder; на ARENA_END игроку уходит DM-разбор боя
+(таймлайн тринкетов/дефов/CC vs KB-план) — см. orchestrator/postmatch.py.
 """
 
 from __future__ import annotations
@@ -25,9 +29,21 @@ from typing import Any
 import httpx
 from anthropic import AsyncAnthropic
 
+from arena_coach.access.player_settings import DEFAULT_VOICE_MODE, PlayerSettingsService
 from arena_coach.access.service import AccessService
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.kb.schema import KBDoc, Section
+from arena_coach.orchestrator.postmatch import (
+    MatchRecorder,
+    build_postmatch_report,
+    parse_bridge_ts,
+    utcnow,
+)
+from arena_coach.orchestrator.voice_phrases import (
+    ability_phrase,
+    arena_start_phrase,
+    trinket_phrase,
+)
 from arena_coach.shared.settings import Settings
 
 log = logging.getLogger(__name__)
@@ -140,6 +156,30 @@ async def _send_discord_dm(bot_token: str, discord_id: str, content: str) -> boo
     return True
 
 
+# ── Voice hint via bot-процесс (Phase 4.5) ───────────────────────────────────
+
+
+async def _send_voice_hint(settings: Settings, text: str) -> bool:
+    """POST короткой фразы в voice-приёмник bot-процесса. Строго best-effort.
+
+    Голос выключен (DISCORD_VOICE_CHANNEL_ID=0) или bot-процесс лежит —
+    молча False, текстовый канал не страдает.
+    """
+    if not settings.discord_voice_channel_id or not text:
+        return False
+    url = f"http://{settings.voice_http_host}:{settings.voice_http_port}/speak"
+    headers = {}
+    if settings.bridge_bearer_token:
+        headers["Authorization"] = f"Bearer {settings.bridge_bearer_token}"
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            resp = await client.post(url, json={"text": text}, headers=headers)
+            return bool(resp.is_success)
+    except Exception as exc:
+        log.debug("Voice-хинт не доставлен (%s): %s", url, exc)
+        return False
+
+
 # ── KB section lookup ────────────────────────────────────────────────────────
 
 
@@ -193,6 +233,38 @@ async def _generate_hint(
     return ""
 
 
+# ── Постматч (Phase 4.3) ─────────────────────────────────────────────────────
+
+
+async def _finish_match(ctx: PipelineContext, player_name: str) -> str:
+    """ARENA_END: собрать DM-разбор боя из накопленного таймлайна.
+
+    Ключ — player_name (см. postmatch.py: session_id в ARENA_END-envelope
+    у bridge ≤ v0.4.1 уже пересоздан, по нему матч не найти).
+    """
+    record = ctx.match_recorder.finish(player_name)
+    if record is None:
+        log.debug("Постматч: у %s нет открытой записи — пропуск", player_name)
+        return "skipped"
+    if not record.events:
+        log.info("Постматч: %s — 0 записанных событий, отчёт не шлём", player_name)
+        return "skipped"
+
+    entry = await ctx.access_service.find_by_character(player_name)
+    if entry is None:
+        log.warning("Постматч: игрок '%s' не найден в whitelist", player_name)
+        return "no_player"
+
+    candidates = ctx.kb_retriever.find_realtime_candidates(
+        record.enemy_classes, record.our_comp_hint
+    )
+    doc = candidates[0] if candidates else None
+    report = build_postmatch_report(record, doc)
+
+    ok = await _send_discord_dm(ctx.settings.discord_bot_token, entry.discord_id, report)
+    return "sent" if ok else "error"
+
+
 # ── Main pipeline ────────────────────────────────────────────────────────────
 
 
@@ -205,6 +277,9 @@ class PipelineContext:
     anthropic_client: AsyncAnthropic
     settings: Settings
     hint_throttle: HintThrottle = field(default_factory=HintThrottle)
+    match_recorder: MatchRecorder = field(default_factory=MatchRecorder)
+    # Phase 4.5: per-player режим голоса (None в тестах/старых вызовах = 'on')
+    player_settings: PlayerSettingsService | None = None
 
 
 def _kill_target_line(doc: KBDoc) -> str:
@@ -242,12 +317,31 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     enemies_raw = match_info.get("enemies", [])
     enemies_str = ", ".join(f"{e.get('wow_class', '?')}/{e.get('race', '?')}" for e in enemies_raw)
 
+    # ── 0. Phase 4.3: постматч-копилка (до всех хинт-фильтров) ──────────
+    # CC-касты в реалтайме не хинтятся, но в разбор боя попадать должны,
+    # поэтому запись — раньше фильтра по _ABILITY_HINT_KEYS.
+    ts = parse_bridge_ts(str(envelope.get("bridge_ts", ""))) or utcnow()
+    spell_key = str(event.get("spell_key", "") or event.get("trinket_key", ""))
+    if event_type == "ARENA_START":
+        ctx.match_recorder.start(
+            player_name,
+            str(envelope.get("session_id", "")),
+            ts,
+            bracket=str(bracket),
+            enemies=[{str(k): str(v) for k, v in e.items()} for e in enemies_raw],
+            our_comp_hint=str(match_info.get("our_comp_hint") or "") or None,
+        )
+    elif event_type in ("TRINKET", "ABILITY"):
+        ctx.match_recorder.note(
+            player_name, ts, event_type, str(event.get("source_name", "враг")), spell_key
+        )
+    elif event_type == "ARENA_END":
+        return await _finish_match(ctx, player_name)
+
     # ── 1. Фильтр — отвечаем только на важные события ───────────────────
     if event_type not in _HINT_EVENTS:
         log.debug("Событие %s пропущено (не в _HINT_EVENTS)", event_type)
         return "skipped"
-
-    spell_key = str(event.get("spell_key", "") or event.get("trinket_key", ""))
     if event_type == "ABILITY" and spell_key not in _ABILITY_HINT_KEYS:
         log.debug("ABILITY '%s' не в списке hint-ключей — пропуск", spell_key)
         return "skipped"
@@ -334,6 +428,27 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     lines.append(f"📖 `/matchup our:{doc.composition} vs:{doc.vs}` — полный гайд")
     dm_content = "\n".join(lines)[:2000]  # Discord лимит
 
-    # ── 8. Отправить DM ──────────────────────────────────────────────────
+    # ── 8. Voice-фраза (Phase 4.5) + текстовый DM ────────────────────────
+    # Голос — ОТДЕЛЬНАЯ короткая фраза (≤8 слов, RU-сленг), не текстовый hint.
+    voice_mode = DEFAULT_VOICE_MODE
+    if ctx.player_settings is not None:
+        voice_mode = await ctx.player_settings.get_voice_mode(discord_id)
+
+    source_name = str(event.get("source_name", "враг"))
+    if event_type == "ARENA_START":
+        voice_text = arena_start_phrase(enemy_classes, doc.kill_target.primary)
+    elif event_type == "TRINKET":
+        voice_text = trinket_phrase(source_name)
+    else:
+        voice_text = ability_phrase(source_name, spell_key)
+
+    voice_sent = False
+    if voice_mode != "off":
+        voice_sent = await _send_voice_hint(ctx.settings, voice_text)
+
+    if voice_mode == "only" and voice_sent:
+        # Игрок просил без text-spam — голос доставлен, текст подавляем.
+        return "sent"
+
     ok = await _send_discord_dm(ctx.settings.discord_bot_token, discord_id, dm_content)
-    return "sent" if ok else "error"
+    return "sent" if ok or voice_sent else "error"

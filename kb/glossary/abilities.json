@@ -895,5 +895,135 @@
       "cat form",
       "shapeshift"
     ]
+  },
+  "blessing-of-freedom": {
+    "slug": "blessing-of-freedom",
+    "en_name": "Blessing of Freedom",
+    "description": "Снимает и делает иммунным к snare/root эффектам на 10 сек. Magic — снимается dispel/spellsteal. Держит воина на цели против кайта; в RL — стрипай/жди окончания перед свопом на пала.",
+    "icon": "spell_holy_sealofvalor",
+    "id": 1044,
+    "dr": null,
+    "duration": "10с",
+    "cd": "25с",
+    "school": "holy",
+    "class_": "paladin",
+    "aliases": [
+      "blessing of freedom",
+      "bof",
+      "freedom"
+    ]
+  },
+  "cleanse": {
+    "slug": "cleanse",
+    "en_name": "Cleanse",
+    "description": "Паладин снимает 1 magic + 1 poison + 1 disease с союзника. Снимает Curse of Tongues? Нет — Cleanse НЕ трогает curse (слабость Warr/HPala к проклятиям). Снимает наши яды/CoT-эффекты магической школы.",
+    "icon": "spell_holy_renew",
+    "id": 4987,
+    "dr": null,
+    "duration": null,
+    "cd": null,
+    "school": "holy",
+    "class_": "paladin",
+    "aliases": [
+      "cleanse"
+    ]
+  },
+  "viper-sting": {
+    "slug": "viper-sting",
+    "en_name": "Viper Sting",
+    "description": "Дот, сжигающийману цели (и хилит ману охотника). Главная угроза RL: осушает ману варлока — sustain-мотор SL/SL. Снимается как magic. Охотник.",
+    "icon": "ability_hunter_aimedshot",
+    "id": 27018,
+    "dr": null,
+    "duration": "8с",
+    "cd": null,
+    "school": "nature",
+    "class_": "hunter",
+    "aliases": [
+      "viper sting",
+      "viper"
+    ]
+  },
+  "purge": {
+    "slug": "purge",
+    "en_name": "Purge",
+    "description": "Шаман стрипает 2 magic-баффа с врага. Снимает Fel Armor / Soul Link-слой / щиты. В RL береги ключевые баффы под purge-спам, реаплай после.",
+    "icon": "spell_nature_purge",
+    "id": 27626,
+    "dr": null,
+    "duration": null,
+    "cd": null,
+    "school": "nature",
+    "class_": "shaman",
+    "aliases": [
+      "purge",
+      "dispel magic"
+    ]
+  },
+  "grounding-totem": {
+    "slug": "grounding-totem",
+    "en_name": "Grounding Totem",
+    "description": "Тотем поглощает следующий одиночный вражеский спелл (fear/CoT/spell-lock таргет). Стомпай тотем перед ключевым кастом или скинь пустышкой. Шаман.",
+    "icon": "spell_nature_groundtotem",
+    "id": 8177,
+    "dr": null,
+    "duration": "45с",
+    "cd": "15с",
+    "school": "nature",
+    "class_": "shaman",
+    "aliases": [
+      "grounding totem",
+      "grounding"
+    ]
+  },
+  "tremor-totem": {
+    "slug": "tremor-totem",
+    "en_name": "Tremor Totem",
+    "description": "Пульсирует каждые ~3 сек, снимая fear/charm/sleep с команды шамана. Ломает нашу фир-цепь (главный CC RL). Стомпай тотем (рог/пет) или фирь в паузах между пульсами. Шаман.",
+    "icon": "spell_nature_tremortotem",
+    "id": 8143,
+    "dr": null,
+    "duration": null,
+    "cd": null,
+    "school": "nature",
+    "class_": "shaman",
+    "aliases": [
+      "tremor totem",
+      "tremor"
+    ]
+  },
+  "windfury-totem": {
+    "slug": "windfury-totem",
+    "en_name": "Windfury Totem",
+    "description": "Даёт мили-команде шанс доп-атак — burst-мотор Ret/RSham и Warr/RSham. Под ним их окно урона резко растёт; разрывай дистанцию/CC в этот момент. Шаман.",
+    "icon": "spell_nature_windfury",
+    "id": 25587,
+    "dr": null,
+    "duration": null,
+    "cd": null,
+    "school": "nature",
+    "class_": "shaman",
+    "aliases": [
+      "windfury totem",
+      "wf",
+      "windfury"
+    ]
+  },
+  "bloodlust": {
+    "slug": "bloodlust",
+    "en_name": "Bloodlust",
+    "description": "+30% скорости атаки/каста команде шамана на 40 сек. Диспелится пристом; в RL прямого дисп нет — переживай окно через CC/LoS. Шаман.",
+    "icon": "spell_nature_bloodlust",
+    "id": 2825,
+    "dr": null,
+    "duration": "40с",
+    "cd": null,
+    "school": "nature",
+    "class_": "shaman",
+    "aliases": [
+      "bloodlust",
+      "lust",
+      "heroism"
+    ]
   }
 }
