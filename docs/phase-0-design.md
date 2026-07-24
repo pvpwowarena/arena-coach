@@ -643,11 +643,11 @@ class WhitelistEntry(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     discord_id: Mapped[str] = mapped_column(String(32), unique=True, index=True)
-    discord_handle: Mapped[str] = mapped_column(String(64))      # @display, для UI
-    wow_character_enc: Mapped[bytes]                              # Fernet-encrypted
-    wow_realm_enc: Mapped[bytes]                                  # Fernet-encrypted
-    role: Mapped[Role] = mapped_column(Enum(Role))                # viewer/player/admin
-    added_by: Mapped[str] = mapped_column(String(32))             # discord_id of admin
+    discord_handle: Mapped[str] = mapped_column(String(64))  # @display, для UI
+    wow_character_enc: Mapped[bytes]  # Fernet-encrypted
+    wow_realm_enc: Mapped[bytes]  # Fernet-encrypted
+    role: Mapped[Role] = mapped_column(Enum(Role))  # viewer/player/admin
+    added_by: Mapped[str] = mapped_column(String(32))  # discord_id of admin
     added_at: Mapped[datetime] = mapped_column(default=utcnow)
     expires_at: Mapped[datetime | None] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)

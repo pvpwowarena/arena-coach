@@ -34,9 +34,11 @@ jobs:
           python -m pip install --upgrade pip
           # Версии зафиксированы в соответствии с dev-extras backend/pyproject.toml
           # чтобы CI был детерминированным на всех Python 3.10-3.12
+          # ruff/mypy запинены точно — их незапиненный апгрейд ломал CI
+          # недетерминированно (ruff 0.16 переформатировал существующие файлы).
           pip install \
-            "ruff>=0.6,<1" \
-            "mypy>=1.11,<2" \
+            "ruff==0.16.0" \
+            "mypy==1.20.2" \
             "pytest>=7,<9" \
             "pytest-asyncio>=0.23,<1" \
             "types-PyYAML"
