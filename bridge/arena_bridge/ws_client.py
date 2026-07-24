@@ -108,6 +108,34 @@ class EventClient:
             log.warning("Backend недоступен: %s", exc)
             return False
 
+    async def get_hints(self, player_name: str) -> list[str]:
+        """GET /v1/hints?player=<name> — забрать накопленные голосовые фразы.
+
+        Обратный канал Phase 4.6: pipeline складывает персональные фразы игрока,
+        мост забирает СВОИ и озвучивает их локальным TTS. Аутентификация — тот же
+        bearer (в self._headers). Строго best-effort: сеть/401/404/битый JSON → [].
+        """
+        try:
+            resp = await self._client.get(
+                f"{self._backend_url}/v1/hints",
+                params={"player": player_name},
+            )
+        except Exception as exc:
+            log.debug("get_hints: запрос не удался (%s)", exc)
+            return []
+        if not resp.is_success:
+            if resp.status_code == 401:
+                log.debug("get_hints: 401 — проверь BRIDGE_BEARER_TOKEN")
+            return []
+        try:
+            data = resp.json()
+        except Exception:
+            return []
+        hints = data.get("hints") if isinstance(data, dict) else None
+        if not isinstance(hints, list):
+            return []
+        return [str(h) for h in hints if isinstance(h, str) and h.strip()]
+
     async def close(self) -> None:
         """Закрыть httpx-клиент."""
         await self._client.aclose()

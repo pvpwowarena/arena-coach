@@ -31,6 +31,8 @@ _common_hidden = [
     "arena_bridge.combat_tail",
     "arena_bridge.config",
     "arena_bridge.env_loader",
+    "arena_bridge.hint_poller",
+    "arena_bridge.local_tts",
     "arena_bridge.normalizer",
     "arena_bridge.sv_tail",
     "arena_bridge.updater",

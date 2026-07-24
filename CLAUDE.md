@@ -247,6 +247,46 @@ whisper-to-self невозможен. Решение — bridge парсит com
   выкл, деплой ничего не меняет). Нужен `ffmpeg` (ставит `vps-deploy.sh`) + PyNaCl.
 - Тесты: `tests/test_voice.py` (30). Docs: `docs/phase-4.5-voice.md`.
 
+### ✅ Phase 4.6 — Локальный персональный голос (2026-07-24, bridge 0.6.0)
+Каждый игрок слышит ТОЛЬКО свои подсказки локально, через системный TTS на своей
+машине — без Discord voice-канала, приватно, с минимальной задержкой. Добавочный
+канал: Discord-голос (4.5) и текстовые DM он НЕ заменяет.
+- **Обратный канал бэкенд→мост** (мост был односторонним): backend держит
+  per-player очередь фраз в памяти (`orchestrator/hint_queue.py`: TTL 10с —
+  устаревшая подсказка в бою вредна; кап на игрока и на число игроков; часы
+  инъектируются). Pipeline на каждый hint кладёт ТУ ЖЕ короткую фразу
+  (`voice_phrases.py`), что и Discord-голос, под `player_name`; `voice_mode='off'`
+  → не кладёт. Это ДОБАВОЧНЫЙ канал: на решение о тексте/Discord-голосе не влияет
+  (backend не знает, реально ли мост поллит и озвучивает — суппресить текст по
+  факту постановки в очередь опасно, игрок остался бы ни с чем).
+- **Эндпоинт** `GET /v1/hints?player=<name>` (`api/routes/events.py`): тот же
+  общий bearer, идентификация игрока по параметру `player` (та же модель доверия,
+  что у POST /v1/events по `player_name`); возвращает и вычищает свежие фразы
+  игрока, протухшие по TTL дропает.
+- **Мост**: фоновый asyncio-поллер рядом с тейлером (`bridge/arena_bridge/hint_poller.py`),
+  раз в ~1с `GET /v1/hints` по своему `BRIDGE_PLAYER_NAME` (`EventClient.get_hints`),
+  каждую свежую фразу → локальный TTS. Локальный дедуп (окно 6с), чтобы речь не
+  наслаивалась. Речь сериализуется (await на проговаривание).
+- **Локальный TTS** (`bridge/arena_bridge/local_tts.py`): системный синтез по
+  `sys.platform` — macOS `say -v Milena` (лениво резолвит RU-голос из `say -v ?`,
+  иначе дефолт), Windows PowerShell `System.Speech` (RU через SelectVoiceByHints,
+  иначе дефолт), Linux `espeak-ng`/`espeak`, иначе no-op. Через asyncio-subprocess,
+  неблокирующе; нет бинаря/ошибка запуска → тихий no-op (мост не падает). БЕЗ новых
+  Python-зависимостей и БЕЗ интернета — PyInstaller-бинарь не пухнет, hiddenimports
+  не трогаем (в отличие от edge-tts из 4.5).
+- **Конфиг**: `BRIDGE_LOCAL_VOICE` (env, default 1) + `--local-voice/--no-local-voice`;
+  `--hint-poll-interval` (env `BRIDGE_HINT_POLL_INTERVAL`, default 1.0).
+  `--check-config` показывает статус лок. голоса. Централизованно выключается через
+  `/coach voice off` у игрока.
+- **Обратная совместимость**: старый мост не поллит (просто нет локального голоса);
+  новый мост против старого backend получает 404 → пусто, не падает. Backend-часть
+  довозит autodeploy; новые бинари моста — релиз-тег `v0.6.0` (auto-update 4.4
+  разнесёт игрокам). Bridge 0.5.0→**0.6.0** (`__init__.py` + `pyproject.toml`),
+  `local_tts`/`hint_poller` добавлены в spec hiddenimports.
+- Тесты: `tests/test_hint_queue.py` (23: очередь+TTL+эндпоинт+pipeline),
+  `tests/test_bridge_local_tts.py` + `tests/test_bridge_hint_poller.py` (44:
+  диспетч TTS по платформе, поллер, get_hints через MockTransport).
+
 ### ⏳ Phase 5 — CV/OCR (не начата)
 
 ---
@@ -359,7 +399,7 @@ arena-coach/
 │   ├── hypotheses/               # AI-синтез, карантин — НЕ индексируются
 │   ├── glossary/
 │   └── compositions.json
-├── tests/                        # ← единственный test-набор (113 тестов)
+├── tests/                        # ← единственный test-набор (286 тестов)
 ├── conftest.py                   # общие фикстуры
 ├── ops/
 │   ├── nginx/
@@ -414,7 +454,7 @@ sudo -u arenacoach /opt/arena-coach/.venv/bin/alembic -c alembic.ini upgrade hea
 ```bash
 # Из корня репо:
 python -m pytest tests/ -v
-# 113 passed in ~1s
+# 286 passed, 9 skipped (Mirlol paste-фикстуры вне репо) in ~8s
 ```
 Конфиг в `pyproject.toml` (`testpaths=tests`, `asyncio_mode=auto`). `conftest.py` в корне даёт общие фикстуры (`kb_dir`, `fixtures_dir`, `mirlol_rm_file`, etc.).
 

@@ -102,6 +102,8 @@ def _load_config_from_env() -> dict[str, str]:
         "poll_interval": os.environ.get("BRIDGE_POLL_INTERVAL", "0.5"),
         "combat_log": os.environ.get("BRIDGE_COMBAT_LOG", "1"),
         "auto_update": os.environ.get("BRIDGE_AUTO_UPDATE", "1"),
+        "local_voice": os.environ.get("BRIDGE_LOCAL_VOICE", "1"),
+        "hint_poll_interval": os.environ.get("BRIDGE_HINT_POLL_INTERVAL", "1.0"),
     }
 
 
@@ -114,11 +116,19 @@ async def _run_bridge(
     stop_event: asyncio.Event,
     our_comp: str | None = None,
     combat_log: bool = True,
+    local_voice: bool = True,
+    hint_poll_interval: float = 1.0,
 ) -> None:
-    """Основной asyncio-loop: (combat|chat)_tail → normalizer → http POST."""
+    """Основной asyncio-loop: (combat|chat)_tail → normalizer → http POST.
+
+    Phase 4.6: параллельно с тейлером крутится фоновый поллер обратного канала
+    (GET /v1/hints), который озвучивает персональные подсказки локальным TTS.
+    """
     # Импортируем здесь чтобы не мешать argparse при --check-config
     from .chat_tail import ChatTailer
     from .combat_tail import CombatInterpreter, CombatTailer
+    from .hint_poller import run_hint_poller
+    from .local_tts import LocalTTS
     from .normalizer import SessionState, normalize_raw
     from .ws_client import EventClient
 
@@ -156,6 +166,27 @@ async def _run_bridge(
         backend_url,
     )
 
+    # Phase 4.6: обратный канал — локальный персональный голос. Фоновый поллер
+    # рядом с тейлером; на решение о POST-канале не влияет (best-effort).
+    poller_task: asyncio.Task[None] | None = None
+    if local_voice:
+        speaker = LocalTTS()
+        if speaker.available:
+            log.info("Локальный голос: ВКЛ (%s)", speaker.describe())
+            poller_task = asyncio.create_task(
+                run_hint_poller(
+                    fetch=client.get_hints,
+                    speak=speaker.say,
+                    player_name=player_name,
+                    stop_event=stop_event,
+                    interval_s=hint_poll_interval,
+                )
+            )
+        else:
+            log.info("Локальный голос: TTS для этой платформы недоступен — выкл")
+    else:
+        log.info("Локальный голос: выкл (--no-local-voice / BRIDGE_LOCAL_VOICE=0)")
+
     try:
         async for raw_line in tailer.lines():
             if stop_event.is_set():
@@ -177,6 +208,10 @@ async def _run_bridge(
         log.info("Bridge: получен CancelledError, завершаю")
         tailer.stop()
     finally:
+        if poller_task is not None:
+            poller_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await poller_task
         await client.close()
         log.info("Arena Bridge остановлен")
 
@@ -283,6 +318,30 @@ def main() -> int:
             "Отключается и через $BRIDGE_AUTO_UPDATE=0."
         ),
     )
+    voice_group = parser.add_mutually_exclusive_group()
+    voice_group.add_argument(
+        "--local-voice",
+        dest="local_voice",
+        action="store_true",
+        default=None,
+        help=(
+            "Phase 4.6: локальный персональный голос — озвучивать СВОИ подсказки "
+            "системным TTS локально. По умолчанию ВКЛ; $BRIDGE_LOCAL_VOICE=0 выключает."
+        ),
+    )
+    voice_group.add_argument(
+        "--no-local-voice",
+        dest="local_voice",
+        action="store_false",
+        default=None,
+        help="Выключить локальный персональный голос (Phase 4.6).",
+    )
+    parser.add_argument(
+        "--hint-poll-interval",
+        type=float,
+        default=float(env["hint_poll_interval"]),
+        help="Интервал опроса обратного канала /v1/hints в секундах (default: 1.0)",
+    )
     parser.add_argument(
         "--check-config",
         action="store_true",
@@ -291,6 +350,11 @@ def main() -> int:
 
     args = parser.parse_args()
     _setup_logging(args.log_level)
+
+    # Локальный голос (Phase 4.6): CLI-флаг имеет приоритет; иначе из env (по
+    # умолчанию ВКЛ, отключается BRIDGE_LOCAL_VOICE=0/false/off).
+    if args.local_voice is None:
+        args.local_voice = env["local_voice"].strip().lower() not in ("0", "false", "off")
 
     # Теперь можно залогировать что загрузили из файла
     if _env_file_info is not None:
@@ -336,6 +400,18 @@ def main() -> int:
         print(f"  Poll        : {args.poll_interval}s")
         print(f"  Канал       : {'chat-лог (легаси)' if args.no_combat_log else 'combat-лог'}")
 
+        # Локальный персональный голос (Phase 4.6)
+        if args.local_voice:
+            from .local_tts import LocalTTS
+
+            _tts = LocalTTS()
+            if _tts.available:
+                print(f"  Лок. голос  : ВКЛ ({_tts.describe()}, опрос {args.hint_poll_interval}s)")
+            else:
+                print("  Лок. голос  : ВКЛ, но системный TTS недоступен на этой платформе")
+        else:
+            print("  Лок. голос  : выкл")
+
         # Самопроверка: runtime-модули пакета должны импортироваться.
         # В обычном запуске они грузятся лениво внутри _run_bridge — битая
         # сборка (как onefile v0.3.0 с relative-import багом) прошла бы
@@ -346,6 +422,8 @@ def main() -> int:
                 chat_tail,
                 combat_tail,
                 env_loader,
+                hint_poller,
+                local_tts,
                 normalizer,
                 updater,
                 ws_client,
@@ -415,6 +493,8 @@ def main() -> int:
                 stop_event=stop_event,
                 our_comp=args.our_comp or None,
                 combat_log=not args.no_combat_log,
+                local_voice=args.local_voice,
+                hint_poll_interval=args.hint_poll_interval,
             )
         )
         watcher = asyncio.create_task(_stop_watcher(bridge_task))

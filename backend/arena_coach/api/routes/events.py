@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from arena_coach.orchestrator.pipeline import PipelineContext, process_event
@@ -84,3 +84,37 @@ async def receive_event(
     log.info("Event processed: %s → %s", event_type, result)
 
     return {"status": result}
+
+
+@router.get(
+    "/hints",
+    summary="Забрать накопленные локальные голосовые фразы игрока",
+)
+async def get_hints(
+    request: Request,
+    player: str = Query(..., description="Имя WoW-персонажа (то же, что BRIDGE_PLAYER_NAME)"),
+    _token: str = Depends(_verify_token),
+) -> dict[str, object]:
+    """Phase 4.6: обратный канал для локального персонального голоса.
+
+    Мост игрока раз в ~1с забирает СВОИ накопленные фразы и озвучивает их
+    системным TTS локально (без Discord voice, приватно). Идентификация игрока —
+    по параметру `player` (та же модель доверия, что у POST /v1/events по
+    player_name: общий bearer-токен + имя персонажа).
+
+    Returns:
+        {"player": <name>, "hints": [<фраза>, ...]} — свежие фразы игрока;
+        очередь при этом очищается, протухшие по TTL фразы отбрасываются.
+    """
+    ctx: PipelineContext | None = getattr(request.app.state, "pipeline_ctx", None)
+    if ctx is None:
+        log.error("PipelineContext не инициализирован в app.state")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Pipeline ещё не инициализирован",
+        )
+
+    phrases = ctx.hint_queue.pop_fresh(player)
+    if phrases:
+        log.debug("Отдаю %d локальных фраз игроку %s", len(phrases), player)
+    return {"player": player, "hints": phrases}

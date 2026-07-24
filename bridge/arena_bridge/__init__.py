@@ -4,4 +4,4 @@ Phase 4 skeleton. Реальная реализация добавляется �
 docs/phase-0-design.md §6 и ADR-0003.
 """
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"

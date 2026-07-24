@@ -33,6 +33,7 @@ from arena_coach.access.player_settings import DEFAULT_VOICE_MODE, PlayerSetting
 from arena_coach.access.service import AccessService
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.kb.schema import KBDoc, Section
+from arena_coach.orchestrator.hint_queue import HintQueue
 from arena_coach.orchestrator.postmatch import (
     MatchRecorder,
     build_postmatch_report,
@@ -278,6 +279,9 @@ class PipelineContext:
     settings: Settings
     hint_throttle: HintThrottle = field(default_factory=HintThrottle)
     match_recorder: MatchRecorder = field(default_factory=MatchRecorder)
+    # Phase 4.6: очередь персональных голосовых фраз для локального TTS моста
+    # (обратный канал бэкенд→мост, дренируется через GET /v1/hints).
+    hint_queue: HintQueue = field(default_factory=HintQueue)
     # Phase 4.5: per-player режим голоса (None в тестах/старых вызовах = 'on')
     player_settings: PlayerSettingsService | None = None
 
@@ -444,6 +448,13 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
 
     voice_sent = False
     if voice_mode != "off":
+        # Phase 4.6 — локальный персональный голос: та же короткая фраза кладётся
+        # в очередь игрока; его мост заберёт её через GET /v1/hints и озвучит
+        # системным TTS локально. Это ДОБАВОЧНЫЙ канал: на решение о тексте и о
+        # Discord-голосе он НЕ влияет (backend не знает, реально ли мост поллит и
+        # озвучивает — суппресить текст по факту постановки в очередь опасно,
+        # игрок остался бы ни с чем). 'off' сюда не попадает — голос отключён весь.
+        ctx.hint_queue.push(player_name, voice_text)
         voice_sent = await _send_voice_hint(ctx.settings, voice_text)
 
     if voice_mode == "only" and voice_sent:
