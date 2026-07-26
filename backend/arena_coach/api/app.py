@@ -28,6 +28,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     from anthropic import AsyncAnthropic
     from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+    from arena_coach.access.advice_store import AdviceStore
     from arena_coach.access.models import Base
     from arena_coach.access.player_settings import PlayerSettingsService
     from arena_coach.access.service import AccessService
@@ -47,6 +48,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     access_service = AccessService(session_factory)
     player_settings = PlayerSettingsService(session_factory)
     usage_service = UsageService(session_factory)
+    advice_store = AdviceStore(session_factory)
     log.info("DB инициализирована: %s", settings.database_url)
 
     # ── KB ────────────────────────────────────────────────────────────────
@@ -71,6 +73,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         settings=settings,
         player_settings=player_settings,
         usage_service=usage_service,
+        advice_store=advice_store,
     )
     log.info(
         "PipelineContext готов. /v1/events активен. Voice: %s | LLM: %s",

@@ -108,7 +108,9 @@ ANTHROPIC_API_KEY=sk-ant-...          # боевой ключ активируе
                                       # разбор незнакомых сетапов + постматч.
                                       # Пусто/нет ключа = чистый детерминизм (в бою LLM не нужен).
 ANTHROPIC_MODEL_SYNTH=claude-sonnet-4-6         # постматч-разбор (качество, 1 вызов/матч)
-ANTHROPIC_MODEL_CLASSIFY=claude-haiku-4-5-...   # разбор незнакомого сетапа (быстро/дёшево)
+ANTHROPIC_MODEL_CLASSIFY=claude-haiku-4-5-...   # (зарезервирована под классификацию)
+ANTHROPIC_MODEL_ADVICE=claude-haiku-4-5-...      # разбор незнакомого сетапа (фон+кэш);
+                                                 # можно Sonnet — генерим раз, отдаём дёшево навсегда
 ARENA_COACH_FERNET_KEY=...
 BRIDGE_BEARER_TOKEN=...
 DATABASE_URL=sqlite+aiosqlite:////var/lib/arena-coach/coach.db
@@ -324,9 +326,17 @@ whisper-to-self невозможен. Решение — bridge парсит com
 - **Гейт LLM = наличие ключа** (`PipelineContext.llm_enabled`): без ключа — чистый детерминизм
   (старые тесты зелёные). Модели из api.env (Sonnet↔Haiku без кода). Задел под монетизацию:
   реалтайм (детерм., ~$0) vs постматч (LLM) — тариф-гейт в одной точке.
-- Тесты: `test_threats`(8), `test_killpriority`(7), `test_usage`(4), `test_pipeline_4_7`(9) +
-  спек/partial в `test_realtime_matching`, спек-детект в `test_bridge_combat_tail`. Всего
-  **320 passed**, 9 skipped; ruff/mypy(62)/format чисто; validate-kb 68; alembic 0001-0003 up/down OK.
+- **Batch 1.5 — персистентный кэш + модель разбора + прогрев** (для решения по стоимости/качеству):
+  разбор незнакомых сетапов теперь L2-персистентен (`access/advice_store.py` + миграция **0004**
+  `advice_cache`, UPSERT по сигнатуре, хранит модель) → переживает автодеплой, генерится раз за
+  историю. Модель разбора — отдельный конфиг `ANTHROPIC_MODEL_ADVICE` (Haiku по умолч.; Sonnet без
+  кода — «дорого раз, дёшево всегда»). CLI `python -m arena_coach warm-advice <файл> [--model]`
+  прогревает популярные сетапы заранее и «улучшает потом» перегенерацией — задел под
+  стелс-предугадывание. Порядок: L1(память)→L2(БД)→генерация.
+- Тесты: `test_threats`(8), `test_killpriority`(7), `test_usage`(4), `test_pipeline_4_7`(9),
+  `test_advice_persist`(7) + спек/partial в `test_realtime_matching`, спек-детект в
+  `test_bridge_combat_tail`. Всего **327 passed**, 9 skipped; ruff/mypy(64)/format чисто;
+  validate-kb 68; alembic 0001-0004 up/down OK (миграции 0003/0004 идемпотентны — guard на create_all).
 
 ### ⏳ Phase 5 — CV/OCR (не начата)
 

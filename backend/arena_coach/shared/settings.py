@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     anthropic_api_key: str = Field(default="")
     anthropic_model_synth: str = "claude-sonnet-4-6"
     anthropic_model_classify: str = "claude-haiku-4-5-20251001"
+    # Разбор незнакомого сетапа (Phase 4.7): идёт ВНЕ боя и кэшируется, поэтому
+    # можно ставить сильную модель (генерим раз — отдаём дёшево навсегда).
+    # По умолчанию Haiku; смени на Sonnet в api.env без правок кода.
+    anthropic_model_advice: str = "claude-haiku-4-5-20251001"
 
     # ── Storage ───────────────────────────────────────────────────────────
     database_url: str = "sqlite+aiosqlite:///./coach.db"

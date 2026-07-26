@@ -31,6 +31,7 @@ from typing import Any
 
 import httpx
 
+from arena_coach.access.advice_store import AdviceStore
 from arena_coach.access.player_settings import DEFAULT_VOICE_MODE, PlayerSettingsService
 from arena_coach.access.service import AccessService
 from arena_coach.access.usage import UsageService
@@ -242,6 +243,7 @@ class PipelineContext:
     # Phase 4.7: учёт токенов (None без БД) + кэш LLM-разборов + фоновые задачи.
     usage_service: UsageService | None = None
     advice_cache: AdviceCache = field(default_factory=AdviceCache)
+    advice_store: AdviceStore | None = None  # L2 персистентный кэш (None в тестах без БД)
     _bg_tasks: set[asyncio.Task[Any]] = field(default_factory=set)
     # Дедуп ARENA_START-DM: player+session → сигнатура последнего разбора.
     _last_arena_sig: dict[str, str] = field(default_factory=dict)
@@ -508,6 +510,11 @@ async def _emit_unknown(
 
     dm_lines = [f"🏟 **Нестандартный сетап** | {bracket} | враги: {enemies_desc}"]
     cached = ctx.advice_cache.get(sig_key)
+    if cached is None and ctx.advice_store is not None:
+        row = await ctx.advice_store.get(sig_key)
+        if row is not None:
+            cached = row.text
+            ctx.advice_cache.put(sig_key, cached)  # прогреваем L1 из L2-персиста
     if cached:
         dm_lines.append(f"🧠 {cached}")
     else:
@@ -551,8 +558,8 @@ async def _generate_and_send_advice(
     our_comp_hint: str | None,
     player_class: str | None,
 ) -> None:
-    """Фон: LLM-разбор незнакомого сетапа → кэш → отдельный DM. Ошибки не ронят ack."""
-    model = ctx.settings.anthropic_model_classify
+    """Фон: LLM-разбор незнакомого сетапа → кэш (L1+L2) → отдельный DM. Ошибки не ронят ack."""
+    model = ctx.settings.anthropic_model_advice
     result = await advice_mod.generate_comp_advice(
         ctx.anthropic_client,
         model,
@@ -565,6 +572,8 @@ async def _generate_and_send_advice(
     if not result.text:
         return
     ctx.advice_cache.put(sig_key, result.text)
+    if ctx.advice_store is not None:
+        await ctx.advice_store.put(sig_key, result.text, model)
     await _send_discord_dm(
         ctx.settings.discord_bot_token,
         discord_id,

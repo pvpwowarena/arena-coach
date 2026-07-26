@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Boolean, DateTime, Integer, LargeBinary, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Integer, LargeBinary, String, Text, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -131,3 +131,25 @@ class LLMUsage(Base):
             f"<LLMUsage {self.day} {self.purpose}/{self.model} "
             f"in={self.input_tokens} out={self.output_tokens} calls={self.calls}>"
         )
+
+
+class AdviceCacheEntry(Base):
+    """Персистентный кэш LLM-разбора незнакомого сетапа (Phase 4.7).
+
+    Ключ — сигнатура сетапа (comp_signature). Хранит текст + модель, которой
+    сгенерирован → можно точечно перегенерить сильной моделью («улучшить потом»)
+    и прогреть популярные сетапы заранее (CLI warm-advice). Переживает рестарты
+    (в отличие от in-memory L1-кэша в PipelineContext) — важно при частом
+    автодеплое.
+    """
+
+    __tablename__ = "advice_cache"
+
+    sig: Mapped[str] = mapped_column(String(200), primary_key=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    model: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<AdviceCacheEntry sig={self.sig!r} model={self.model!r}>"
