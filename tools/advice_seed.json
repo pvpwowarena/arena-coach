@@ -40,5 +40,75 @@
     "bracket": "3v3",
     "model": "claude-opus-manual",
     "text": "🎯 Килл-таргет: rogue — сквиши и без бабла; паладинов ковырять долго, holy-хил тащит.\nПлан: свяжи holy-палу в kill-окно (Sap/Kidney/Counterspell на Holy Light-каст); фокус rogue через кики; диспелль Freedom перед добиванием; mana-burn/дави holy в притеснение как план Б.\nОпасности: бабл (Divine Shield) + Freedom сбрасывают контроль; ret-бёрст (Avenging Wrath + HoJ + Repentance); рога добавляет стан-лок. Не стой под Wings, ломай Repentance тринкетом только под свой добив."
+  },
+  {
+    "our": "rogue+mage",
+    "enemies": [["WARLOCK", null], ["WARLOCK", null]],
+    "bracket": "2v2",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: варлок, чей фел на КД / без спелстоуна — его контроль проще пробить.\nПлан: не стой в LoS обоих (двойной DoT+fear размазывает); маг новит и держит дистанцию, ты фокусишь одного, kick/CS на fear и Death Coil, трапь фелов; не давай затянуть в attrition — дави одного быстро.\nОпасности: двойной fear+DoT, фел снимает нову/поли (Spell Lock/Devour), Death Coil-чейн, спелстоун-щиты."
+  },
+  {
+    "our": "rogue+mage",
+    "enemies": [["HUNTER", null], ["HUNTER", null]],
+    "bracket": "2v2",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: хант без Deterrence/тринкета, который ближе к тебе.\nПлан: закрывай дистанцию (на рэйндже двойной бёрст выносит); маг новит, ты садишь gouge/kidney на одного и кики на Steady/Aimed; ломай трапы позицией, не стой в один сектор.\nОпасности: двойные trap+scatter, петовый Spell Lock, Deterrence, Bestial Wrath бёрст, freezing trap на маге."
+  },
+  {
+    "our": "rogue+mage",
+    "enemies": [["MAGE", null], ["WARLOCK", null]],
+    "bracket": "2v2",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: маг (сквиши, ломает твой сетап новой/поли); варлок — если маг заблокался.\nПлан: спред обязателен, не стой в LoS обоих; фокус мага через kick на нову/поли, маг counterspell'ит; трапни собаку — фел снимает твой контроль; следи за fear варлока.\nОпасности: поли+fear-чейн, shatter, фел-lock (Spell Lock), Ice Block, Death Coil."
+  },
+  {
+    "our": "rogue+mage",
+    "enemies": [["HUNTER", null], ["MAGE", null]],
+    "bracket": "2v2",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: маг или хант — кого проще запереть; маг сквиши, хант кайтит.\nПлан: сокращай дистанцию, kick на нову/каст мага; ломай трапы ханта позицией; тринкет держи под trap→sheep-чейн (двойной рэйндж-контроль).\nОпасности: trap→sheep-чейн, scatter+nova, shatter, Ice Block, Deterrence."
+  },
+  {
+    "our": "rogue+mage",
+    "enemies": [["DRUID", null], ["DRUID", null]],
+    "bracket": "2v2",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: druid, который в бою/кошке (не убегающий); feral проще, resto кайтит.\nПлан: не дай обоим бесконечно кайтить+HoT'ить; фокус одного, kick/CS на heal/cyclone-каст, cripple чтобы держать в LoS мага; следи за циклоном на добиве.\nОпасности: двойной cyclone, кайт travel/HoT, тринкет+NS, размен по времени (у них выносливее)."
+  },
+  {
+    "our": "rogue+mage+priest",
+    "enemies": [["WARRIOR", null], ["WARRIOR", null], ["DRUID", null]],
+    "bracket": "3v3",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: один воин (фокус, пока druid связан); druid — если запрёшь под бёрст.\nПлан: маг+прист связывают druid'а (sheep/CS/Fear) в kill-окно, рога+маг бёрстят ОДНОГО воина; не размазывайся по двум; прист Mass Dispel Freedom, Pain Suppression под их бёрст.\nОпасности: двойной MS+charge, Freedom+тринкет на цели, druid кайтит и циклонит добив, hamstring-локдаун."
+  },
+  {
+    "our": "rogue+mage+priest",
+    "enemies": [["MAGE", null], ["MAGE", null], ["PRIEST", null]],
+    "bracket": "3v3",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: маг, которого запрёшь (Kidney→CS); прист-хилл в притеснение как план Б.\nПлан: спред от двойного shatter; прист Mass Dispel новы/поли + Fear на их сетап; фокус одного мага через кики; тринкеты под kill-setup; mana-burn приста.\nОпасности: двойной shatter, sheep-чейн, 2 Ice Block, вражеский прист диспеллит твои CC."
+  },
+  {
+    "our": "rogue+mage+priest",
+    "enemies": [["HUNTER", null], ["HUNTER", null], ["DRUID", null]],
+    "bracket": "3v3",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: хант поближе и без Deterrence; druid кайтит.\nПлан: сокращай дистанцию к одному ханту, прист связывает druid'а (Fear/sheep нет — Fear/Mass Dispel), kick петовый lock; ломай трапы позицией, не группируйся под Volley/Multi.\nОпасности: двойные trap+scatter, петовый Spell Lock, Deterrence, druid-циклон на добиве."
+  },
+  {
+    "our": "rogue+mage+priest",
+    "enemies": [["WARRIOR", null], ["WARRIOR", null], ["WARRIOR", null]],
+    "bracket": "3v3",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: воин без тринкета/Berserker Rage — запри и добей.\nПлан: кайти и разбивай их фокус; маг новит/пилларит, прист PS+Fear под их бёрст, рога Blind одного; у них НЕТ хила — переживи первый навал, дальше размен твой.\nОпасности: тройной charge/intercept+MS, hamstring-локдаун, синхронный бёрст, Berserker Rage ломает страх."
+  },
+  {
+    "our": "rogue+mage+priest",
+    "enemies": [["MAGE", null], ["MAGE", null], ["DRUID", null]],
+    "bracket": "3v3",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: маг (запри Kidney→CS); druid кайтит и почти некиллабелен.\nПлан: спред от shatter; прист/маг связывают druid'а (Fear/sheep) чтобы не циклонил добив; фокус одного мага через кики; тринкеты под kill-setup. Свяжи druid'а ПЕРЕД бёрстом.\nОпасности: двойной shatter+sheep, циклон druid'а на добиве, Ice Block, размен по мане."
   }
 ]
