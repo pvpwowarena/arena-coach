@@ -1,0 +1,44 @@
+[
+  {
+    "our": "rogue+mage",
+    "enemies": [["MAGE", null], ["MAGE", null]],
+    "bracket": "2v2",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: маг, который первым слил Ice Block/тринкет (или которого проще держать в киках).\nПлан: не группируйся — двойная nova+shatter выносит за один бёрст; садишь Gouge/Kidney на одного и держишь его каст в киках; маг Counterspell'ит нову/поли и разменивает их блоки; как один заблокался — вешаешь контроль на второго и дожимаешь первого после блока.\nОпасности: двойной shatter (nova→добивание), поли-чейн (не тринкеть первый поли — держи под kill-setup), Ice Block ресетит весь бёрст. Не стой в LoS обоих магов."
+  },
+  {
+    "our": "rogue+mage",
+    "enemies": [["ROGUE", null], ["ROGUE", null]],
+    "bracket": "2v2",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: тот, кто раскрылся первым и уже без Vanish/Cloak.\nПлан: маг стоит готовый к Nova/Blink и ловит их опен; тринкет держи под первый Kidney (двойной стан-лок = смерть); Nova + Arcane Explosion на их Vanish-реопен; бей одного, второго держи в Blind/Sap-DR.\nОпасности: двойной стелс-опен, стан-лок с двух Kidney, ваниш-реопены. Cloak снимает Nova/Poly — не трать контроль в клок."
+  },
+  {
+    "our": "rogue+mage",
+    "enemies": [["WARRIOR", null], ["WARRIOR", null]],
+    "bracket": "2v2",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: воин без Berserker Rage/тринкета — его проще застанить и удержать в контроле.\nПлан: кайти и не давай обоим бить одну цель; маг Frost Nova + Blink, работает через пиллары; Blind одного — добиваешь второго под Kidney; разменивай их charge-gap-клоузеры новой.\nОпасности: двойной Charge/Intercept, Hamstring-локдаун, Mortal Strike, Death Wish/Recklessness бёрст. У RM хила нет — просто не подставляйся под двойной свинг."
+  },
+  {
+    "our": "rogue+mage+priest",
+    "enemies": [["MAGE", null], ["MAGE", null], ["MAGE", null]],
+    "bracket": "3v3",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: маг, которого можешь запереть (Kidney→Counterspell) и который уже слил Ice Block.\nПлан: спред максимально — тройная nova+shatter выносит мгновенно; прист Fear/Mass Dispel рвёт поли-чейны и снимает нову; рога+маг фокусят одного через кики, разменивая их блоки; тринкеты команды — под kill-setup, не под первый поли.\nОпасности: тройной sheep-чейн, каскад shatter, три Ice Block ресетят добивания. Никогда не стой в LoS двух магов сразу."
+  },
+  {
+    "our": "rogue+mage+priest",
+    "enemies": [["ROGUE", null], ["ROGUE", null], ["ROGUE", null]],
+    "bracket": "3v3",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: раскрывшийся рога без Cloak/Vanish — либо самый задавленный.\nПлан: прист держит Fear/Pain Suppression под их опен (тройной Kidney = труп); Arcane Explosion/Nova на реопены; фокус одного через Blind-DR, тринкеты под kill-setup; не дай зайти с сапа на приста.\nОпасности: тройной стелс-опен, бесконечный стан/Blind-локдаун, ваниш-реопены. Cloak снимает Nova/Poly/Fear — не трать контроль в клок."
+  },
+  {
+    "our": "rogue+mage+priest",
+    "enemies": [["PALADIN", null], ["PALADIN", null], ["ROGUE", null]],
+    "bracket": "3v3",
+    "model": "claude-opus-manual",
+    "text": "🎯 Килл-таргет: rogue — сквиши и без бабла; паладинов ковырять долго, holy-хил тащит.\nПлан: свяжи holy-палу в kill-окно (Sap/Kidney/Counterspell на Holy Light-каст); фокус rogue через кики; диспелль Freedom перед добиванием; mana-burn/дави holy в притеснение как план Б.\nОпасности: бабл (Divine Shield) + Freedom сбрасывают контроль; ret-бёрст (Avenging Wrath + HoJ + Repentance); рога добавляет стан-лок. Не стой под Wings, ломай Repentance тринкетом только под свой добив."
+  }
+]
