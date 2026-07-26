@@ -118,7 +118,8 @@ def test_enemy_class_inference_reemits_start() -> None:
     out = it.feed_line(
         _line("12:00:40.0000", _enemy_cast("Player-1-E1", "Evilmage-X", 27072, "Frostbolt"))
     )
-    assert "ARENA_START#2v2#MAGE/UNKNOWN#" in out
+    # Frostbolt — WEAK-сигнал спека frost (Phase 4.7): раскрывается класс + спек-намёк
+    assert "ARENA_START#2v2#MAGE/UNKNOWN/frost-mage#" in out
 
 
 def test_trinket_and_ability_payloads() -> None:
@@ -250,3 +251,51 @@ def test_world_hostiles_ignored_when_roster_full() -> None:
         _line("12:02:20.0000", _enemy_cast("Player-9-WORLD", "Zonof-X", 1543, "Flare"))
     )
     assert any(p.startswith("ARENA_END#") for p in out)
+
+
+# ── Phase 4.7: определение спека по сигнатурным спеллам ───────────────────────
+
+
+def test_strong_spec_repentance_ret_paladin() -> None:
+    it = CombatInterpreter(player_name="Arenacoach")
+    _setup_2v2(it)
+    out = it.feed_line(
+        _line("12:00:40.0000", _enemy_cast("Player-1-E1", "Judgex-X", 20066, "Repentance"))
+    )
+    assert "ARENA_START#2v2#PALADIN/UNKNOWN/ret-paladin#" in out
+
+
+def test_strong_spec_overrides_weak_frost_to_fire() -> None:
+    """PoM-Pyro fire-маг: сперва frostbolt (WEAK frost), затем pyroblast (STRONG
+    fire) → итог fire-mage, спек лочится и не откатывается."""
+    it = CombatInterpreter(player_name="Arenacoach")
+    _setup_2v2(it)
+    frost = it.feed_line(
+        _line("12:00:40.0000", _enemy_cast("Player-1-E1", "Pyrox-X", 27072, "Frostbolt"))
+    )
+    assert any("MAGE/UNKNOWN/frost-mage" in p for p in frost)
+    fire = it.feed_line(
+        _line("12:00:44.0000", _enemy_cast("Player-1-E1", "Pyrox-X", 27070, "Pyroblast"))
+    )
+    assert any("MAGE/UNKNOWN/fire-mage" in p for p in fire)
+    # STRONG залочен: повторный frostbolt не откатывает спек на frost
+    back = it.feed_line(
+        _line("12:00:48.0000", _enemy_cast("Player-1-E1", "Pyrox-X", 27072, "Frostbolt"))
+    )
+    assert not any("frost-mage" in p for p in back)
+
+
+def test_spec_flows_through_normalizer_to_enemyinfo() -> None:
+    it = CombatInterpreter(player_name="Arenacoach")
+    session = SessionState(default_our_comp="rogue+mage")
+    _setup_2v2(it)
+    payloads = it.feed_line(
+        _line("12:00:40.0000", _enemy_cast("Player-1-E1", "Feralx-X", 33983, "Mangle (Cat)"))
+    )
+    envs = [normalize_raw(p, session, "Arenacoach") for p in payloads]
+    envs = [e for e in envs if e is not None]
+    starts = [e for e in envs if e.event.type == "ARENA_START"]
+    assert starts, "нет ARENA_START в envelope'ах"
+    enemies = starts[0].match.enemies
+    assert enemies and enemies[0].wow_class == "DRUID"
+    assert enemies[0].spec == "feral-druid"

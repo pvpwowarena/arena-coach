@@ -273,6 +273,28 @@ def _group_lines(record: MatchRecord) -> list[str]:
     return lines
 
 
+def timeline_digest(record: MatchRecord, limit: int = 900) -> str:
+    """Компактный текст таймлайна для LLM-разбора (Phase 4.7).
+
+    Отдаёт факты боя (тринкеты/дефы/CC/прочее с таймстампами) без markdown-эмодзи —
+    вход для модели, а не для игрока. Отдельно от build_postmatch_report, чтобы
+    детерминированный отчёт остался фолбэком.
+    """
+    head = (
+        f"Брекет: {record.bracket}. Враги: {record.enemies_label}. "
+        f"Наш состав: {record.our_comp_hint or '?'}. "
+        f"Длительность ~{_fmt_offset(record.duration_s())}. "
+        f"Событий: {len(record.events)}."
+    )
+    lines = [head]
+    for ev in record.events:
+        lines.append(f"  {_fmt_offset(ev.offset_s)} {ev.kind.lower()} {ev.source}: {ev.key}")
+    text = "\n".join(lines)
+    if len(text) > limit:
+        text = text[: limit - 1].rstrip() + "…"
+    return text
+
+
 def build_postmatch_report(record: MatchRecord, doc: KBDoc | None) -> str:
     """Собрать текст DM-разбора (≤2000 символов, лимит Discord)."""
     matchup = f"{doc.composition} vs {doc.vs}" if doc else None

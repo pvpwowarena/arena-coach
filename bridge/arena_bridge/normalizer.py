@@ -51,19 +51,24 @@ log = logging.getLogger(__name__)
 
 
 class EnemyInfo(BaseModel):
-    """Один враг: класс + раса."""
+    """Один враг: класс + раса + опциональный спек (Phase 4.7)."""
 
     wow_class: str
     race: str
+    spec: str | None = None  # напр. 'ret-paladin'; combat-канал раскрывает по кастам
 
     @classmethod
     def from_str(cls, s: str) -> EnemyInfo:
-        """Парсит 'ROGUE/HUMAN' → EnemyInfo(wow_class='ROGUE', race='HUMAN')."""
-        parts = s.split("/", 1)
-        return cls(
-            wow_class=parts[0].strip().upper() if parts else "UNKNOWN",
-            race=parts[1].strip().upper() if len(parts) > 1 else "UNKNOWN",
-        )
+        """Парсит 'ROGUE/HUMAN' или 'MAGE/UNKNOWN/fire-mage' → EnemyInfo.
+
+        3-е поле (спек) — опционально и обратно-совместимо: старые мосты шлют
+        два поля, спек тогда None.
+        """
+        parts = s.split("/")
+        wow_class = parts[0].strip().upper() if parts and parts[0].strip() else "UNKNOWN"
+        race = parts[1].strip().upper() if len(parts) > 1 and parts[1].strip() else "UNKNOWN"
+        spec = parts[2].strip().lower() if len(parts) > 2 and parts[2].strip() else None
+        return cls(wow_class=wow_class, race=race, spec=spec or None)
 
 
 class ArenaStartEvent(BaseModel):

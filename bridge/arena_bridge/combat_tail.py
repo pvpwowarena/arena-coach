@@ -142,6 +142,35 @@ _CLASS_SPELLS: dict[str, set[int]] = {
 }
 SPELL_TO_CLASS: dict[int, str] = {sid: cls for cls, ids in _CLASS_SPELLS.items() for sid in ids}
 
+# spell_id → спек: уточнение класса до специализации (Phase 4.7). Тонкости спеков
+# критичны (holy vs ret pala, resto vs feral, fire vs frost), а class-level матчинг
+# их терял. ВСЕ id ниже — уже валидированные в _CLASS_SPELLS (из живых логов /
+# курирования), поэтому риск мисклассификации нулевой: спелл лишь дополнительно
+# помечает спек уже опознанного класса.
+#
+# STRONG — talent-defining спеллы: перекрывают и лочат спек (Pyroblast = точно fire,
+# даже если маг до этого кастовал frostbolt в shatter-сетапе PoM-Pyro).
+_SPELL_TO_SPEC_STRONG: dict[int, str] = {
+    30330: "arms-warrior",  # Mortal Strike
+    27070: "fire-mage",  # Pyroblast
+    11129: "fire-mage",  # Combustion
+    33983: "feral-druid",  # Mangle (Cat)
+    8983: "feral-druid",  # Bash
+    9634: "feral-druid",  # Dire Bear Form
+    33763: "resto-druid",  # Lifebloom
+    34917: "shadow-priest",  # Vampiric Touch
+    10060: "discipline-priest",  # Power Infusion
+    20066: "ret-paladin",  # Repentance (51-й талант ret)
+    25423: "resto-shaman",  # Chain Heal
+    16166: "ele-shaman",  # Elemental Mastery
+}
+# WEAK — спек-намёк: ставится, только если спек ещё неизвестен, и перекрывается
+# любым STRONG (frostbolt кастует и fire-маг ради shatter → frost НЕ лочим).
+_SPELL_TO_SPEC_WEAK: dict[int, str] = {
+    27072: "frost-mage",  # Frostbolt
+    26980: "resto-druid",  # Regrowth
+}
+
 # CLEU unit flags
 _FLAG_TYPE_PLAYER = 0x0400
 _FLAG_REACTION_HOSTILE = 0x0040
@@ -209,6 +238,19 @@ def _is_friendly_player(flags: int) -> bool:
 class _Unit:
     name: str
     wow_class: str | None = None
+    spec: str | None = None
+    spec_locked: bool = False
+
+
+def _encode_enemy(u: _Unit) -> str:
+    """'MAGE/UNKNOWN' или 'MAGE/UNKNOWN/fire-mage' (раса из combat-лога неизвестна).
+
+    3-е поле (спек) — опционально: старый backend его игнорирует (from_str берёт
+    первые два), новый — использует для сужения матчапа до спека.
+    """
+    if u.spec:
+        return f"{u.wow_class}/UNKNOWN/{u.spec}"
+    return f"{u.wow_class}/UNKNOWN"
 
 
 @dataclass
@@ -306,11 +348,12 @@ class CombatInterpreter:
                 return out
 
             self._last_hostile_ts = ts
-            newly = self._note_class(self._enemies, src_guid, src_name, spell_id)
-            if newly:
+            newly_cls = self._note_class(self._enemies, src_guid, src_name, spell_id)
+            newly_spec = self._note_spec(self._enemies, src_guid, spell_id)
+            if newly_cls or newly_spec:
                 start = self._emit_arena_start()
                 if start:
-                    out.append(start)  # уточнение состава врагов
+                    out.append(start)  # уточнение состава/спеков врагов
 
             if event == "SPELL_CAST_SUCCESS" or event == "SPELL_AURA_APPLIED":
                 payload = self._emit_hostile_action(ts, src_guid, src_name, spell_id)
@@ -372,6 +415,30 @@ class CombatInterpreter:
         log.info("Combat-канал: %s определён как %s", name, wow_class)
         return True
 
+    def _note_spec(self, side: dict[str, _Unit], guid: str, spell_id: int) -> bool:
+        """Уточнить спек юнита по сигнатурному спеллу. True, если спек изменился.
+
+        STRONG перекрывает и лочит (Pyroblast → fire даже после frostbolt).
+        WEAK ставится, только если спека ещё нет, и не лочит.
+        """
+        unit = side.get(guid)
+        if unit is None:
+            return False
+        strong = _SPELL_TO_SPEC_STRONG.get(spell_id)
+        if strong is not None:
+            if unit.spec == strong and unit.spec_locked:
+                return False
+            unit.spec = strong
+            unit.spec_locked = True
+            log.info("Combat-канал: %s уточнён как %s", unit.name, strong)
+            return True
+        weak = _SPELL_TO_SPEC_WEAK.get(spell_id)
+        if weak is not None and not unit.spec_locked and unit.spec != weak:
+            unit.spec = weak
+            log.info("Combat-канал: %s предположительно %s", unit.name, weak)
+            return True
+        return False
+
     def _emit_arena_start(self) -> str | None:
         """ARENA_START-payload; None, если состав ВРАГОВ не изменился.
 
@@ -381,7 +448,7 @@ class CombatInterpreter:
         """
         team = max(len(self._allies), 1)
         bracket = f"{team}v{team}" if team in (2, 3, 5) else "unknown"
-        enemies = ",".join(f"{u.wow_class}/UNKNOWN" for u in self._enemies.values() if u.wow_class)
+        enemies = ",".join(_encode_enemy(u) for u in self._enemies.values() if u.wow_class)
         if self._last_enemies_key is not None and enemies == self._last_enemies_key:
             return None
         self._last_enemies_key = enemies

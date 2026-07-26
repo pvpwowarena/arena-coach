@@ -107,6 +107,52 @@ class TestFindRealtimeCandidates:
 # ── HintThrottle ─────────────────────────────────────────────────────────────
 
 
+class TestSpecAwareMatching:
+    def test_spec_narrows_out_wrong_spec_doc(self, loaded_index: KBIndex) -> None:
+        r = KBRetriever(loaded_index)
+        base = r.find_realtime_candidates(["WARRIOR", "PALADIN"], "rogue+mage")
+        assert any(d.slug == "rm-vs-warrior-hpala" for d in base)
+        # знаем ret → holy-документ исключается (чужой спек = неверный план)
+        ret = r.find_realtime_candidates(
+            ["WARRIOR", "PALADIN"], "rogue+mage", enemy_specs=[None, "ret-paladin"]
+        )
+        assert not any(d.slug == "rm-vs-warrior-hpala" for d in ret)
+        # знаем holy → документ остаётся
+        holy = r.find_realtime_candidates(
+            ["WARRIOR", "PALADIN"], "rogue+mage", enemy_specs=[None, "holy-paladin"]
+        )
+        assert any(d.slug == "rm-vs-warrior-hpala" for d in holy)
+
+    def test_base_class_doc_matches_any_spec(self, loaded_index: KBIndex) -> None:
+        # rl-vs-rogue-mage имеет vs rogue+mage (база) → любой спек мага подходит
+        r = KBRetriever(loaded_index)
+        docs = r.find_realtime_candidates(
+            ["ROGUE", "MAGE"], "rogue+warlock", enemy_specs=[None, "fire-mage"]
+        )
+        assert any(d.slug == "rl-vs-rogue-mage" for d in docs)
+
+    def test_none_specs_no_narrowing(self, loaded_index: KBIndex) -> None:
+        r = KBRetriever(loaded_index)
+        with_none = r.find_realtime_candidates(
+            ["WARRIOR", "PALADIN"], "rogue+mage", enemy_specs=[None, None]
+        )
+        plain = r.find_realtime_candidates(["WARRIOR", "PALADIN"], "rogue+mage")
+        assert [d.slug for d in with_none] == [d.slug for d in plain]
+
+
+class TestPartialCandidates:
+    def test_partial_by_known_class(self, loaded_index: KBIndex) -> None:
+        r = KBRetriever(loaded_index)
+        docs = r.find_partial_candidates(["DRUID"], "rogue+mage")
+        assert docs
+        assert all("druid" in comp_to_classes(d.vs) for d in docs)
+        assert all(comp_to_classes(d.composition) == ("mage", "rogue") for d in docs)
+
+    def test_partial_empty_when_no_class(self, loaded_index: KBIndex) -> None:
+        r = KBRetriever(loaded_index)
+        assert r.find_partial_candidates([], "rogue+mage") == []
+
+
 class TestHintThrottle:
     def test_first_ability_allowed(self) -> None:
         t = HintThrottle()

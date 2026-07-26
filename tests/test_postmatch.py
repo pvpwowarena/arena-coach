@@ -258,10 +258,14 @@ def sent_dms(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, str]]:
 
 @pytest.fixture
 def no_llm(monkeypatch: pytest.MonkeyPatch) -> None:
-    async def _fail(*args: Any, **kwargs: Any) -> str:
+    """Гарантируем детерминированный путь: даже если ключ где-то просочится,
+    LLM-вызовы падают → фолбэк на шаблонный отчёт (Phase 4.7)."""
+
+    async def _fail(*args: Any, **kwargs: Any) -> Any:
         raise RuntimeError("LLM недоступен в тесте")
 
-    monkeypatch.setattr(pipeline, "_generate_hint", _fail)
+    monkeypatch.setattr(pipeline.advice_mod, "generate_postmatch_review", _fail)
+    monkeypatch.setattr(pipeline.advice_mod, "generate_comp_advice", _fail)
 
 
 class TestArenaEndPipeline:

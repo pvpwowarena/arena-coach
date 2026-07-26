@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from arena_coach.kb.indexer import KBIndex, _normalize_comp, comp_to_classes
+from arena_coach.kb.indexer import KBIndex, _normalize_comp, comp_part_to_class, comp_to_classes
 from arena_coach.kb.schema import KBDoc
 
 # Таблица алиасов для нормализации ввода пользователя
@@ -96,6 +96,24 @@ def normalize_user_comp(comp: str) -> str:
     return "+".join(sorted(parts))
 
 
+def _doc_consistent_with_specs(vs: str, known_specs: Sequence[str]) -> bool:
+    """Документ vs совместим с известными спеками врагов (Phase 4.7).
+
+    Для каждого известного спека S (базовый класс B): среди частей vs того же
+    класса B должна быть часть == B (без спека) или == S. Если у vs есть ДРУГОЙ
+    спек того же класса (holy-paladin при известном ret-paladin) — противоречие.
+    Документ с базовым классом ('vs: warrior+mage') совместим с любым спеком
+    этого класса (frost-mage подходит под 'mage').
+    """
+    parts = [p.strip().lower() for p in vs.split("+") if p.strip()]
+    for spec in known_specs:
+        base = comp_part_to_class(spec)
+        same_class = [p for p in parts if comp_part_to_class(p) == base]
+        if same_class and not any(p in (base, spec) for p in same_class):
+            return False
+    return True
+
+
 class KBRetriever:
     """Поиск документов в KBIndex с нормализацией пользовательского ввода."""
 
@@ -120,18 +138,23 @@ class KBRetriever:
         self,
         enemy_classes: Sequence[str],
         our_comp_hint: str | None = None,
+        enemy_specs: Sequence[str | None] | None = None,
     ) -> list[KBDoc]:
-        """Кандидаты матчапа для real-time pipeline (Phase 4.1).
+        """Кандидаты матчапа для real-time pipeline (Phase 4.1 + спеки 4.7).
 
-        Аддон присылает только КЛАССЫ врагов (спек с ворот не виден), поэтому
-        матчим по базовым классам: враги WARRIOR+PALADIN найдут и
-        'vs: warrior+holy-paladin', и 'vs: warrior+ret-paladin' — все кандидаты
-        возвращаются, вызывающий код решает как показать неоднозначность.
+        Аддон/мост присылает классы врагов, а по мере боя — и спеки (по
+        сигнатурным кастам). Базовый матч идёт по классам: враги WARRIOR+PALADIN
+        находят и 'vs: warrior+holy-paladin', и 'vs: warrior+ret-paladin'. Если
+        спеки известны — сужаем до совместимых: знаем ret → holy-документ
+        отбрасывается (чужой спек = неверный план). Если спек противоречит ВСЕМ
+        документам класс-уровня, возвращаем [] — вызывающий уходит на
+        LLM-разбор незнакомого сетапа (лучше, чем совет под чужой спек).
 
         Args:
-            enemy_classes: классы врагов из ARENA_START (напр. ["WARRIOR", "PALADIN"])
-            our_comp_hint: наш состав из allies или $BRIDGE_OUR_COMP (напр. "rogue+mage");
-                None → ищем по любому нашему составу.
+            enemy_classes: классы врагов (напр. ["WARRIOR", "PALADIN"]).
+            our_comp_hint: наш состав (напр. "rogue+mage"); None → любой.
+            enemy_specs: спеки в том же порядке (None где неизвестно); None → без
+                сужения (обратная совместимость с Phase 4.1).
 
         Returns:
             Отсортированный по slug список кандидатов ([] если матчапа нет).
@@ -149,7 +172,41 @@ class KBRetriever:
             # Наш состав не совпал ни с одним документом — покажем хоть что-то
             # по этим врагам (совет соседнего состава лучше, чем тишина).
             docs = self._index.find_by_classes(None, enemy)
-        return sorted(docs, key=lambda d: d.slug)
+        candidates = sorted(docs, key=lambda d: d.slug)
+
+        if enemy_specs:
+            known = [s.strip().lower() for s in enemy_specs if s and s.strip()]
+            if known:
+                return [d for d in candidates if _doc_consistent_with_specs(d.vs, known)]
+        return candidates
+
+    def find_partial_candidates(
+        self,
+        known_enemy_classes: Sequence[str],
+        our_comp_hint: str | None = None,
+    ) -> list[KBDoc]:
+        """Кандидаты по ЧАСТИЧНО раскрытому составу врагов (Phase 4.7).
+
+        Пока не все враги опознаны (в 2v2 виден только друид) — возвращаем
+        документы, чьи vs-классы включают уже известные, с фильтром по нашему
+        составу. Нужно для мгновенного провизорного килл-таргета в первые секунды,
+        пока полный матч ещё не сложился.
+        """
+        known = tuple(sorted(c.strip().lower() for c in known_enemy_classes if c and c.strip()))
+        if not known:
+            return []
+        our: tuple[str, ...] | None = None
+        if our_comp_hint:
+            our = comp_to_classes(normalize_user_comp(our_comp_hint))
+        known_set = set(known)
+        result: list[KBDoc] = []
+        for doc in self._index.all_docs:
+            if not known_set.issubset(set(comp_to_classes(doc.vs))):
+                continue
+            if our is not None and comp_to_classes(doc.composition) != our:
+                continue
+            result.append(doc)
+        return sorted(result, key=lambda d: d.slug)
 
     def list_compositions(self) -> list[str]:
         return self._index.list_compositions()

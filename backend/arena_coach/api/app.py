@@ -31,6 +31,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     from arena_coach.access.models import Base
     from arena_coach.access.player_settings import PlayerSettingsService
     from arena_coach.access.service import AccessService
+    from arena_coach.access.usage import UsageService
     from arena_coach.kb.indexer import KBIndex
     from arena_coach.kb.retriever import KBRetriever
     from arena_coach.orchestrator.pipeline import PipelineContext
@@ -45,6 +46,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
     access_service = AccessService(session_factory)
     player_settings = PlayerSettingsService(session_factory)
+    usage_service = UsageService(session_factory)
     log.info("DB инициализирована: %s", settings.database_url)
 
     # ── KB ────────────────────────────────────────────────────────────────
@@ -68,10 +70,12 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         anthropic_client=anthropic_client,
         settings=settings,
         player_settings=player_settings,
+        usage_service=usage_service,
     )
     log.info(
-        "PipelineContext готов. /v1/events активен. Voice: %s",
+        "PipelineContext готов. /v1/events активен. Voice: %s | LLM: %s",
         "ВКЛ" if settings.discord_voice_channel_id else "выкл",
+        "ВКЛ" if settings.anthropic_api_key else "выкл (нет ключа)",
     )
 
     yield

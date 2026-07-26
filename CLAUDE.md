@@ -104,7 +104,11 @@ ARENA_VPS_HOST=root@77.239.120.150 ./ops/scripts/deploy.sh
 DISCORD_BOT_TOKEN=...
 DISCORD_GUILD_ID=...
 ARENA_COACH_OWNER_DISCORD_IDS=...
-ANTHROPIC_API_KEY=sk-ant-placeholder  # заглушка пока, LLM-фичи не работают
+ANTHROPIC_API_KEY=sk-ant-...          # боевой ключ активирует LLM (Phase 4.7):
+                                      # разбор незнакомых сетапов + постматч.
+                                      # Пусто/нет ключа = чистый детерминизм (в бою LLM не нужен).
+ANTHROPIC_MODEL_SYNTH=claude-sonnet-4-6         # постматч-разбор (качество, 1 вызов/матч)
+ANTHROPIC_MODEL_CLASSIFY=claude-haiku-4-5-...   # разбор незнакомого сетапа (быстро/дёшево)
 ARENA_COACH_FERNET_KEY=...
 BRIDGE_BEARER_TOKEN=...
 DATABASE_URL=sqlite+aiosqlite:////var/lib/arena-coach/coach.db
@@ -286,6 +290,43 @@ whisper-to-self невозможен. Решение — bridge парсит com
 - Тесты: `tests/test_hint_queue.py` (23: очередь+TTL+эндпоинт+pipeline),
   `tests/test_bridge_local_tts.py` + `tests/test_bridge_hint_poller.py` (44:
   диспетч TTS по платформе, поллер, get_hints через MockTransport).
+
+### ✅ Phase 4.7 — Скорость (LLM вне боя) + незнакомые сетапы + спеки + токен-статы (2026-07-26)
+Решение по КПД: в БОЮ всё детерминированно и мгновенно; LLM убран из горячего пути и
+включается только при `ANTHROPIC_API_KEY`, работая там, где даёт максимум (незнакомые
+сетапы + постматч). Причина: жалоба «килл-таргет через минуту» = (а) LLM в hot-path,
+(б) поздний reveal классов; фиксим обе.
+- **Мгновенный горячий путь** (`orchestrator/pipeline.py` переписан): ARENA_START шлёт
+  килл-таргет+сложность+угрозы сразу, без ожидания модели; TRINKET/ABILITY —
+  детерминированные фразы + сниппет KB. `_generate_hint`/`_HINT_SYSTEM` удалены. Дедуп
+  ARENA_START-DM по сигнатуре разбора в рамках сессии (анти-спам re-emit).
+- **Предупреждения по врагам** (`orchestrator/threats.py`): угрозы по классам (+спек, +комбо),
+  для ЛЮБОГО сетапа. В DM (строки) и в голос («Осторожно: тотемы огня»). Из живого фидбэка.
+- **Незнакомые/нестандартные сетапы** (mage×3, hpal+ret+rogue, соло-друид): раньше бот молчал
+  (негодно для прода). Теперь мгновенно эвристический килл-таргет (`killpriority.py`) + угрозы,
+  а при ключе — фоновой LLM-разбор (`advice.py`, Haiku) с кэшем по сигнатуре (`AdviceCache`,
+  in-memory TTL) → второй раз мгновенно. LLM вне ack-пути (`ctx.spawn_bg` fire-and-forget,
+  `drain_bg` для тестов).
+- **Спеки талантов** (`bridge/combat_tail.py` + `normalizer.EnemyInfo.spec`): мост раскрывает спек
+  по сигнатурным кастам — STRONG (Pyroblast→fire, Repentance→ret, Mangle→feral, Vampiric
+  Touch→spriest, Chain Heal→rsham, Elem. Mastery→esham, MS→arms, Lifebloom→rdruid, Power
+  Infusion→disc) лочит и перекрывает WEAK (Frostbolt→frost, Regrowth→rdruid). ВСЕ id уже
+  валидированы в `_CLASS_SPELLS` → 0 риска мисклассификации. Эмит `CLASS/UNKNOWN/spec`
+  (обратно совместим). Бэк сужает матч по спеку (`retriever.find_realtime_candidates(enemy_specs=)`):
+  знаем ret → holy-документ отбрасывается; спек противоречит всем → уход на LLM.
+- **Частично раскрытый состав** (`retriever.find_partial_candidates`): провизорный килл-таргет,
+  если частичные кандидаты сходятся (ответ в первые секунды). Прямой задел под стелс-предугадывание.
+- **Постматч на LLM** (`_build_postmatch` + `postmatch.timeline_digest`): таймлайн + KB-план →
+  персональный разбор (Sonnet); детерминированный отчёт — фолбэк при ошибке/без ключа.
+- **Токен-статистика для админа** (`access/usage.py` + миграция **0003** `llm_usage`, UPSERT-агрегат
+  по (день, назначение, модель); `/coach stats` — админ-embed: токены in/out + вызовы по
+  назначению/модели + итоги + оценка $; кросс-процесс через coach.db). Пишет api, читает bot.
+- **Гейт LLM = наличие ключа** (`PipelineContext.llm_enabled`): без ключа — чистый детерминизм
+  (старые тесты зелёные). Модели из api.env (Sonnet↔Haiku без кода). Задел под монетизацию:
+  реалтайм (детерм., ~$0) vs постматч (LLM) — тариф-гейт в одной точке.
+- Тесты: `test_threats`(8), `test_killpriority`(7), `test_usage`(4), `test_pipeline_4_7`(9) +
+  спек/partial в `test_realtime_matching`, спек-детект в `test_bridge_combat_tail`. Всего
+  **320 passed**, 9 skipped; ruff/mypy(62)/format чисто; validate-kb 68; alembic 0001-0003 up/down OK.
 
 ### ⏳ Phase 5 — CV/OCR (не начата)
 
@@ -532,8 +573,21 @@ ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
 6. ✅ ~~Phase 4.1 — починить KB-матчинг~~ — сделано 2026-07-11 (см. Phase 4).
 
 ### Среднесрочно
-4. Добавить настоящий `ANTHROPIC_API_KEY` (сейчас заглушка `sk-ant-placeholder` — LLM-hint не работает, pipeline отправляет KB-текст напрямую).
+4. ✅ ~~Добавить настоящий `ANTHROPIC_API_KEY`~~ — ключ в `/etc/arena-coach/api.env` (2026-07-26),
+   LLM активирован в **Phase 4.7** (постматч + разбор незнакомых сетапов). В бою LLM НЕ участвует.
 5. Промотировать драфты в `matchups/` или ввести `KB_INCLUDE_DRAFTS` env-flag.
+6. **Килл-таргет с номером арена-фрейма («арена 1, маг»)** — Batch 2 (аддон + мост + бэк + релиз
+   v0.6.1 + живой тест). combat-лог позицию фрейма НЕ содержит; аддон знает arena1/2/3
+   (`ScanEnemies`), но нужен канал доставки ростера в бою — chat-канал аддона на Anniversary
+   не флашится в реалтайме (проверить на живом тесте, доедет ли ростер).
+7. **Стелс-предугадывание** (бэклог, из фидбэка 2026-07-26): держать список вероятных врагов по
+   топ/популярным сетапам текущего рейтинга; по гейт-бафам из стелса выбрать вариант и сразу
+   сказать килл-таргет. Задел уже готов (partial-matching + распознавание класса/спека по кастам),
+   не хватает источника «топ-сетапов рейтинга» (data-acquisition) + прекэша вариантов.
+8. **Монетизация** (обсуждается, из фидбэка 2026-07-26): постматч платный ЛИБО постматч бесплатно +
+   онлайн-подсказки платно. Решать по токен-статистике (`/coach stats`) — сперва собрать цифры.
+   Архитектура уже разделяет реалтайм (детерм.) и постматч (LLM), гейт по тарифу — в одной точке.
+   NB: серверные API-скиллы/инструменты дороже — коучу не нужны, держим plain messages.
 
 ---
 

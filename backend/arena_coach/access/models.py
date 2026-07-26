@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Boolean, DateTime, Integer, LargeBinary, String
+from sqlalchemy import Boolean, DateTime, Integer, LargeBinary, String, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -103,3 +103,31 @@ class PlayerSettings(Base):
 
     def __repr__(self) -> str:
         return f"<PlayerSettings discord_id={self.discord_id!r} voice_mode={self.voice_mode!r}>"
+
+
+class LLMUsage(Base):
+    """Агрегированный расход токенов LLM (Phase 4.7) — для админ-статистики.
+
+    Ключ агрегации — (day, purpose, model). Пишет api-процесс (незнакомые
+    сетапы + постматч), читает bot-процесс (/coach stats). Оба через общий
+    coach.db. purpose: 'advice' (сетап вне KB) | 'postmatch' | др.
+    """
+
+    __tablename__ = "llm_usage"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    day: Mapped[str] = mapped_column(String(10), nullable=False)  # YYYY-MM-DD (UTC)
+    purpose: Mapped[str] = mapped_column(String(32), nullable=False)
+    model: Mapped[str] = mapped_column(String(64), nullable=False)
+    input_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    calls: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    __table_args__ = (UniqueConstraint("day", "purpose", "model", name="uq_llm_usage_bucket"),)
+
+    def __repr__(self) -> str:
+        return (
+            f"<LLMUsage {self.day} {self.purpose}/{self.model} "
+            f"in={self.input_tokens} out={self.output_tokens} calls={self.calls}>"
+        )

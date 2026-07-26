@@ -286,12 +286,9 @@ def delivery(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[str]]:
         sent["voice"].append(text)
         return True
 
-    async def _no_llm(*args: Any, **kwargs: Any) -> str:
-        raise RuntimeError("LLM в тесте выключен")
-
+    # Phase 4.7: LLM в горячем пути нет; ключ пуст → llm_enabled=False.
     monkeypatch.setattr(pipeline, "_send_discord_dm", _fake_dm)
     monkeypatch.setattr(pipeline, "_send_voice_hint", _fake_voice)
-    monkeypatch.setattr(pipeline, "_generate_hint", _no_llm)
     return sent
 
 

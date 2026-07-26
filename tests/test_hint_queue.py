@@ -245,12 +245,10 @@ def _no_delivery(monkeypatch: pytest.MonkeyPatch) -> None:
     async def _voice(settings: Settings, text: str) -> bool:
         return False  # Discord voice-канал не настроен (channel_id=0)
 
-    async def _no_llm(*args: Any, **kwargs: Any) -> str:
-        raise RuntimeError("LLM off")
-
+    # LLM в горячем пути больше нет (Phase 4.7): матчап в KB → детерминированный
+    # путь без модели, ключ пуст → llm_enabled=False, фон не запускается.
     monkeypatch.setattr(pipeline, "_send_discord_dm", _dm)
     monkeypatch.setattr(pipeline, "_send_voice_hint", _voice)
-    monkeypatch.setattr(pipeline, "_generate_hint", _no_llm)
 
 
 class TestPipelineQueuesLocalHint:

@@ -1,45 +1,54 @@
-"""End-to-end pipeline: bridge event → KB lookup → LLM hint → Discord DM.
+"""End-to-end pipeline: bridge event → детерминированная подсказка (мгновенно) →
+опционально LLM-разбор (фоново, вне горячего пути) → Discord DM + локальный голос.
 
-Поток данных:
-1. POST /v1/events получает CanonicalEnvelope от bridge
-2. Валидация bearer-токена
-3. Поиск игрока в whitelist по player_name (character) → discord_id
-4. KB lookup по КЛАССАМ врагов + нашему составу (Phase 4.1: class-level match,
-   спек с ворот не виден → кандидатов может быть несколько)
-5. LLM (Haiku) синтезирует краткий совет из нужной KB-секции, таргетированный
-   под класс игрока; LLM недоступен → сырой текст секции
-6. Отправка Discord DM через REST API
+Ключевое решение по скорости/КПД (Phase 4.7):
+  • В БОЮ всё детерминированно и мгновенно — килл-таргет из frontmatter KB,
+    тринкеты/дефы короткими фразами, предупреждения по классам врагов. LLM в
+    горячем пути НЕ участвует (ждать модель 1-2с в арене нельзя).
+  • LLM включается только при заданном ANTHROPIC_API_KEY и работает там, где даёт
+    максимум пользы: (1) разбор НЕСТАНДАРТНОГО сетапа, которого нет в KB
+    (mage+mage+mage, hpal+ret+rogue) — фоново, с кэшем по сигнатуре сетапа;
+    (2) постматч-анализ по таймлайну. Без ключа pipeline остаётся чисто
+    детерминированным.
+  • Спеки врагов (из мостовых сигнатурных кастов) сужают матчап до нужного
+    KB-документа; частично раскрытый состав даёт провизорный килл-таргет сразу.
 
-События: ARENA_START (опенер + килл-таргет), TRINKET (post-trinket план),
-ABILITY (только ключевые дефы из _ABILITY_HINT_KEYS, с троттлингом).
-Нет в KB → generic DM только при ARENA_START, остальное молчим.
+События: ARENA_START (килл-таргет + опенер + угрозы), TRINKET (короткий план),
+ABILITY (ключевые дефы, троттлинг), ARENA_END (постматч-разбор).
 
-Phase 4.3: все TRINKET/ABILITY (включая CC, которые в реалтайме не хинтятся)
-пишутся в MatchRecorder; на ARENA_END игроку уходит DM-разбор боя
-(таймлайн тринкетов/дефов/CC vs KB-план) — см. orchestrator/postmatch.py.
+Phase 4.3: TRINKET/ABILITY (включая CC) пишутся в MatchRecorder → постматч.
+Phase 4.6: короткая фраза кладётся в per-player очередь для локального голоса.
 """
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any
 
 import httpx
-from anthropic import AsyncAnthropic
 
 from arena_coach.access.player_settings import DEFAULT_VOICE_MODE, PlayerSettingsService
 from arena_coach.access.service import AccessService
+from arena_coach.access.usage import UsageService
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.kb.schema import KBDoc, Section
+from arena_coach.orchestrator import advice as advice_mod
+from arena_coach.orchestrator.advice import AdviceCache, TokenUsage, comp_signature
 from arena_coach.orchestrator.hint_queue import HintQueue
+from arena_coach.orchestrator.killpriority import heuristic_kill_target
 from arena_coach.orchestrator.postmatch import (
+    MatchRecord,
     MatchRecorder,
     build_postmatch_report,
     parse_bridge_ts,
+    timeline_digest,
     utcnow,
 )
+from arena_coach.orchestrator.threats import threat_lines, threat_voice
 from arena_coach.orchestrator.voice_phrases import (
     ability_phrase,
     arena_start_phrase,
@@ -49,12 +58,9 @@ from arena_coach.shared.settings import Settings
 
 log = logging.getLogger(__name__)
 
-# Типы событий, на которые вообще отвечаем
 _HINT_EVENTS = {"ARENA_START", "TRINKET", "ABILITY"}
 
-# ABILITY-события: подсказываем только на ключевые дефы/бурсты, меняющие план
-# (килл-окно или его закрытие). CC-касты (fear/poly/kidney) намеренно исключены:
-# подсказка пришла бы уже после того, как CC отработал.
+# ABILITY: подсказываем только на ключевые дефы/бурсты, меняющие план.
 _ABILITY_HINT_KEYS = {
     "evasion",
     "cloak_of_shadows",
@@ -73,13 +79,15 @@ _ABILITY_HINT_KEYS = {
     "barkskin",
 }
 
-# Секции KB, которые ищем для каждого типа события
 _SECTION_PRIORITY: dict[str, list[str]] = {
-    "ARENA_START": ["Opener", "Alternative opener"],
+    "ARENA_START": ["Opener", "Strategy", "Alternative opener"],
     "TRINKET": ["If enemy trinkets", "Post-trinket", "After trinket"],
     "ABILITY": ["Key cooldowns to track", "Mid-fight rotation", "Common mistakes"],
     "ARENA_END": ["Common mistakes"],
 }
+
+_ABILITY_REF_RE = re.compile(r"\[\[ability:([a-z0-9-]+)\]\]")
+_PROVENANCE_RE = re.compile(r"^_Провенанс:.*?_\s*$", flags=re.MULTILINE | re.DOTALL)
 
 
 class HintThrottle:
@@ -116,12 +124,8 @@ class HintThrottle:
 
 async def _send_discord_dm(bot_token: str, discord_id: str, content: str) -> bool:
     """Отправить DM пользователю через Discord REST API."""
-    headers = {
-        "Authorization": f"Bot {bot_token}",
-        "Content-Type": "application/json",
-    }
+    headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
     async with httpx.AsyncClient(timeout=10.0) as client:
-        # 1. Создать/получить DM-канал
         r = await client.post(
             "https://discord.com/api/v10/users/@me/channels",
             headers=headers,
@@ -129,30 +133,18 @@ async def _send_discord_dm(bot_token: str, discord_id: str, content: str) -> boo
         )
         if not r.is_success:
             log.error(
-                "Не удалось создать DM-канал для %s: %s %s",
-                discord_id,
-                r.status_code,
-                r.text,
+                "Не удалось создать DM-канал для %s: %s %s", discord_id, r.status_code, r.text
             )
             return False
-
         channel_id = r.json()["id"]
-
-        # 2. Отправить сообщение
         r2 = await client.post(
             f"https://discord.com/api/v10/channels/{channel_id}/messages",
             headers=headers,
             json={"content": content},
         )
         if not r2.is_success:
-            log.error(
-                "Не удалось отправить DM %s: %s %s",
-                discord_id,
-                r2.status_code,
-                r2.text,
-            )
+            log.error("Не удалось отправить DM %s: %s %s", discord_id, r2.status_code, r2.text)
             return False
-
     log.info("Discord DM отправлен → %s", discord_id)
     return True
 
@@ -161,11 +153,7 @@ async def _send_discord_dm(bot_token: str, discord_id: str, content: str) -> boo
 
 
 async def _send_voice_hint(settings: Settings, text: str) -> bool:
-    """POST короткой фразы в voice-приёмник bot-процесса. Строго best-effort.
-
-    Голос выключен (DISCORD_VOICE_CHANNEL_ID=0) или bot-процесс лежит —
-    молча False, текстовый канал не страдает.
-    """
+    """POST короткой фразы в voice-приёмник bot-процесса. Строго best-effort."""
     if not settings.discord_voice_channel_id or not text:
         return False
     url = f"http://{settings.voice_http_host}:{settings.voice_http_port}/speak"
@@ -181,11 +169,10 @@ async def _send_voice_hint(settings: Settings, text: str) -> bool:
         return False
 
 
-# ── KB section lookup ────────────────────────────────────────────────────────
+# ── KB helpers ────────────────────────────────────────────────────────────────
 
 
 def _find_section(doc: KBDoc, priority: list[str]) -> Section | None:
-    """Найти первую подходящую секцию из doc по списку приоритетных заголовков."""
     for target in priority:
         target_lower = target.lower()
         for sec in doc.sections:
@@ -194,76 +181,47 @@ def _find_section(doc: KBDoc, priority: list[str]) -> Section | None:
     return doc.sections[0] if doc.sections else None
 
 
-# ── LLM hint generation ──────────────────────────────────────────────────────
-
-_HINT_SYSTEM = """\
-Ты — тренер по PvP арене в WoW TBC Classic. Игрок в бою, у тебя 3 секунды.
-Пиши только по-русски. Совет ≤ 120 слов. Никаких вводных фраз — только действие.
-Советуй лично игроку: его классу, его кнопкам — не общий план команды.
-Ссылайся ТОЛЬКО на текст из KB-секции. Если не знаешь — молчи."""
-
-
-async def _generate_hint(
-    anthropic_client: AsyncAnthropic,
-    model: str,
-    event_type: str,
-    event_fields: dict[str, Any],
-    kb_section_text: str,
-    matchup: str,
-    player_class: str | None = None,
-) -> str:
-    """Сгенерировать краткий совет через Haiku, таргетированный под класс игрока."""
-    player_line = f"Игрок играет за: {player_class}\n" if player_class else ""
-    user_msg = (
-        f"Матчап: {matchup}\n"
-        f"{player_line}"
-        f"Событие: {event_type} — {event_fields}\n\n"
-        f"Из KB:\n{kb_section_text}\n\n"
-        "Что делать прямо сейчас? Кратко и чётко."
-    )
-    response = await anthropic_client.messages.create(
-        model=model,
-        max_tokens=300,
-        system=_HINT_SYSTEM,
-        messages=[{"role": "user", "content": user_msg}],
-    )
-    first_block = response.content[0]
-    # Extract text safely for mypy
-    if hasattr(first_block, "text"):
-        return str(first_block.text).strip()
-    return ""
+def _clean(text: str, limit: int) -> str:
+    """Убрать [[ability:x]]-обёртки и провенанс, схлопнуть пустые строки, обрезать."""
+    cleaned = _ABILITY_REF_RE.sub(lambda m: m.group(1).replace("-", " "), text)
+    cleaned = _PROVENANCE_RE.sub("", cleaned)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
+    if len(cleaned) > limit:
+        cleaned = cleaned[: limit - 1].rstrip() + "…"
+    return cleaned
 
 
-# ── Постматч (Phase 4.3) ─────────────────────────────────────────────────────
+def _kill_target_line(doc: KBDoc) -> str:
+    kt = doc.kill_target
+    line = f"🎯 Килл-таргет: **{kt.primary}**"
+    if kt.fallback:
+        line += f" (запасной: {kt.fallback})"
+    return line
 
 
-async def _finish_match(ctx: PipelineContext, player_name: str) -> str:
-    """ARENA_END: собрать DM-разбор боя из накопленного таймлайна.
+def _alternates_line(candidates: list[KBDoc]) -> str | None:
+    if len(candidates) < 2:
+        return None
+    others = ", ".join(f"`{d.composition} vs {d.vs}`" for d in candidates[1:3])
+    return f"⚠️ Спек врагов не подтверждён. Если не сойдётся — смотри: {others}"
 
-    Ключ — player_name (см. postmatch.py: session_id в ARENA_END-envelope
-    у bridge ≤ v0.4.1 уже пересоздан, по нему матч не найти).
-    """
-    record = ctx.match_recorder.finish(player_name)
-    if record is None:
-        log.debug("Постматч: у %s нет открытой записи — пропуск", player_name)
-        return "skipped"
-    if not record.events:
-        log.info("Постматч: %s — 0 записанных событий, отчёт не шлём", player_name)
-        return "skipped"
 
-    entry = await ctx.access_service.find_by_character(player_name)
-    if entry is None:
-        log.warning("Постматч: игрок '%s' не найден в whitelist", player_name)
-        return "no_player"
+def _bracket_size(bracket: str) -> int:
+    head = bracket.split("v", 1)[0].strip()
+    return int(head) if head.isdigit() else 2
 
-    candidates = ctx.kb_retriever.find_realtime_candidates(
-        record.enemy_classes, record.our_comp_hint
-    )
-    doc = candidates[0] if candidates else None
-    report = build_postmatch_report(record, doc)
 
-    ok = await _send_discord_dm(ctx.settings.discord_bot_token, entry.discord_id, report)
-    return "sent" if ok else "error"
+def _enemies_desc(classes: list[str], specs: list[str | None]) -> str:
+    parts: list[str] = []
+    for i, cls in enumerate(classes):
+        spec = specs[i] if i < len(specs) else None
+        parts.append(f"{cls}({spec})" if spec else cls)
+    return ", ".join(parts) if parts else "?"
+
+
+def _arena_voice(enemy_classes: list[str], kill_target: str | None, threat_v: str | None) -> str:
+    voice = arena_start_phrase(enemy_classes, kill_target)
+    return f"{voice} {threat_v}" if threat_v else voice
 
 
 # ── Main pipeline ────────────────────────────────────────────────────────────
@@ -275,40 +233,394 @@ class PipelineContext:
 
     access_service: AccessService
     kb_retriever: KBRetriever
-    anthropic_client: AsyncAnthropic
+    anthropic_client: Any
     settings: Settings
     hint_throttle: HintThrottle = field(default_factory=HintThrottle)
     match_recorder: MatchRecorder = field(default_factory=MatchRecorder)
-    # Phase 4.6: очередь персональных голосовых фраз для локального TTS моста
-    # (обратный канал бэкенд→мост, дренируется через GET /v1/hints).
     hint_queue: HintQueue = field(default_factory=HintQueue)
-    # Phase 4.5: per-player режим голоса (None в тестах/старых вызовах = 'on')
     player_settings: PlayerSettingsService | None = None
+    # Phase 4.7: учёт токенов (None без БД) + кэш LLM-разборов + фоновые задачи.
+    usage_service: UsageService | None = None
+    advice_cache: AdviceCache = field(default_factory=AdviceCache)
+    _bg_tasks: set[asyncio.Task[Any]] = field(default_factory=set)
+    # Дедуп ARENA_START-DM: player+session → сигнатура последнего разбора.
+    _last_arena_sig: dict[str, str] = field(default_factory=dict)
+
+    @property
+    def llm_enabled(self) -> bool:
+        """LLM-слой активен только с боевым ключом (иначе — чистый детерминизм)."""
+        return bool(self.settings.anthropic_api_key)
+
+    def spawn_bg(self, coro: Any) -> None:
+        """Фоновая задача (LLM вне горячего пути): не блокирует ack, ошибки логируем."""
+        task = asyncio.ensure_future(coro)
+        self._bg_tasks.add(task)
+        task.add_done_callback(self._bg_done)
+
+    def _bg_done(self, task: asyncio.Task[Any]) -> None:
+        self._bg_tasks.discard(task)
+        if not task.cancelled() and task.exception() is not None:
+            log.error("Фоновая задача pipeline упала: %s", task.exception())
+
+    async def drain_bg(self) -> None:
+        """Дождаться фоновых задач (для тестов / graceful shutdown)."""
+        while self._bg_tasks:
+            await asyncio.gather(*list(self._bg_tasks), return_exceptions=True)
 
 
-def _kill_target_line(doc: KBDoc) -> str:
-    """'🎯 Килл-таргет: warrior (запасной: paladin)' из frontmatter документа."""
-    kt = doc.kill_target
-    line = f"🎯 Килл-таргет: **{kt.primary}**"
-    if kt.fallback:
-        line += f" (запасной: {kt.fallback})"
-    return line
+async def _record_usage(ctx: PipelineContext, purpose: str, model: str, usage: TokenUsage) -> None:
+    """Best-effort запись расхода токенов (не должно ронять доставку)."""
+    if ctx.usage_service is None:
+        return
+    try:
+        await ctx.usage_service.record(purpose, model, usage.input_tokens, usage.output_tokens)
+    except Exception as exc:
+        log.warning("Не удалось записать usage (%s/%s): %s", purpose, model, exc)
 
 
-def _alternates_line(candidates: list[KBDoc]) -> str | None:
-    """Спеки с ворот не видны — если кандидатов несколько, честно говорим об этом."""
-    if len(candidates) < 2:
-        return None
-    others = ", ".join(f"`{d.composition} vs {d.vs}`" for d in candidates[1:3])
-    return f"⚠️ Спек врагов не подтверждён. Если не сойдётся — смотри: {others}"
+async def _deliver(
+    ctx: PipelineContext,
+    discord_id: str,
+    player_name: str,
+    dm_text: str,
+    voice_text: str | None,
+    voice_mode: str,
+) -> str:
+    """Общая доставка: локальный голос (очередь + best-effort Discord-voice) + текст."""
+    voice_sent = False
+    if voice_mode != "off" and voice_text:
+        ctx.hint_queue.push(player_name, voice_text)
+        voice_sent = await _send_voice_hint(ctx.settings, voice_text)
+    if voice_mode == "only" and voice_sent:
+        return "sent"
+    ok = await _send_discord_dm(ctx.settings.discord_bot_token, discord_id, dm_text)
+    return "sent" if ok or voice_sent else "error"
+
+
+async def _emit_arena(
+    ctx: PipelineContext,
+    discord_id: str,
+    player_name: str,
+    session_id: str,
+    sig: str,
+    dm_text: str,
+    voice_text: str,
+    voice_mode: str,
+) -> str:
+    """ARENA_START-доставка с дедупом по сигнатуре в рамках сессии (анти-спам re-emit)."""
+    sig_key = f"{player_name.lower()}|{session_id}"
+    if ctx._last_arena_sig.get(sig_key) == sig:
+        log.debug("ARENA_START %s не изменился (%s) — не дублируем", sig_key, sig)
+        return "skipped"
+    ctx._last_arena_sig[sig_key] = sig
+    return await _deliver(ctx, discord_id, player_name, dm_text, voice_text, voice_mode)
+
+
+# ── Постматч (Phase 4.3 + LLM 4.7) ───────────────────────────────────────────
+
+
+async def _finish_match(ctx: PipelineContext, player_name: str) -> str:
+    """ARENA_END: DM-разбор боя (LLM при ключе, иначе детерминированный)."""
+    record = ctx.match_recorder.finish(player_name)
+    if record is None:
+        return "skipped"
+    if not record.events:
+        log.info("Постматч: %s — 0 событий, отчёт не шлём", player_name)
+        return "skipped"
+
+    entry = await ctx.access_service.find_by_character(player_name)
+    if entry is None:
+        log.warning("Постматч: игрок '%s' не в whitelist", player_name)
+        return "no_player"
+
+    candidates = ctx.kb_retriever.find_realtime_candidates(
+        record.enemy_classes, record.our_comp_hint
+    )
+    doc = candidates[0] if candidates else None
+    report = await _build_postmatch(ctx, record, doc)
+    ok = await _send_discord_dm(ctx.settings.discord_bot_token, entry.discord_id, report)
+    return "sent" if ok else "error"
+
+
+async def _build_postmatch(ctx: PipelineContext, record: MatchRecord, doc: KBDoc | None) -> str:
+    """LLM-разбор боя (если ключ есть), иначе детерминированный отчёт-таймлайн."""
+    deterministic = build_postmatch_report(record, doc)
+    if not ctx.llm_enabled:
+        return deterministic
+    model = ctx.settings.anthropic_model_synth
+    try:
+        kb_plan: str | None = None
+        if doc is not None:
+            sec = _find_section(doc, _SECTION_PRIORITY["ARENA_START"])
+            body = _clean(sec.body_md, 600) if sec else ""
+            kb_plan = f"Килл-таргет: {doc.kill_target.primary}. {body}"
+        result = await advice_mod.generate_postmatch_review(
+            ctx.anthropic_client, model, digest=timeline_digest(record), kb_plan=kb_plan
+        )
+        await _record_usage(ctx, advice_mod.PURPOSE_POSTMATCH, model, result.usage)
+        if not result.text:
+            return deterministic
+        header = deterministic.split("\n\n", 1)[0]
+        return f"{header}\n\n🧠 **Разбор тренера:**\n{result.text}"[:2000]
+    except Exception as exc:
+        log.error("Постматч-LLM упал (%s) — детерминированный отчёт", exc)
+        return deterministic
+
+
+# ── ARENA_START ───────────────────────────────────────────────────────────────
+
+
+async def _handle_arena_start(
+    ctx: PipelineContext,
+    discord_id: str,
+    player_name: str,
+    session_id: str,
+    voice_mode: str,
+    bracket: str,
+    enemy_classes: list[str],
+    enemy_specs: list[str | None],
+    our_comp_hint: str | None,
+    player_class: str | None,
+) -> str:
+    candidates = ctx.kb_retriever.find_realtime_candidates(
+        enemy_classes, our_comp_hint, enemy_specs=enemy_specs
+    )
+    doc = candidates[0] if candidates else None
+    threats = threat_lines(enemy_classes, enemy_specs)
+    threat_v = threat_voice(enemy_classes, enemy_specs, limit=1)
+
+    if doc is not None:
+        dm_lines = [
+            f"🏟 **{doc.composition} vs {doc.vs}** | {bracket} | сложность: {doc.difficulty.value}",
+            _kill_target_line(doc),
+            *threats,
+        ]
+        sec = _find_section(doc, _SECTION_PRIORITY["ARENA_START"])
+        if sec is not None:
+            dm_lines.append(f"📖 Опенер: {_clean(sec.body_md, 380)}")
+        alt = _alternates_line(candidates)
+        if alt:
+            dm_lines.append(alt)
+        dm_lines.append(f"📖 `/matchup our:{doc.composition} vs:{doc.vs}` — полный гайд")
+        voice_text = _arena_voice(enemy_classes, doc.kill_target.primary, threat_v)
+        return await _emit_arena(
+            ctx,
+            discord_id,
+            player_name,
+            session_id,
+            f"kb:{doc.slug}",
+            "\n".join(dm_lines)[:2000],
+            voice_text,
+            voice_mode,
+        )
+
+    enemies_desc = _enemies_desc(enemy_classes, enemy_specs)
+    if len(enemy_classes) < _bracket_size(bracket):
+        return await _emit_partial(
+            ctx,
+            discord_id,
+            player_name,
+            session_id,
+            voice_mode,
+            bracket,
+            enemies_desc,
+            enemy_classes,
+            our_comp_hint,
+            threats,
+            threat_v,
+        )
+    return await _emit_unknown(
+        ctx,
+        discord_id,
+        player_name,
+        session_id,
+        voice_mode,
+        bracket,
+        enemies_desc,
+        enemy_classes,
+        enemy_specs,
+        our_comp_hint,
+        player_class,
+        threats,
+        threat_v,
+    )
+
+
+async def _emit_partial(
+    ctx: PipelineContext,
+    discord_id: str,
+    player_name: str,
+    session_id: str,
+    voice_mode: str,
+    bracket: str,
+    enemies_desc: str,
+    enemy_classes: list[str],
+    our_comp_hint: str | None,
+    threats: list[str],
+    threat_v: str | None,
+) -> str:
+    """Состав раскрыт частично: провизорный килл-таргет, если частичные кандидаты
+    сходятся; полноценный разбор придёт с полным re-emit состава."""
+    partial = ctx.kb_retriever.find_partial_candidates(enemy_classes, our_comp_hint)
+    kill_targets = {d.kill_target.primary for d in partial}
+    dm_lines = [f"🏟 **Арена** | {bracket} | видно: {enemies_desc} _(состав уточняется…)_"]
+    voice_kt: str | None = None
+    if len(kill_targets) == 1:
+        voice_kt = next(iter(kill_targets))
+        dm_lines.append(f"🎯 Вероятный килл-таргет: **{voice_kt}** _(уточнится по мере раскрытия)_")
+        sig = f"partial1:{voice_kt}"
+    else:
+        sig = f"partial0:{','.join(sorted(enemy_classes))}"
+    dm_lines.extend(threats)
+    voice_text = _arena_voice(enemy_classes, voice_kt, threat_v)
+    return await _emit_arena(
+        ctx,
+        discord_id,
+        player_name,
+        session_id,
+        sig,
+        "\n".join(dm_lines)[:2000],
+        voice_text,
+        voice_mode,
+    )
+
+
+async def _emit_unknown(
+    ctx: PipelineContext,
+    discord_id: str,
+    player_name: str,
+    session_id: str,
+    voice_mode: str,
+    bracket: str,
+    enemies_desc: str,
+    enemy_classes: list[str],
+    enemy_specs: list[str | None],
+    our_comp_hint: str | None,
+    player_class: str | None,
+    threats: list[str],
+    threat_v: str | None,
+) -> str:
+    """Нестандартный сетап без KB: мгновенно эвристика+угрозы; при ключе — фоновой
+    LLM-разбор с кэшем (второй раз тот же сетап отдаётся сразу)."""
+    sig_key = comp_signature(our_comp_hint, enemy_classes, enemy_specs, bracket)
+    pick = heuristic_kill_target(enemy_classes, enemy_specs)
+    kt_target = pick.target if pick else None
+
+    dm_lines = [f"🏟 **Нестандартный сетап** | {bracket} | враги: {enemies_desc}"]
+    cached = ctx.advice_cache.get(sig_key)
+    if cached:
+        dm_lines.append(f"🧠 {cached}")
+    else:
+        if kt_target:
+            dm_lines.append(f"🎯 ≈ Килл-таргет (эвристика): **{kt_target}**")
+        dm_lines.extend(threats)
+        if ctx.llm_enabled:
+            dm_lines.append("🧠 Генерю разбор под этот сетап — придёт следующим сообщением…")
+        else:
+            dm_lines.append(
+                "📚 Матчапа в KB нет — разбор по общим принципам. Добавь через /matchup."
+            )
+
+    if ctx.llm_enabled and not cached:
+        ctx.spawn_bg(
+            _generate_and_send_advice(
+                ctx, discord_id, sig_key, bracket, enemies_desc, our_comp_hint, player_class
+            )
+        )
+
+    voice_text = _arena_voice(enemy_classes, kt_target, threat_v)
+    sig = f"unknown:{sig_key}" + (":cached" if cached else "")
+    return await _emit_arena(
+        ctx,
+        discord_id,
+        player_name,
+        session_id,
+        sig,
+        "\n".join(dm_lines)[:2000],
+        voice_text,
+        voice_mode,
+    )
+
+
+async def _generate_and_send_advice(
+    ctx: PipelineContext,
+    discord_id: str,
+    sig_key: str,
+    bracket: str,
+    enemies_desc: str,
+    our_comp_hint: str | None,
+    player_class: str | None,
+) -> None:
+    """Фон: LLM-разбор незнакомого сетапа → кэш → отдельный DM. Ошибки не ронят ack."""
+    model = ctx.settings.anthropic_model_classify
+    result = await advice_mod.generate_comp_advice(
+        ctx.anthropic_client,
+        model,
+        bracket=bracket,
+        enemy_desc=enemies_desc,
+        our_comp=our_comp_hint,
+        player_class=player_class,
+    )
+    await _record_usage(ctx, advice_mod.PURPOSE_ADVICE, model, result.usage)
+    if not result.text:
+        return
+    ctx.advice_cache.put(sig_key, result.text)
+    await _send_discord_dm(
+        ctx.settings.discord_bot_token,
+        discord_id,
+        f"🧠 **Разбор ({enemies_desc}):**\n{result.text}"[:2000],
+    )
+
+
+# ── TRINKET / ABILITY (детерминированно, мгновенно) ──────────────────────────
+
+
+async def _handle_trinket(
+    ctx: PipelineContext,
+    discord_id: str,
+    player_name: str,
+    voice_mode: str,
+    source: str,
+    doc: KBDoc | None,
+) -> str:
+    if doc is not None:
+        sec = _find_section(doc, _SECTION_PRIORITY["TRINKET"])
+        plan = _clean(sec.body_md, 500) if sec else "Держи давление, не переоткрывай вслепую."
+        dm = f"💎 **{source} тринкетнул!** | {doc.composition} vs {doc.vs}\n{plan}"
+    else:
+        dm = (
+            f"💎 **{source} тринкетнул!**\n"
+            "Не вкладывай бурст вслепую — контроль/переоткрытие на тринкет, добивай в следующее окно."
+        )
+    return await _deliver(ctx, discord_id, player_name, dm, trinket_phrase(source), voice_mode)
+
+
+async def _handle_ability(
+    ctx: PipelineContext,
+    discord_id: str,
+    player_name: str,
+    voice_mode: str,
+    source: str,
+    spell_key: str,
+    doc: KBDoc | None,
+) -> str:
+    if doc is not None:
+        sec = _find_section(doc, _SECTION_PRIORITY["ABILITY"])
+        title = sec.title if sec else "Ключевые КД"
+        body = _clean(sec.body_md, 350) if sec else ""
+        dm = f"⚡ **{source}: {spell_key}** | {title}\n{body}".strip()
+    else:
+        dm = f"⚡ **{source}: {spell_key}** — учитывай КД врага в размене."
+    return await _deliver(
+        ctx, discord_id, player_name, dm, ability_phrase(source, spell_key), voice_mode
+    )
+
+
+# ── Диспетчер ─────────────────────────────────────────────────────────────────
 
 
 async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     """Обработать событие из bridge.
-
-    Args:
-        ctx: зависимости (DB, KB, LLM, settings)
-        envelope: dict из CanonicalEnvelope.model_dump()
 
     Returns:
         Статус: "sent", "no_matchup", "no_player", "skipped", "throttled", "error"
@@ -317,22 +629,20 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     event_type = event.get("type", "")
     player_name = str(envelope.get("player_name", ""))
     match_info = envelope.get("match", {})
-    bracket = match_info.get("bracket", "unknown")
+    bracket = str(match_info.get("bracket", "unknown"))
     enemies_raw = match_info.get("enemies", [])
-    enemies_str = ", ".join(f"{e.get('wow_class', '?')}/{e.get('race', '?')}" for e in enemies_raw)
+    session_id = str(envelope.get("session_id", ""))
 
-    # ── 0. Phase 4.3: постматч-копилка (до всех хинт-фильтров) ──────────
-    # CC-касты в реалтайме не хинтятся, но в разбор боя попадать должны,
-    # поэтому запись — раньше фильтра по _ABILITY_HINT_KEYS.
+    # ── 0. Постматч-копилка (до хинт-фильтров) ──────────────────────────
     ts = parse_bridge_ts(str(envelope.get("bridge_ts", ""))) or utcnow()
     spell_key = str(event.get("spell_key", "") or event.get("trinket_key", ""))
     if event_type == "ARENA_START":
         ctx.match_recorder.start(
             player_name,
-            str(envelope.get("session_id", "")),
+            session_id,
             ts,
             bracket=str(bracket),
-            enemies=[{str(k): str(v) for k, v in e.items()} for e in enemies_raw],
+            enemies=[{str(k): str(v) for k, v in e.items() if v is not None} for e in enemies_raw],
             our_comp_hint=str(match_info.get("our_comp_hint") or "") or None,
         )
     elif event_type in ("TRINKET", "ABILITY"):
@@ -342,124 +652,58 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     elif event_type == "ARENA_END":
         return await _finish_match(ctx, player_name)
 
-    # ── 1. Фильтр — отвечаем только на важные события ───────────────────
+    # ── 1. Фильтр важных событий ────────────────────────────────────────
     if event_type not in _HINT_EVENTS:
-        log.debug("Событие %s пропущено (не в _HINT_EVENTS)", event_type)
         return "skipped"
     if event_type == "ABILITY" and spell_key not in _ABILITY_HINT_KEYS:
-        log.debug("ABILITY '%s' не в списке hint-ключей — пропуск", spell_key)
         return "skipped"
 
-    # ── 2. Найти игрока в whitelist ──────────────────────────────────────
+    # ── 2. Игрок в whitelist ────────────────────────────────────────────
     entry = await ctx.access_service.find_by_character(player_name)
     if entry is None:
         log.warning("Игрок '%s' не найден в whitelist", player_name)
         return "no_player"
-
     discord_id = entry.discord_id
 
-    # ── 3. Троттлинг in-fight подсказок ──────────────────────────────────
+    # ── 3. Троттлинг in-fight ───────────────────────────────────────────
     if event_type == "ABILITY" and not ctx.hint_throttle.allow_ability(discord_id, spell_key):
-        log.debug("ABILITY '%s' затроттлен для %s", spell_key, discord_id)
         return "throttled"
 
-    # ── 4. KB lookup: классы врагов + наш состав (Phase 4.1) ─────────────
-    enemy_classes = [str(e.get("wow_class", "")).lower() for e in enemies_raw if e.get("wow_class")]
-    our_comp_hint = match_info.get("our_comp_hint") or None
-    player_class = str(match_info.get("player_class") or "") or None
+    # ── 4. Состав врагов: классы + спеки ────────────────────────────────
+    enemy_classes = [str(e.get("wow_class", "")).upper() for e in enemies_raw if e.get("wow_class")]
+    enemy_specs: list[str | None] = [
+        (str(e["spec"]).lower() if e.get("spec") else None)
+        for e in enemies_raw
+        if e.get("wow_class")
+    ]
+    our_comp_hint: str | None = match_info.get("our_comp_hint") or None
+    player_class: str | None = str(match_info.get("player_class") or "") or None
 
-    candidates = ctx.kb_retriever.find_realtime_candidates(enemy_classes, our_comp_hint)
-    doc: KBDoc | None = candidates[0] if candidates else None
-
-    if doc is None:
-        log.info("KB не содержит матчап по врагам [%s] — %s", enemies_str, event_type)
-        if event_type != "ARENA_START":
-            return "no_matchup"  # mid-fight generic DM — только шум
-        plain_msg = (
-            f"🏟 **Арена началась** | {bracket} | Враги: {enemies_str}\n"
-            "📚 Матчап ещё не добавлен в KB. Используй /matchup для поиска!"
-        )
-        await _send_discord_dm(ctx.settings.discord_bot_token, discord_id, plain_msg)
-        return "no_matchup"
-
-    # ── 5. Выбрать нужную секцию KB ─────────────────────────────────────
-    priority = _SECTION_PRIORITY.get(event_type, [])
-    section = _find_section(doc, priority)
-    section_text = section.body_md if section else "Секция не найдена."
-    section_title = section.title if section else "Советы"
-
-    # ── 6. LLM генерирует подсказку (таргет — класс игрока) ──────────────
-    matchup_label = f"{doc.composition} vs {doc.vs}"
-
-    try:
-        hint_text = await _generate_hint(
-            anthropic_client=ctx.anthropic_client,
-            model=ctx.settings.anthropic_model_classify,  # Haiku — быстрее и дешевле
-            event_type=event_type,
-            event_fields={k: v for k, v in event.items() if k != "type"},
-            kb_section_text=section_text[:1500],  # не перегружаем контекст
-            matchup=matchup_label,
-            player_class=player_class,
-        )
-    except Exception as exc:
-        log.error("LLM ошибка: %s — отправляю KB-текст напрямую", exc)
-        hint_text = section_text[:600]
-
-    # ── 7. Форматируем DM ────────────────────────────────────────────────
-    lines: list[str]
-    if event_type == "ARENA_START":
-        lines = [
-            f"🏟 **{matchup_label}** | {bracket} | сложность: {doc.difficulty.value}",
-            _kill_target_line(doc),
-            hint_text,
-        ]
-        alt = _alternates_line(candidates)
-        if alt:
-            lines.append(alt)
-    elif event_type == "TRINKET":
-        source = str(event.get("source_name", "враг"))
-        lines = [
-            f"💎 **{source} тринкетнул!** | {matchup_label}",
-            hint_text,
-        ]
-    else:  # ABILITY
-        source = str(event.get("source_name", "враг"))
-        lines = [
-            f"⚡ **{source}: {spell_key}** | {section_title}",
-            hint_text,
-        ]
-
-    lines.append(f"📖 `/matchup our:{doc.composition} vs:{doc.vs}` — полный гайд")
-    dm_content = "\n".join(lines)[:2000]  # Discord лимит
-
-    # ── 8. Voice-фраза (Phase 4.5) + текстовый DM ────────────────────────
-    # Голос — ОТДЕЛЬНАЯ короткая фраза (≤8 слов, RU-сленг), не текстовый hint.
+    # ── 5. Режим голоса ─────────────────────────────────────────────────
     voice_mode = DEFAULT_VOICE_MODE
     if ctx.player_settings is not None:
         voice_mode = await ctx.player_settings.get_voice_mode(discord_id)
 
-    source_name = str(event.get("source_name", "враг"))
+    # ── 6. Диспетч ──────────────────────────────────────────────────────
     if event_type == "ARENA_START":
-        voice_text = arena_start_phrase(enemy_classes, doc.kill_target.primary)
-    elif event_type == "TRINKET":
-        voice_text = trinket_phrase(source_name)
-    else:
-        voice_text = ability_phrase(source_name, spell_key)
+        return await _handle_arena_start(
+            ctx,
+            discord_id,
+            player_name,
+            session_id,
+            voice_mode,
+            bracket,
+            enemy_classes,
+            enemy_specs,
+            our_comp_hint,
+            player_class,
+        )
 
-    voice_sent = False
-    if voice_mode != "off":
-        # Phase 4.6 — локальный персональный голос: та же короткая фраза кладётся
-        # в очередь игрока; его мост заберёт её через GET /v1/hints и озвучит
-        # системным TTS локально. Это ДОБАВОЧНЫЙ канал: на решение о тексте и о
-        # Discord-голосе он НЕ влияет (backend не знает, реально ли мост поллит и
-        # озвучивает — суппресить текст по факту постановки в очередь опасно,
-        # игрок остался бы ни с чем). 'off' сюда не попадает — голос отключён весь.
-        ctx.hint_queue.push(player_name, voice_text)
-        voice_sent = await _send_voice_hint(ctx.settings, voice_text)
-
-    if voice_mode == "only" and voice_sent:
-        # Игрок просил без text-spam — голос доставлен, текст подавляем.
-        return "sent"
-
-    ok = await _send_discord_dm(ctx.settings.discord_bot_token, discord_id, dm_content)
-    return "sent" if ok or voice_sent else "error"
+    candidates = ctx.kb_retriever.find_realtime_candidates(
+        enemy_classes, our_comp_hint, enemy_specs=enemy_specs
+    )
+    doc = candidates[0] if candidates else None
+    source = str(event.get("source_name", "враг"))
+    if event_type == "TRINKET":
+        return await _handle_trinket(ctx, discord_id, player_name, voice_mode, source, doc)
+    return await _handle_ability(ctx, discord_id, player_name, voice_mode, source, spell_key, doc)

@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from arena_coach.access.models import Base
 from arena_coach.access.player_settings import PlayerSettingsService
 from arena_coach.access.service import AccessService
+from arena_coach.access.usage import UsageService
 from arena_coach.bot.checks import access_denied_embed
 from arena_coach.bot.voice import EdgeTTSEngine, VoiceManager, start_voice_http
 from arena_coach.kb.indexer import KBIndex
@@ -54,6 +55,7 @@ class ArenaCoachBot(commands.Bot):
         self.kb_retriever: KBRetriever  # type: ignore[assignment]
         self._session_factory: async_sessionmaker[AsyncSession]  # type: ignore[assignment]
         self.player_settings: PlayerSettingsService  # type: ignore[assignment]
+        self.usage_service: UsageService  # type: ignore[assignment]
         # Phase 4.5 — None, если голос не настроен (DISCORD_VOICE_CHANNEL_ID=0)
         self.voice_manager: VoiceManager | None = None
         self._voice_http: web.AppRunner | None = None
@@ -74,6 +76,7 @@ class ArenaCoachBot(commands.Bot):
         self._session_factory = async_sessionmaker(engine, expire_on_commit=False)
         self.access_service = AccessService(self._session_factory)
         self.player_settings = PlayerSettingsService(self._session_factory)
+        self.usage_service = UsageService(self._session_factory)
         logger.info("Database initialised: %s", self.settings.database_url)
 
         # 2. KB Index
