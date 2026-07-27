@@ -49,8 +49,8 @@
     },
     {
       "name": "Прогрев advice-кэша на VPS: tools/load_advice.py",
-      "done": false,
-      "note": "разово выполнить после пуша сидов"
+      "done": true,
+      "note": "выполнено 27.07 — 291 разбор в advice_cache"
     },
     {
       "name": "Закоммитить BoP-правки 4 гипотез",
