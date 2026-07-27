@@ -606,6 +606,7 @@ ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
 ## Ссылки
 
 - Сайт: https://pvpwowarena.surprise4you.dev
+- Статус (живой, пересобирается каждым деплоем): https://pvpwowarena.surprise4you.dev/status — чеклист прода правится в `docs/prod-status.json`, генератор `tools/gen_status_page.py`
 - Скачать: https://pvpwowarena.surprise4you.dev/download
 - Health: https://pvpwowarena.surprise4you.dev/health
 - GitHub: https://github.com/pvpwowarena/arena-coach (публичный)

@@ -27,6 +27,11 @@ cd "$REPO"
 
 echo "==> static HTML → /var/www/arena-coach"
 cp -f "$REPO"/ops/nginx/html/*.html /var/www/arena-coach/
+
+echo "==> status page (живой статус KB/прода) → /var/www/arena-coach/status.html"
+# Не валим деплой, если генератор упал — страница статуса не должна блокировать прод.
+"$VENV/bin/python" "$REPO/tools/gen_status_page.py" -o /var/www/arena-coach/status.html \
+  || echo "WARN: status page generation failed — /status.html не обновлён" >&2
 chown www-data:www-data /var/www/arena-coach/*.html
 
 echo "==> restart services"

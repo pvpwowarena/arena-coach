@@ -58,3 +58,6 @@ Thumbs.db
 # --- ops local state ---
 deploy.local.sh
 *.local.*
+
+# --- generated status page (локальный превью gen_status_page.py) ---
+/status.html

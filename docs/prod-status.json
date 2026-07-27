@@ -1,0 +1,74 @@
+{
+  "_readme": "Чеклист готовности прода для /status.html. Правь done:true/false (note — опционально), пуш в main — страница пересоберётся автодеплоем. Генератор: tools/gen_status_page.py.",
+  "phases": [
+    {
+      "name": "Phase 0 — дизайн и скелет",
+      "done": true
+    },
+    {
+      "name": "Phase 1 — KB + ingestion",
+      "done": true
+    },
+    {
+      "name": "Phase 2 — Discord-бот на VPS",
+      "done": true
+    },
+    {
+      "name": "Phase 3 — Lua-аддон (TBC 2.4.3)",
+      "done": true
+    },
+    {
+      "name": "Phase 4 — мост + реалтайм-подсказки (4.1–4.7)",
+      "done": true
+    },
+    {
+      "name": "Phase 5 — CV/OCR (номер арена-фрейма)",
+      "done": false,
+      "note": "не начата"
+    }
+  ],
+  "launch": [
+    {
+      "name": "Автодеплой: push в main → CI → VPS",
+      "done": true,
+      "note": "ci.yml deploy-джоба"
+    },
+    {
+      "name": "Живой E2E-тест канала (реальные DM в бою)",
+      "done": true,
+      "note": "скирмиш 23.07, v0.4.1"
+    },
+    {
+      "name": "Бинари моста v0.6.0 в релизе (авто-апдейт разнесёт)",
+      "done": true
+    },
+    {
+      "name": "Advice-сиды (офлайн-разборы) в main",
+      "done": true,
+      "note": "291 сид: fe68dc0 + f52e49b"
+    },
+    {
+      "name": "Прогрев advice-кэша на VPS: tools/load_advice.py",
+      "done": false,
+      "note": "разово выполнить после пуша сидов"
+    },
+    {
+      "name": "Закоммитить BoP-правки 4 гипотез",
+      "done": false
+    },
+    {
+      "name": "Прибрать корень репо: .patch, SCAN-REPORT-*, proposals",
+      "done": false
+    },
+    {
+      "name": "Approve канона: драфты → kb/matchups/",
+      "done": false,
+      "note": "не блокер — бот индексирует драфты; 0/80"
+    },
+    {
+      "name": "Спек-фоллбэк advice-лукапа (wave 0)",
+      "done": false,
+      "note": "PROMPT-advice-seeds-wave2.md"
+    }
+  ]
+}
