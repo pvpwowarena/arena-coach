@@ -224,6 +224,8 @@ def main() -> int:
     # были доступны как defaults, но системные env-переменные имели приоритет.
     _pre = argparse.ArgumentParser(add_help=False)
     _pre.add_argument("--env-file", default=None)
+    _pre.add_argument("--setup", action="store_true", default=False)
+    _pre.add_argument("--check-config", action="store_true", default=False)
     _pre_args, _ = _pre.parse_known_args()
 
     env_file_path: Path | None = None
@@ -233,6 +235,23 @@ def main() -> int:
             print(f"⚠️  Файл не найден: {env_file_path}", file=sys.stderr)
     else:
         env_file_path = _find_default_env_file()
+
+    # ── Мастер первого запуска (Phase 4.8) ──────────────────────────────────
+    # Двойной клик по .exe без bridge.env = интерактивная консоль без конфига:
+    # вместо стены ошибок задаём 3 вопроса и пишем bridge.env сами. CI/скрипты
+    # не затронуты: мастер требует TTY и не запускается при --check-config.
+    from .setup_wizard import is_interactive, run_wizard, should_run_wizard
+
+    if should_run_wizard(
+        env_file_path,
+        dict(os.environ),
+        is_interactive(),
+        force=_pre_args.setup,
+        check_config=_pre_args.check_config,
+    ):
+        written = run_wizard(_exe_dir())
+        if written is not None:
+            env_file_path = written
 
     if env_file_path is not None:
         from .env_loader import apply_env_file
@@ -347,6 +366,11 @@ def main() -> int:
         action="store_true",
         help="Проверить конфигурацию и выйти (не запускать демон)",
     )
+    parser.add_argument(
+        "--setup",
+        action="store_true",
+        help="Перезапустить мастер первого запуска (перезапишет bridge.env)",
+    )
 
     args = parser.parse_args()
     _setup_logging(args.log_level)
@@ -444,6 +468,11 @@ def main() -> int:
     if errors:
         for e in errors:
             log.error(e)
+        # Двойной клик по .exe: без паузы консоль закроется раньше, чем игрок
+        # успеет прочитать, что не так. Только frozen+TTY — CI/скрипты не ждут.
+        if getattr(sys, "frozen", False) and is_interactive():
+            with contextlib.suppress(EOFError, KeyboardInterrupt):
+                input("\nНажми Enter, чтобы закрыть окно...")
         return 1
 
     # ── Автообновление (Phase 4.4) — до запуска демона, best-effort ─────────

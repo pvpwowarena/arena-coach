@@ -376,65 +376,18 @@
   <header class="page-header">
     <div class="section-label">Установка</div>
     <h1>Скачать Arena Coach</h1>
-    <p>Два компонента: аддон в папку WoW и bridge (Windows или macOS). Следуй инструкции — займёт 5 минут.</p>
+    <p>Никаких настроек руками и терминала: скачал → запустил → ответил на три вопроса.
+       Программа сама найдёт WoW, сама установит аддон и подключит подсказки. Займёт пару минут.</p>
   </header>
 
   <!-- ── Steps ── -->
   <main class="steps-container">
 
-    <!-- Шаг 1: Аддон -->
+    <!-- Шаг 1: Windows -->
     <div class="step-card">
       <div class="step-card-header">
         <div class="step-num-badge">1</div>
-        <h2>Аддон для WoW</h2>
-        <span class="os-badge">WoW TBC 2.4.3</span>
-      </div>
-      <div class="step-card-body">
-
-        <a class="download-btn"
-           href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/ArenaCoach.zip">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L11 13.586V3a1 1 0 011-1zM3 17a1 1 0 011 1v1h16v-1a1 1 0 112 0v1a2 2 0 01-2 2H4a2 2 0 01-2-2v-1a1 1 0 011-1z"/>
-          </svg>
-          Скачать ArenaCoach.zip
-        </a>
-
-        <div class="download-meta">
-          GitHub Releases ·
-          <a href="https://github.com/pvpwowarena/arena-coach/releases/latest" target="_blank" rel="noopener">
-            посмотреть все версии
-          </a>
-        </div>
-
-        <ul class="install-steps">
-          <li class="install-step">
-            <span class="install-step-num">1</span>
-            Распаковать архив — внутри папка <code>ArenaCoach</code>
-          </li>
-          <li class="install-step">
-            <span class="install-step-num">2</span>
-            Скопировать её в <code>Interface/AddOns/</code> внутри папки WoW:
-            <br>· <strong>Windows:</strong> <code>C:\Program Files (x86)\World of Warcraft\_anniversary_\Interface\AddOns\</code>
-            <br>· <strong>macOS:</strong> <code>/Applications/World of Warcraft/_anniversary_/Interface/AddOns/</code>
-          </li>
-          <li class="install-step">
-            <span class="install-step-num">3</span>
-            Запустить WoW (или <code>/reload</code> в игре) — аддон появится в списке аддонов
-          </li>
-          <li class="install-step">
-            <span class="install-step-num">4</span>
-            Убедиться что аддон включён — маленький значок «connected» появится в правом углу экрана
-          </li>
-        </ul>
-
-      </div>
-    </div>
-
-    <!-- Шаг 2: Bridge — Windows -->
-    <div class="step-card">
-      <div class="step-card-header">
-        <div class="step-num-badge">2</div>
-        <h2>Bridge — фоновая программа (Windows)</h2>
+        <h2>Скачай и запусти</h2>
         <span class="os-badge">Windows x64</span>
       </div>
       <div class="step-card-body">
@@ -457,45 +410,50 @@
         <ul class="install-steps">
           <li class="install-step">
             <span class="install-step-num">1</span>
-            Положить <code>arena-bridge.exe</code> в удобную папку, например <code>C:\ArenaCoach\</code>
+            Положи <code>arena-bridge.exe</code> в любую папку (например, <code>Документы\ArenaCoach</code>) и запусти двойным кликом
           </li>
           <li class="install-step">
             <span class="install-step-num">2</span>
-            Создать файл <code>bridge.env</code> в той же папке — токен получить у администратора в Discord
+            Windows покажет синее окно <strong>«Windows защитил ваш компьютер»</strong> — это потому, что сборка не подписана платным сертификатом (весь код открыт на GitHub).
+            Нажми <strong>«Подробнее»</strong> → <strong>«Выполнить в любом случае»</strong>. Спросит один раз.
           </li>
           <li class="install-step">
             <span class="install-step-num">3</span>
-            Проверить конфигурацию: запустить <code>arena-bridge.exe --check-config</code>
+            Ответь на три вопроса: <strong>код команды</strong> (пришлёт админ в Discord), <strong>ник персонажа</strong> и состав (не знаешь — просто Enter)
           </li>
           <li class="install-step">
             <span class="install-step-num">4</span>
-            Перед игрой запустить <code>arena-bridge.exe</code> и оставить окно открытым
+            Всё. WoW программа найдёт сама, аддон <code>ArenaCoach</code> установит и будет обновлять сама.
+            Останется перезайти в WoW (или набрать <code>/reload</code>)
           </li>
         </ul>
 
         <hr class="inner-divider">
 
-        <div class="sub-heading">Пример bridge.env (Windows)</div>
-        <div class="code-block"><span class="cm"># Скопируй в bridge.env рядом с arena-bridge.exe</span>
-<span class="dim">#</span>
-<span class="key">WOW_INSTALL_PATH</span>    = <span class="val">C:\Program Files (x86)\World of Warcraft\_anniversary_</span>
-<span class="key">BACKEND_URL</span>         = <span class="val">https://pvpwowarena.surprise4you.dev</span>
-<span class="key">BRIDGE_BEARER_TOKEN</span> = <span class="val">вставить-токен-от-администратора</span>
-<span class="key">BRIDGE_PLAYER_NAME</span>  = <span class="val">ИмяПерсонажа</span></div>
+        <div class="sub-heading">Как выглядит первый запуск</div>
+        <div class="code-block"><span class="cm">=== Arena Coach — первый запуск ===</span>
+<span class="cmd">Настроим за минуту: три вопроса, дальше всё само.</span>
+
+<span class="key">1/3 Код команды (выдал админ в Discord):</span> <span class="val">••••••••</span>
+<span class="key">2/3 Ник твоего персонажа в WoW:</span> <span class="val">Готмог</span>
+<span class="key">3/3 Ваш состав (rm/rp/rl/rd, или Enter — определится сам):</span> <span class="val">rl</span>
+<span class="dim">   Нашёл WoW сам: C:\Program Files (x86)\World of Warcraft</span>
+
+<span class="cmd">✓ Готово! Настройки сохранены. Оставь это окно открытым во время игры.</span></div>
 
         <div class="note">
-          ⚠ Токен выдаёт администратор командой <strong>/access add</strong> в Discord-сервере.
-          Не передавай токен другим — он привязан к твоему персонажу и реалму.
+          Ошибся в ответах? Запусти <code>arena-bridge.exe --setup</code> — мастер пройдёт заново.
+          Или просто удали файл <code>bridge.env</code> рядом с программой.
         </div>
 
       </div>
     </div>
 
-    <!-- Шаг 2: Bridge — macOS -->
+    <!-- Шаг 1 (альтернатива): macOS -->
     <div class="step-card">
       <div class="step-card-header">
-        <div class="step-num-badge">2</div>
-        <h2>Bridge — фоновая программа (macOS)</h2>
+        <div class="step-num-badge">1</div>
+        <h2>…или для macOS</h2>
         <span class="os-badge">macOS · Apple Silicon</span>
       </div>
       <div class="step-card-body">
@@ -518,61 +476,101 @@
         <ul class="install-steps">
           <li class="install-step">
             <span class="install-step-num">1</span>
-            Распаковать архив (например в <code>~/ArenaCoach/</code>) — внутри будут <code>arena-bridge</code>, <code>bridge.env.example</code>, <code>README.txt</code>
+            Распакуй архив (например, в <code>~/ArenaCoach/</code>)
           </li>
           <li class="install-step">
             <span class="install-step-num">2</span>
-            Скопировать <code>bridge.env.example</code> → <code>bridge.env</code>, заполнить значения (токен — у администратора в Discord)
+            Первый запуск — через правый клик: в Finder нажми на <code>arena-bridge</code> правой кнопкой → <strong>Открыть</strong> → <strong>Открыть</strong>.
+            Это разовый обход Gatekeeper (сборка не подписана Apple Developer ID)
           </li>
           <li class="install-step">
             <span class="install-step-num">3</span>
-            <strong>Первый запуск — обход Gatekeeper</strong> (бинарь не подписан, делается один раз):<br>
-            в Finder правый клик на <code>arena-bridge</code> → <strong>Open</strong> → <strong>Open</strong> в диалоге.<br>
-            Или в терминале: <code>xattr -d com.apple.quarantine ./arena-bridge</code>
-          </li>
-          <li class="install-step">
-            <span class="install-step-num">4</span>
-            Проверить конфиг: <code>./arena-bridge --check-config</code>
-          </li>
-          <li class="install-step">
-            <span class="install-step-num">5</span>
-            Перед игрой запустить <code>./arena-bridge</code> и оставить терминал открытым
+            Дальше те же три вопроса, что и на Windows — мастер настроит всё сам
           </li>
         </ul>
 
-        <hr class="inner-divider">
-
-        <div class="sub-heading">Пример bridge.env (macOS)</div>
-        <div class="code-block"><span class="cm"># Скопируй в bridge.env рядом с arena-bridge</span>
-<span class="dim">#</span>
-<span class="key">WOW_INSTALL_PATH</span>    = <span class="val">/Applications/World of Warcraft/_anniversary_</span>
-<span class="key">BACKEND_URL</span>         = <span class="val">https://pvpwowarena.surprise4you.dev</span>
-<span class="key">BRIDGE_BEARER_TOKEN</span> = <span class="val">вставить-токен-от-администратора</span>
-<span class="key">BRIDGE_PLAYER_NAME</span>  = <span class="val">ИмяПерсонажа</span></div>
-
         <div class="note">
-          ⚠ Бинарь не подписан Apple Developer ID (MVP). Это нормально — Gatekeeper нужно пропустить только при первом запуске.
-          Если макбук на Intel — напиши администратору, нужна отдельная сборка.
+          Макбук на Intel — напиши администратору, нужна отдельная сборка.
         </div>
 
       </div>
     </div>
 
-    <!-- Проверка -->
+    <!-- Шаг 2: Discord -->
+    <div class="step-card">
+      <div class="step-card-header">
+        <div class="step-num-badge">2</div>
+        <h2>Discord — куда приходят подсказки</h2>
+        <span class="os-badge">1 минута</span>
+      </div>
+      <div class="step-card-body">
+
+        <ul class="install-steps">
+          <li class="install-step">
+            <span class="install-step-num">1</span>
+            Попроси админа добавить тебя в вайтлист (команда <code>/access add</code>, роль <strong>player</strong>) —
+            он же пришлёт тебе код команды для первого запуска
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">2</span>
+            Разреши личные сообщения от участников сервера: настройки сервера →
+            <strong>Конфиденциальность</strong> → «Личные сообщения от участников сервера» — иначе бот не достучится
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">3</span>
+            Проверка без арены: запусти программу, зайди в игру и набери <code>/ac test</code> —
+            в личку Discord придёт тестовое сообщение от бота
+          </li>
+        </ul>
+
+      </div>
+    </div>
+
+    <!-- Шаг 3: Играй -->
+    <div class="step-card">
+      <div class="step-card-header">
+        <div class="step-num-badge">3</div>
+        <h2>Играй</h2>
+        <span class="os-badge">Арена / скирмиш</span>
+      </div>
+      <div class="step-card-body">
+
+        <ul class="install-steps">
+          <li class="install-step">
+            <span class="install-step-num">1</span>
+            Перед игрой запусти <code>arena-bridge</code> и оставь окно открытым (можно свернуть)
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">2</span>
+            На воротах арены в Discord придёт план: килл-таргет, опенер, главные угрозы.
+            По ходу боя — тринкеты и дефы врагов, после матча — разбор
+          </li>
+          <li class="install-step">
+            <span class="install-step-num">3</span>
+            Голосовые подсказки локально включены по умолчанию; управление — команда бота <code>/coach voice on|off|only</code>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+
+    <!-- Если что-то не так -->
     <div class="check-card">
-      <h2>✅ Проверка</h2>
-      <p>Запусти из папки с bridge — должен увидеть зелёное подтверждение.</p>
-      <div class="code-block"><span class="cm"># Windows (cmd / PowerShell):</span>
-<span class="cmd">arena-bridge.exe --check-config</span>
-
-<span class="cm"># macOS (Terminal):</span>
-<span class="cmd">./arena-bridge --check-config</span>
-
-<span class="cm"># Ожидаемый вывод:</span>
-<span class="cmd">✓ WoW install path: found</span>
-<span class="cmd">✓ Backend reachable: 200 OK</span>
-<span class="cmd">✓ Token accepted</span>
-<span class="cmd">✓ Конфигурация корректна</span></div>
+      <h2>🛠 Если что-то не так</h2>
+      <p><strong>Окно закрылось сразу</strong> — запусти ещё раз: программа покажет причину и подождёт Enter.
+         Чаще всего это путь к WoW — команда <code>arena-bridge.exe --setup</code> перепройдёт настройку.</p>
+      <p><strong>Нет сообщений от бота</strong> — проверь, что админ добавил тебя (<code>/access add</code>)
+         и что разрешены личные сообщения от участников сервера (шаг 2).</p>
+      <p><strong>Аддон не появился в списке</strong> — скачай
+         <a href="https://github.com/pvpwowarena/arena-coach/releases/latest/download/ArenaCoach.zip">ArenaCoach.zip</a>
+         и распакуй в <code>Interface\AddOns\</code> внутри папки WoW, затем <code>/reload</code>.</p>
+      <p><strong>Для продвинутых</strong> — все настройки лежат в <code>bridge.env</code> рядом с программой,
+         полная диагностика: <code>arena-bridge.exe --check-config</code>.</p>
+      <div class="code-block"><span class="cm"># bridge.env — создаётся мастером, можно править руками:</span>
+<span class="key">BACKEND_URL</span>=<span class="val">https://pvpwowarena.surprise4you.dev</span>
+<span class="key">BRIDGE_BEARER_TOKEN</span>=<span class="val">код-команды-от-админа</span>
+<span class="key">BRIDGE_PLAYER_NAME</span>=<span class="val">ИмяПерсонажа</span>
+<span class="key">WOW_INSTALL_PATH</span>=<span class="val">"C:\Program Files (x86)\World of Warcraft"</span></div>
     </div>
 
   </main>

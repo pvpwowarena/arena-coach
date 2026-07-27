@@ -34,6 +34,7 @@ _common_hidden = [
     "arena_bridge.hint_poller",
     "arena_bridge.local_tts",
     "arena_bridge.normalizer",
+    "arena_bridge.setup_wizard",
     "arena_bridge.sv_tail",
     "arena_bridge.updater",
     "arena_bridge.ws_client",
