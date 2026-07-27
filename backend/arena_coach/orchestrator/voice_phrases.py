@@ -75,6 +75,11 @@ def arena_start_phrase(enemy_classes: list[str], kill_target: str | None) -> str
     return " ".join(parts)
 
 
+def stealth_opener_phrase() -> str:
+    """'Арена. Никого не видно — стелс опенер. Кучкуйтесь.'"""
+    return "Арена. Никого не видно — стелс опенер. Кучкуйтесь."
+
+
 def trinket_phrase(source: str) -> str:
     """'Тринкет у Секрадж!'"""
     return f"Тринкет у {source}!" if source else "Тринкет врага!"

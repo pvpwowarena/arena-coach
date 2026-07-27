@@ -54,6 +54,7 @@ from arena_coach.orchestrator.threats import threat_lines, threat_voice
 from arena_coach.orchestrator.voice_phrases import (
     ability_phrase,
     arena_start_phrase,
+    stealth_opener_phrase,
     trinket_phrase,
 )
 from arena_coach.shared.settings import Settings
@@ -464,6 +465,25 @@ async def _emit_partial(
 ) -> str:
     """Состав раскрыт частично: провизорный килл-таргет, если частичные кандидаты
     сходятся; полноценный разбор придёт с полным re-emit состава."""
+    if not enemy_classes:
+        # Полный инвиз на воротах (дабл/трипл-стелс): классов ещё нет, но молчать
+        # нельзя — предупреждаем об опенере. Re-emit с первым раскрытым классом
+        # сменит сигнатуру и пришлёт уточнение.
+        dm_lines = [
+            f"🏟 **Арена** | {bracket} | врагов на воротах не видно — вероятен **стелс-опенер**",
+            "🛡 Кучкуйтесь у столба, пилы наготове; тринкет не сливайте на первый стан — "
+            "берегите на их килл-чейн. Состав уточню, как только кто-то откроется.",
+        ]
+        return await _emit_arena(
+            ctx,
+            discord_id,
+            player_name,
+            session_id,
+            "partial0:stealth",
+            "\n".join(dm_lines)[:2000],
+            stealth_opener_phrase(),
+            voice_mode,
+        )
     partial = ctx.kb_retriever.find_partial_candidates(enemy_classes, our_comp_hint)
     kill_targets = {d.kill_target.primary for d in partial}
     dm_lines = [f"🏟 **Арена** | {bracket} | видно: {enemies_desc} _(состав уточняется…)_"]
