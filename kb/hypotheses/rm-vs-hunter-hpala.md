@@ -18,7 +18,7 @@ tags: [ai-synthesized, unverified, needs-source-or-review]
 
 ## Opener
 
-Hunter + holy paladin: дальнее давление + ловушки/контроль от хантера, пала держит хантера хилом. Угрозы хантера: freezing trap, [[ability:scatter-shot]], viper sting (мана — бьёт по магу), wing clip, deterrence (survival), pet, intimidation (BM). Пала — bubble/freedom/cleanse/[[ability:hammer-of-justice]]/sacred shield. [[ability:sheep]] снимается cleanse'ом.
+Hunter + holy paladin: дальнее давление + ловушки/контроль от хантера, пала держит хантера хилом. Угрозы хантера: freezing trap, [[ability:scatter-shot]], viper sting (мана — бьёт по магу), wing clip, deterrence (survival), pet, intimidation (BM). Пала — bubble/freedom/cleanse/[[ability:hammer-of-justice]]/BoP (Blessing of Protection). [[ability:sheep]] снимается cleanse'ом.
 
 План: kill target — хантер (пала почти неубиваем). Рог открывает на хантере, не давая ему дистанцию: [[ability:cheap-shot]]/[[ability:kidney-shot]], рвём kite. Маг [[ability:counterspell]] держит на heal паладина, [[ability:nova]] для shatter-окна по хантеру. Берегись trap/scatter на входе (стой раздельно, чтобы не словить trap по обоим). Можно валить pet, чтобы снять часть давления.
 

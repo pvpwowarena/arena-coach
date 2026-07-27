@@ -24,7 +24,7 @@ tags: [ai-synthesized, sourced-promoted, needs-top-source]
 
 SL/SL warlock + holy paladin — танковый, mana-heavy, под долгую игру. У RP есть рычаг, которого нет у RM: [[ability:mana-burn]]. Реалистичный win-con — **OOM паладина** манабёрном, параллельно держа давление рога на варлоке. Но матчап очень тяжёлый: warlock UA-наказывает дисп, felhunter Spell Lock лочит школу хила прийста, warlock fearّ + [[ability:hammer-of-justice]] паладина выбивают прийста.
 
-Опенер: [[ability:sap]] паладина, рог садится на варлока (crippling + wound; помни — **cleanse паладина снимает яды**, держи энергию на ре-шив crippling). Прийст [[ability:mana-burn]] паладина и dispel'ит freedom/sacred shield (но **не** UA). Физ-CC варлока ([[ability:kidney-shot]]/[[ability:blind]]/[[ability:gouge]]) + [[ability:fear]] (tremor тут нет). Сольёт паладин ману — варлок падает.
+Опенер: [[ability:sap]] паладина, рог садится на варлока (crippling + wound; помни — **cleanse паладина снимает яды**, держи энергию на ре-шив crippling). Прийст [[ability:mana-burn]] паладина и dispel'ит freedom/BoP (но **не** UA). Физ-CC варлока ([[ability:kidney-shot]]/[[ability:blind]]/[[ability:gouge]]) + [[ability:fear]] (tremor тут нет). Сольёт паладин ману — варлок падает.
 
 ## Alternative opener
 
@@ -42,5 +42,5 @@ Paladin тринкетит [[ability:fear]]/[[ability:hammer-of-justice]]; warlo
 
 ## Key cooldowns to track
 
-- enemy: paladin — bubble, freedom, cleanse, [[ability:hammer-of-justice]], sacred shield, мана-пул, trinket; warlock — Spell Lock (felhunter), UA, fear + [[ability:death-coil]], healthstone, trinket.
+- enemy: paladin — bubble, freedom, cleanse, [[ability:hammer-of-justice]], BoP, Divine Protection, мана-пул, trinket; warlock — Spell Lock (felhunter), UA, fear + [[ability:death-coil]], healthstone, trinket.
 - ours: [[ability:kidney-shot]], [[ability:blind]], [[ability:vanish]], [[ability:fear]]; priest — [[ability:mana-burn]], [[ability:pain-suppression]], dispel, trinket.

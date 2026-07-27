@@ -22,7 +22,7 @@ tags: [ai-synthesized, sourced-promoted, needs-top-source]
 
 ## Opener
 
-SL/SL warlock + holy paladin — один из самых танковых, mana-heavy составов, заточен под долгую игру: pala даёт bubble / freedom / cleanse / [[ability:hammer-of-justice]] / sacred shield, warlock — UA, fear + [[ability:death-coil]], healthstone, soul link, felhunter Spell Lock. Для RM тяжело: нет sustain в затяжной, а [[ability:sheep]] на любой цели снимается cleanse'ом паладина.
+SL/SL warlock + holy paladin — один из самых танковых, mana-heavy составов, заточен под долгую игру: pala даёт bubble / freedom / cleanse / [[ability:hammer-of-justice]] / BoP (Blessing of Protection), warlock — UA, fear + [[ability:death-coil]], healthstone, soul link, felhunter Spell Lock. Для RM тяжело: нет sustain в затяжной, а [[ability:sheep]] на любой цели снимается cleanse'ом паладина.
 
 План — играть от burst-окон, а не контроля по хилеру: рог+маг на варлоке, маг [[ability:counterspell]] держит на heal паладина, рог [[ability:kidney-shot]]/[[ability:blind]]. Burst (shatter [[ability:nova]] → ice lance/frostbolt + [[ability:kidney-shot]]) на варлоке в окно, когда у паладина нет freedom/cleanse/bubble. Цель — варлок; OOM паладина у RM медленный (нет манабёрна), поэтому ставка на бурст в окне.
 
@@ -42,5 +42,5 @@ Paladin тринкетит [[ability:sheep]]/[[ability:hammer-of-justice]]; warl
 
 ## Key cooldowns to track
 
-- enemy: paladin — bubble, freedom, cleanse, [[ability:hammer-of-justice]], sacred shield, trinket; warlock — UA, fear + [[ability:death-coil]], Spell Lock (felhunter), healthstone, trinket.
+- enemy: paladin — bubble, freedom, cleanse, [[ability:hammer-of-justice]], BoP, Divine Protection, trinket; warlock — UA, fear + [[ability:death-coil]], Spell Lock (felhunter), healthstone, trinket.
 - ours: [[ability:counterspell]], [[ability:sheep]], [[ability:nova]], [[ability:blind]], [[ability:kidney-shot]], [[ability:vanish]], [[ability:ice-block]], trinket.

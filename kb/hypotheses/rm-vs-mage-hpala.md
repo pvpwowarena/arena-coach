@@ -23,7 +23,7 @@ tags: [ai-synthesized, unverified, needs-source-or-review]
 
 ## Opener
 
-Frost-маг + holy paladin: вражеский маг (burst/контроль) под защитой пала-хила (bubble/freedom/cleanse/[[ability:hammer-of-justice]]/sacred shield). [[ability:sheep]] снимается cleanse'ом, freedom снимает [[ability:nova]]-root.
+Frost-маг + holy paladin: вражеский маг (burst/контроль) под защитой пала-хила (bubble/freedom/cleanse/[[ability:hammer-of-justice]]/BoP (Blessing of Protection)). [[ability:sheep]] снимается cleanse'ом, freedom снимает [[ability:nova]]-root.
 
 Kill target — вражеский маг (сквишовее, и убрав его — 2v1 на пала, который не убьёт). Опенер: рог [[ability:sap]] паладина, рог+маг на вражеском маге. Наш маг [[ability:counterspell]] держит на heal паладина ИЛИ на каст вражеского мага (фейк-бейт), рог [[ability:kidney-shot]]/[[ability:blind]] не даёт магу блинкать-кайтить. Burst (shatter + [[ability:kidney-shot]]) в окно без freedom/bubble.
 
