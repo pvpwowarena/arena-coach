@@ -7,7 +7,8 @@
   "our_comps": {
     "rogue+mage": { "short": "rm",  "human": "Rogue / Mage" },
     "rogue+priest": { "short": "rp", "human": "Rogue / Priest (Disc)" },
-    "rogue+warlock": { "short": "rl", "human": "Rogue / Warlock (SL/SL)" }
+    "rogue+warlock": { "short": "rl", "human": "Rogue / Warlock (SL/SL)" },
+    "rogue+resto-druid": { "short": "rd", "human": "Rogue / Resto Druid" }
   },
   "enemy_comps_2v2": {
     "warrior+resto-druid":       { "short": "warr-rdruid",   "human": "Warrior / Resto Druid" },

@@ -1,0 +1,178 @@
+# Реестр advice-сидов: незнакомые сетапы, закрытые ОФЛАЙН-разборами (Phase 4.7).
+# Все строки ниже уже лежат в tools/advice_seed.json и грузятся в advice_cache
+# без единого API-токена:
+#   DATABASE_URL=... python tools/load_advice.py tools/advice_seed.json
+# warm-advice для этого списка НЕ нужен. Файл — учёт покрытия, не входной список.
+# Формат: <наш-состав> vs <вражеский> (классы, по алфавиту; спеки дозаполняет бой).
+
+# ===================== 2v2 =====================
+
+# --- наш druid+rogue (33 сидов) ---
+druid+rogue vs druid+druid
+druid+rogue vs druid+mage
+druid+rogue vs druid+paladin
+druid+rogue vs druid+priest
+druid+rogue vs druid+shaman
+druid+rogue vs hunter+hunter
+druid+rogue vs hunter+mage
+druid+rogue vs hunter+paladin
+druid+rogue vs hunter+priest
+druid+rogue vs hunter+rogue
+druid+rogue vs hunter+shaman
+druid+rogue vs hunter+warlock
+druid+rogue vs hunter+warrior
+druid+rogue vs mage+mage
+druid+rogue vs mage+paladin
+druid+rogue vs mage+shaman
+druid+rogue vs mage+warlock
+druid+rogue vs mage+warrior
+druid+rogue vs paladin+paladin
+druid+rogue vs paladin+priest
+druid+rogue vs paladin+rogue
+druid+rogue vs paladin+warlock
+druid+rogue vs priest+priest
+druid+rogue vs priest+shaman
+druid+rogue vs priest+warrior
+druid+rogue vs rogue+shaman
+druid+rogue vs rogue+warlock
+druid+rogue vs rogue+warrior
+druid+rogue vs shaman+shaman
+druid+rogue vs shaman+warlock
+druid+rogue vs warlock+warlock
+druid+rogue vs warlock+warrior
+druid+rogue vs warrior+warrior
+
+# --- наш mage+rogue (27 сидов) ---
+mage+rogue vs druid+druid
+mage+rogue vs druid+mage
+mage+rogue vs druid+paladin
+mage+rogue vs druid+priest
+mage+rogue vs druid+shaman
+mage+rogue vs hunter+hunter
+mage+rogue vs hunter+mage
+mage+rogue vs hunter+paladin
+mage+rogue vs hunter+priest
+mage+rogue vs hunter+rogue
+mage+rogue vs hunter+shaman
+mage+rogue vs hunter+warlock
+mage+rogue vs hunter+warrior
+mage+rogue vs mage+mage
+mage+rogue vs mage+shaman
+mage+rogue vs mage+warlock
+mage+rogue vs paladin+paladin
+mage+rogue vs paladin+priest
+mage+rogue vs priest+priest
+mage+rogue vs priest+shaman
+mage+rogue vs priest+warrior
+mage+rogue vs rogue+rogue
+mage+rogue vs rogue+shaman
+mage+rogue vs shaman+shaman
+mage+rogue vs warlock+warlock
+mage+rogue vs warlock+warrior
+mage+rogue vs warrior+warrior
+
+# --- наш priest+rogue (24 сидов) ---
+priest+rogue vs druid+druid
+priest+rogue vs druid+paladin
+priest+rogue vs druid+priest
+priest+rogue vs druid+shaman
+priest+rogue vs hunter+hunter
+priest+rogue vs hunter+mage
+priest+rogue vs hunter+priest
+priest+rogue vs hunter+rogue
+priest+rogue vs hunter+shaman
+priest+rogue vs hunter+warlock
+priest+rogue vs hunter+warrior
+priest+rogue vs mage+mage
+priest+rogue vs mage+shaman
+priest+rogue vs mage+warlock
+priest+rogue vs paladin+paladin
+priest+rogue vs paladin+priest
+priest+rogue vs priest+priest
+priest+rogue vs priest+shaman
+priest+rogue vs priest+warrior
+priest+rogue vs rogue+shaman
+priest+rogue vs shaman+shaman
+priest+rogue vs warlock+warlock
+priest+rogue vs warlock+warrior
+priest+rogue vs warrior+warrior
+
+# --- наш rogue+warlock (33 сидов) ---
+rogue+warlock vs druid+druid
+rogue+warlock vs druid+mage
+rogue+warlock vs druid+paladin
+rogue+warlock vs druid+priest
+rogue+warlock vs druid+shaman
+rogue+warlock vs hunter+hunter
+rogue+warlock vs hunter+mage
+rogue+warlock vs hunter+paladin
+rogue+warlock vs hunter+priest
+rogue+warlock vs hunter+rogue
+rogue+warlock vs hunter+shaman
+rogue+warlock vs hunter+warlock
+rogue+warlock vs hunter+warrior
+rogue+warlock vs mage+mage
+rogue+warlock vs mage+paladin
+rogue+warlock vs mage+shaman
+rogue+warlock vs mage+warlock
+rogue+warlock vs mage+warrior
+rogue+warlock vs paladin+paladin
+rogue+warlock vs paladin+priest
+rogue+warlock vs paladin+rogue
+rogue+warlock vs paladin+warlock
+rogue+warlock vs priest+priest
+rogue+warlock vs priest+shaman
+rogue+warlock vs priest+warrior
+rogue+warlock vs rogue+shaman
+rogue+warlock vs rogue+warlock
+rogue+warlock vs rogue+warrior
+rogue+warlock vs shaman+shaman
+rogue+warlock vs shaman+warlock
+rogue+warlock vs warlock+warlock
+rogue+warlock vs warlock+warrior
+rogue+warlock vs warrior+warrior
+
+# ===================== 3v3 =====================
+
+# --- наш druid+mage+rogue (6 сидов) ---
+druid+mage+rogue vs druid+warrior+warrior
+druid+mage+rogue vs mage+mage+mage
+druid+mage+rogue vs mage+mage+priest
+druid+mage+rogue vs paladin+paladin+rogue
+druid+mage+rogue vs rogue+rogue+rogue
+druid+mage+rogue vs warrior+warrior+warrior
+
+# --- наш druid+rogue+rogue (7 сидов) ---
+druid+rogue+rogue vs druid+warrior+warrior
+druid+rogue+rogue vs hunter+hunter+priest
+druid+rogue+rogue vs mage+mage+mage
+druid+rogue+rogue vs mage+mage+priest
+druid+rogue+rogue vs paladin+paladin+rogue
+druid+rogue+rogue vs rogue+rogue+rogue
+druid+rogue+rogue vs warrior+warrior+warrior
+
+# --- наш druid+rogue+warlock (5 сидов) ---
+druid+rogue+warlock vs druid+warrior+warrior
+druid+rogue+warlock vs mage+mage+mage
+druid+rogue+warlock vs mage+mage+priest
+druid+rogue+warlock vs rogue+rogue+rogue
+druid+rogue+warlock vs warrior+warrior+warrior
+
+# --- наш mage+priest+rogue (17 сидов) ---
+mage+priest+rogue vs druid+hunter+hunter
+mage+priest+rogue vs druid+hunter+warrior
+mage+priest+rogue vs druid+mage+mage
+mage+priest+rogue vs druid+mage+warrior
+mage+priest+rogue vs druid+rogue+rogue
+mage+priest+rogue vs druid+rogue+warrior
+mage+priest+rogue vs druid+warlock+warlock
+mage+priest+rogue vs druid+warrior+warrior
+mage+priest+rogue vs hunter+hunter+priest
+mage+priest+rogue vs mage+mage+mage
+mage+priest+rogue vs mage+mage+priest
+mage+priest+rogue vs mage+mage+shaman
+mage+priest+rogue vs paladin+paladin+rogue
+mage+priest+rogue vs priest+rogue+rogue
+mage+priest+rogue vs priest+warrior+warrior
+mage+priest+rogue vs rogue+rogue+rogue
+mage+priest+rogue vs warrior+warrior+warrior
