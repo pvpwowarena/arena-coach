@@ -45,6 +45,10 @@
     "warrior+mage+priest":    { "short": "wmp",        "human": "Warrior / Mage / Priest (WMP)" },
     "hunter+disc-priest+resto-druid": { "short": "hpd", "human": "Hunter / Disc Priest / Resto Druid" }
   },
+  "our_comps_5v5": {
+    "rogue+rogue+resto-druid+mage+priest": { "short": "5rrdmp", "human": "Rogue ×2 / Resto Druid / Mage / Priest" },
+    "rogue+mage+resto-druid+shaman+hunter": { "short": "5rmdsh", "human": "Rogue / Mage / Resto Druid / Shaman / Hunter" }
+  },
   "classes": [
     "warrior", "paladin", "hunter", "rogue",
     "priest", "shaman", "mage", "warlock", "druid"

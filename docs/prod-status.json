@@ -54,11 +54,13 @@
     },
     {
       "name": "Закоммитить BoP-правки 4 гипотез",
-      "done": false
+      "done": true,
+      "note": "закоммичено 27.07"
     },
     {
       "name": "Прибрать корень репо: .patch, SCAN-REPORT-*, proposals",
-      "done": false
+      "done": true,
+      "note": "архив: docs/scan-reports/"
     },
     {
       "name": "Approve канона: драфты → kb/matchups/",
@@ -67,8 +69,8 @@
     },
     {
       "name": "Спек-фоллбэк advice-лукапа (wave 0)",
-      "done": false,
-      "note": "PROMPT-advice-seeds-wave2.md"
+      "done": true,
+      "note": "код в main: b8de0f8 (Wave 0)"
     }
   ]
 }

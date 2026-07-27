@@ -242,8 +242,21 @@ def main() -> int:
         cells3_kb += kb_c
         cells3_live += kb_c + adv_extra
 
-    # 5v5 — вариаций нет нигде; если появятся (драфты/сиды с bracket=5v5), покажем счётчик
-    n_5v5 = sum(1 for (br, _), n in adv_counts.items() if br == "5v5" for _ in range(n))
+    # ── 5v5 — кураторский слой (только advice-сиды; матрица 1287 квинтетов не нужна) ──
+    fives = list(comps.get("our_comps_5v5", {}).items())  # [(slug, {short,human})]
+    five_data = []
+    for slug, meta in fives:
+        ok = cm._classkey(slug)
+        five_data.append({
+            "ok": ok,
+            "human": meta.get("human", slug),
+            "label": meta.get("short", slug).upper(),
+            "seeds": adv_counts.get(("5v5", ok), 0),
+            "cover": adv_cover.get(("5v5", ok), set()),
+        })
+    n_5v5 = sum(f["seeds"] for f in five_data)
+    quint_union = sorted({q for f in five_data for q in f["cover"]},
+                         key=lambda k: [cm.CLASSES.index(c) for c in k])
     live_total = cells2_live + cells3_live
     cells_total = cells2_total + cells3_total
 
@@ -329,6 +342,52 @@ def main() -> int:
         if (slug, vs_spec) in sourced_exact
     )
 
+    # ── 5v5: тайл и секция (живут, только если есть сиды) ───────────────────
+    if n_5v5:
+        tile5 = (
+            f'<div class="brk"><div class="t"><span>5 × 5</span><b>{len(quint_union)} архетипов</b></div>'
+            '<div class="bar"><i class="b-adv" style="width:100%"></i></div>'
+            f'<div class="d">кураторский advice-слой · {n_5v5} сидов · {len(five_data)} наших состава</div></div>'
+        )
+        cards5 = "".join(
+            f'<div class="card"><div class="nm">{html.escape(f["label"])}</div>'
+            f'<div class="hm">{html.escape(f["human"])}</div>{chips(f["ok"])}'
+            f'<div class="cnt"><b class="adv">А{f["seeds"]}</b> · {len(f["cover"])} архетипов врагов</div></div>'
+            for f in five_data
+        )
+        rows5 = []
+        for q in quint_union:
+            label = ru_key(q)
+            cells = []
+            for f in five_data:
+                tiers = ["adv"] if q in f["cover"] else []
+                cells.append(cell_html(f["label"], label, tiers))
+            rows5.append(f"<tr><th>{label}</th>{''.join(cells)}</tr>")
+        h5cols = "".join(f"<th>{html.escape(f['label'])}</th>" for f in five_data)
+        section5 = f"""<section id="s5">
+ <h2>5 × 5 — наши сетапы</h2>
+ <div class="note">Кураторский слой: {len(quint_union)} мета-архетипов врагов, только advice-сиды (KB для 5v5 не ведём —
+ полный перебор 1287 квинтетов не нужен, хвост закрывает эвристика Phase 4.7 + LLM-кэш).</div>
+ <div class="cards">{cards5}</div>
+ <table>
+  <thead><tr><th>Враги \\ Наши</th>{h5cols}</tr></thead>
+  <tbody>
+{chr(10).join(rows5)}
+  </tbody>
+ </table>
+</section>"""
+    else:
+        tile5 = (
+            '<div class="brk"><div class="t"><span>5 × 5</span><b>0%</b></div>'
+            '<div class="bar"></div><div class="d">сетапов нет — бракет не покрыт</div></div>'
+        )
+        section5 = """<section id="s5">
+ <h2>5 × 5</h2>
+ <div class="empty"><div class="z">Пусто</div>
+ Сетапов для 5v5 нет ни в каноне (compositions.json), ни в KB, ни в advice-слое.
+ В бою бот даст только эвристику незнакомых сетапов Phase 4.7 (килл-таргет по классам + угрозы).</div>
+</section>"""
+
     gen_at = dt.datetime.now(dt.timezone.utc)
     gen_str = gen_at.strftime("%d.%m.%Y %H:%M UTC")
 
@@ -361,7 +420,8 @@ def main() -> int:
         "__P3_KB__": f"{pct(cells3_kb, cells3_total):.0f}",
         "__C3_LIVE__": str(cells3_live),
         "__C3_TOTAL__": str(cells3_total),
-        "__N5V5__": str(n_5v5),
+        "__TILE5__": tile5,
+        "__SECTION5__": section5,
         "__CARDS2__": cards2,
         "__CARDS3__": cards3,
         "__GHOSTS__": ghosts,
@@ -505,8 +565,7 @@ footer{margin-top:34px;color:var(--muted);font-size:11.5px;border-top:1px solid 
   <div class="d">KB __P2_KB__% + advice = __C2_LIVE__/__C2_TOTAL__ ячеек</div></div>
  <div class="brk"><div class="t"><span>3 × 3</span><b>__P3_LIVE__%</b></div>__BAR3__
   <div class="d">KB __P3_KB__% + advice = __C3_LIVE__/__C3_TOTAL__ ячеек</div></div>
- <div class="brk"><div class="t"><span>5 × 5</span><b>0%</b></div>
-  <div class="bar"></div><div class="d">сетапов нет — бракет не покрыт</div></div>
+ __TILE5__
 </div>
 
 <div class="legend">
@@ -555,12 +614,7 @@ __ROWS3__
  </table>
 </section>
 
-<section id="s5">
- <h2>5 × 5</h2>
- <div class="empty"><div class="z">Пусто</div>
- Сетапов для 5v5 нет ни в каноне (compositions.json), ни в KB, ни в advice-слое (сидов: __N5V5__).
- В бою бот даст только эвристику незнакомых сетапов Phase 4.7 (килл-таргет по классам + угрозы).</div>
-</section>
+__SECTION5__
 
 <footer>Ячейка = класс-уровень (спеки врагов сведены к классам; спек-варианты — отдельно).
 Слои: KB-драфт → гипотеза → advice-сид. Сгенерировано __GEN__ · <code>tools/gen_status_page.py</code> ·
