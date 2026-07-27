@@ -42,6 +42,7 @@ from arena_coach.orchestrator import advice as advice_mod
 from arena_coach.orchestrator.advice import AdviceCache, TokenUsage, comp_signature
 from arena_coach.orchestrator.hint_queue import HintQueue
 from arena_coach.orchestrator.killpriority import heuristic_kill_target
+from arena_coach.orchestrator.meta_comps import guess_line, likely_comps, stealth_comps
 from arena_coach.orchestrator.postmatch import (
     MatchRecord,
     MatchRecorder,
@@ -474,6 +475,9 @@ async def _emit_partial(
             "🛡 Кучкуйтесь у столба, пилы наготове; тринкет не сливайте на первый стан — "
             "берегите на их килл-чейн. Состав уточню, как только кто-то откроется.",
         ]
+        stealth_guess = guess_line(stealth_comps(bracket))
+        if stealth_guess:
+            dm_lines.append(f"{stealth_guess} — жди сап/опенер в хилера.")
         return await _emit_arena(
             ctx,
             discord_id,
@@ -494,6 +498,9 @@ async def _emit_partial(
         sig = f"partial1:{voice_kt}"
     else:
         sig = f"partial0:{','.join(sorted(enemy_classes))}"
+    meta_guess = guess_line(likely_comps(enemy_classes, bracket))
+    if meta_guess:
+        dm_lines.append(meta_guess)
     dm_lines.extend(threats)
     voice_text = _arena_voice(enemy_classes, voice_kt, threat_v)
     return await _emit_arena(
