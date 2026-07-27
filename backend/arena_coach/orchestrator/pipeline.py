@@ -23,6 +23,7 @@ Phase 4.6: короткая фраза кладётся в per-player очере
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 import re
 import time
@@ -515,6 +516,20 @@ async def _emit_unknown(
         if row is not None:
             cached = row.text
             ctx.advice_cache.put(sig_key, cached)  # прогреваем L1 из L2-персиста
+    # Спек-фоллбэк (Wave 0): мост раскрыл спек → сигнатура сузилась и промахнулась,
+    # хотя класс-уровневый разбор (офлайн-сид или прежняя генерация) уже есть.
+    # Класс-тексты содержат хеджи по спекам («если шаман элем — …»), поэтому
+    # отдаём их и НЕ жжём токены на почти дублирующую генерацию.
+    if cached is None:
+        class_sig = comp_signature(our_comp_hint, enemy_classes, None, bracket)
+        if class_sig != sig_key:
+            cached = ctx.advice_cache.get(class_sig)
+            if cached is None and ctx.advice_store is not None:
+                row = await ctx.advice_store.get(class_sig)
+                if row is not None:
+                    cached = row.text
+            if cached is not None:
+                ctx.advice_cache.put(sig_key, cached)  # спек-ключ больше не промахнётся
     if cached:
         dm_lines.append(f"🧠 {cached}")
     else:
@@ -536,7 +551,11 @@ async def _emit_unknown(
         )
 
     voice_text = _arena_voice(enemy_classes, kt_target, threat_v)
-    sig = f"unknown:{sig_key}" + (":cached" if cached else "")
+    # Дедуп по СОДЕРЖИМОМУ (без заголовка): спек-reveal меняет сигнатуру, но если
+    # фоллбэк вернул тот же текст разбора — повторный DM игроку не нужен. Если же
+    # содержимое реально изменилось (новые угрозы/разбор) — хеш другой, шлём.
+    body_hash = hashlib.sha1("\n".join(dm_lines[1:]).encode("utf-8")).hexdigest()[:12]
+    sig = f"unknown:{body_hash}"
     return await _emit_arena(
         ctx,
         discord_id,
