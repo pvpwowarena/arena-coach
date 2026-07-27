@@ -109,7 +109,15 @@ class TestValidateDirectory:
         # off-meta: не тирится в 3v3 tier-листах). Каркас — OwnedCore Double Rogue
         # Guide (эпоха TBC 2.x подтверждена) + Icy Veins Rogue/Druid синергия + Skill
         # Capped/Icy Veins 3v3 enemy-тир; execution синтезирован (off-meta-comp/new-comp-rrd).
-        assert ok == 68, f"Ожидалось 68 валидных draft'ов, получено {ok}"
+        # +12 (2026-07-26): rd-vs-* — новый состав Rogue/Resto Druid 2v2 (RD),
+        # топ-мета 2v2 поле (зеркалит набор rl-vs-*): RM, Warr/RDruid, SL/RDruid,
+        # RD-mirror, Rogue/Disc, Mage/Disc, SL/Disc, Warr/Hpala, Warr/RSham,
+        # Hunter/RDruid, double-rogue, Ret/RSham. Anchor — Icy Veins Resto Druid PvP
+        # guide («Druid + Rogue ... are your best compositions»; Cyclone/Lifebloom/
+        # Barkskin/NS/Roots toolkit) + Icy Veins 2v2 rankings (per-matchup тир-строки);
+        # execution синтезирован (synthesized-execution/new-comp-rd; off-meta-comp для
+        # double-rogue и Ret/RSham, которых нет в явном тир-листе).
+        assert ok == 80, f"Ожидалось 80 валидных draft'ов, получено {ok}"
 
     def test_all_drafts_have_resolved_abilities(
         self, drafts_dir: Path, glossary_path: Path
