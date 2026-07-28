@@ -97,7 +97,7 @@ _CLASS_SPELLS: dict[str, set[int]] = {
     # их жмут в первые секунды матча, это самый быстрый reveal класса
     # (вар Cekraj определялся 10с по Charge, хотя Commanding Shout был сразу).
     "ROGUE": {1856, 26669, 31224, 14185, 2094, 408, 1833, 6770, 26862, 26865, 1766, 27188},
-    "MAGE": {45438, 2139, 118, 122, 27070, 27072, 30455, 12042, 11129, 27126, 23028},
+    "MAGE": {45438, 2139, 118, 122, 27070, 27072, 30455, 12042, 11129, 27126, 23028, 31687, 12472},
     "WARRIOR": {
         871,
         1161,
@@ -133,12 +133,63 @@ _CLASS_SPELLS: dict[str, set[int]] = {
         34123,
         26990,
         26992,
+        24858,
+        768,
     },
     "PRIEST": {33206, 8122, 10060, 25218, 25375, 34917, 32379, 25368, 25389, 25392},
-    "WARLOCK": {5782, 6789, 27209, 27216, 30414, 30546, 19647, 28189, 688},
-    "PALADIN": {853, 642, 1044, 27136, 27137, 31884, 20066, 24275, 25898, 27140, 27142, 27143},
-    "HUNTER": {27065, 34026, 27018, 19503, 19386, 14311, 27044, 34490, 1543},
-    "SHAMAN": {25454, 2825, 16166, 8177, 8012, 25457, 25396, 32182, 25423, 25505},
+    "WARLOCK": {
+        5782,
+        6789,
+        27209,
+        27216,
+        30414,
+        30546,
+        19647,
+        28189,
+        688,
+        691,
+        697,
+        712,
+        30146,
+        18708,
+        29858,
+    },
+    "PALADIN": {
+        853,
+        642,
+        1044,
+        27136,
+        27137,
+        31884,
+        20066,
+        24275,
+        25898,
+        27140,
+        27142,
+        27143,
+        31842,
+        35395,
+    },
+    "HUNTER": {27065, 34026, 27018, 19503, 19386, 14311, 27044, 34490, 1543, 883, 982, 27046},
+    "SHAMAN": {
+        25454,
+        2825,
+        16166,
+        8177,
+        8012,
+        25457,
+        25396,
+        32182,
+        25423,
+        25505,
+        8143,
+        2484,
+        8166,
+        8170,
+        2894,
+        2062,
+        17364,
+    },
 }
 SPELL_TO_CLASS: dict[int, str] = {sid: cls for cls, ids in _CLASS_SPELLS.items() for sid in ids}
 
@@ -163,16 +214,39 @@ _SPELL_TO_SPEC_STRONG: dict[int, str] = {
     20066: "ret-paladin",  # Repentance (51-й талант ret)
     25423: "resto-shaman",  # Chain Heal
     16166: "ele-shaman",  # Elemental Mastery
+    # Phase 4.9 (pet/totem-инференс): talent-defining саммоны и 41-очковые кнопки.
+    31687: "frost-mage",  # Summon Water Elemental — элементаль = точно фрост
+    12472: "frost-mage",  # Icy Veins
+    33206: "discipline-priest",  # Pain Suppression (41 диск)
+    33891: "resto-druid",  # Tree of Life (41 рестор)
+    24858: "balance-druid",  # Moonkin Form
+    31842: "holy-paladin",  # Divine Illumination (41 холи)
+    35395: "ret-paladin",  # Crusader Strike (41 рет)
+    17364: "enh-shaman",  # Stormstrike
+    30146: "demo-warlock",  # Summon Felguard (41 демонолог)
 }
 # WEAK — спек-намёк: ставится, только если спек ещё неизвестен, и перекрывается
 # любым STRONG (frostbolt кастует и fire-маг ради shatter → frost НЕ лочим).
 _SPELL_TO_SPEC_WEAK: dict[int, str] = {
     27072: "frost-mage",  # Frostbolt
     26980: "resto-druid",  # Regrowth
+    768: "feral-druid",  # Cat Form (рестор изредка бегает кошкой — не лочим)
+}
+
+# ── Pet-проксирование (Phase 4.9) ────────────────────────────────────────────
+# Каст пета выдаёт класс (и спек) ХОЗЯИНА раньше, чем хозяин кастанёт сам, —
+# критично против пассивных/LoS-игроков. Пока в таблице только водный элементаль
+# (id единственные и верифицированные); хант-петы (Claw/Bite) добавим после
+# сверки ranked-id с живым логом — кривой id = мисклассификация, это дороже.
+_PET_SPELL_TO_OWNER: dict[int, tuple[str, str | None]] = {
+    31707: ("MAGE", "frost-mage"),  # Waterbolt
+    33395: ("MAGE", "frost-mage"),  # Freeze (элементаль-нова)
 }
 
 # CLEU unit flags
 _FLAG_TYPE_PLAYER = 0x0400
+_FLAG_TYPE_PET = 0x1000
+_FLAG_TYPE_GUARDIAN = 0x2000  # элементаль мага/тотемы — guardian, не pet
 _FLAG_REACTION_HOSTILE = 0x0040
 _FLAG_REACTION_FRIENDLY = 0x0010
 
@@ -234,12 +308,22 @@ def _is_friendly_player(flags: int) -> bool:
     return _is_player(flags) and bool(flags & _FLAG_REACTION_FRIENDLY)
 
 
+def _is_hostile_pet(flags: int) -> bool:
+    """Вражеский пет/страж (элементаль мага, фелхантер, хант-пет)."""
+    return (
+        not _is_player(flags)
+        and bool(flags & (_FLAG_TYPE_PET | _FLAG_TYPE_GUARDIAN))
+        and bool(flags & _FLAG_REACTION_HOSTILE)
+    )
+
+
 @dataclass
 class _Unit:
     name: str
     wow_class: str | None = None
     spec: str | None = None
     spec_locked: bool = False
+    proxy: bool = False  # выведен из каста ПЕТА (хозяин ещё не кастовал сам)
 
 
 def _encode_enemy(u: _Unit) -> str:
@@ -343,12 +427,22 @@ class CombatInterpreter:
         if _is_hostile_player(src_flags):
             enemy_cap = self._team_size or _MAX_ENEMY_FALLBACK
             if src_guid not in self._enemies and len(self._enemies) >= enemy_cap:
-                # Ростер врагов полон — это hostile-игрок ВНЕ матча (мир после
-                # арены). Не регистрируем, не хинтим и НЕ продлеваем сессию.
-                return out
+                # Ростер полон. Если место занято pet-прокси того же класса —
+                # уступаем его реальному игроку (прокси был лишь намёком).
+                cls = SPELL_TO_CLASS.get(spell_id)
+                if cls is None or not self._drop_proxy(cls):
+                    # Иначе это hostile-игрок ВНЕ матча (мир после арены):
+                    # не регистрируем, не хинтим и НЕ продлеваем сессию.
+                    return out
 
             self._last_hostile_ts = ts
             newly_cls = self._note_class(self._enemies, src_guid, src_name, spell_id)
+            if newly_cls:
+                # Реальный игрок раскрыл класс — прокси того же класса больше
+                # не нужен (иначе в ростере фантомный «лишний» враг).
+                unit = self._enemies[src_guid]
+                if unit.wow_class is not None:
+                    self._drop_proxy(unit.wow_class, keep_guid=src_guid)
             newly_spec = self._note_spec(self._enemies, src_guid, spell_id)
             if newly_cls or newly_spec:
                 start = self._emit_arena_start()
@@ -359,6 +453,14 @@ class CombatInterpreter:
                 payload = self._emit_hostile_action(ts, src_guid, src_name, spell_id)
                 if payload:
                     out.append(payload)
+        elif _is_hostile_pet(src_flags) and spell_id in _PET_SPELL_TO_OWNER:
+            # Каст пета выдаёт класс хозяина раньше самого хозяина (элементаль
+            # уже кастует, пока фрост-маг молчит за столбом/в позиции).
+            self._last_hostile_ts = ts
+            if self._note_pet_proxy(src_guid, src_name, spell_id):
+                start = self._emit_arena_start()
+                if start:
+                    out.append(start)
         elif _is_friendly_player(src_flags):
             # Классы союзников копим для таргетинга, но re-emit НЕ делаем:
             # в DM видны только враги, и каждый такой повтор выглядел бы
@@ -366,6 +468,41 @@ class CombatInterpreter:
             self._note_class(self._allies, src_guid, src_name, spell_id)
 
         return out
+
+    def _note_pet_proxy(self, pet_guid: str, pet_name: str, spell_id: int) -> bool:
+        """Записать ХОЗЯИНА пета в ростер врагов как proxy-юнит.
+
+        Прокси добавляется, только если класса хозяина ещё нет в ростере и есть
+        свободный слот; при появлении реального игрока того же класса прокси
+        уступает место (см. _drop_proxy). Ключ — guid пета: до конца матча пет
+        стабилен, а повторные касты не плодят дублей.
+        """
+        owner_cls, owner_spec = _PET_SPELL_TO_OWNER[spell_id]
+        if pet_guid in self._enemies:
+            return False
+        if any(u.wow_class == owner_cls for u in self._enemies.values()):
+            return False  # класс уже представлен — намёк ничего не добавляет
+        enemy_cap = self._team_size or _MAX_ENEMY_FALLBACK
+        if len(self._enemies) >= enemy_cap:
+            return False
+        self._enemies[pet_guid] = _Unit(
+            name=pet_name,
+            wow_class=owner_cls,
+            spec=owner_spec,
+            spec_locked=owner_spec is not None,
+            proxy=True,
+        )
+        log.info("Combat-канал: по касту пета %s выведен враг %s", pet_name, owner_cls)
+        return True
+
+    def _drop_proxy(self, wow_class: str, keep_guid: str | None = None) -> bool:
+        """Убрать pet-прокси данного класса (реальный игрок раскрылся)."""
+        for guid, unit in list(self._enemies.items()):
+            if unit.proxy and unit.wow_class == wow_class and guid != keep_guid:
+                del self._enemies[guid]
+                log.info("Combat-канал: pet-прокси %s заменён реальным игроком", wow_class)
+                return True
+        return False
 
     def _check_quiet_end(self, ts: datetime) -> list[str]:
         if not self._session or self._last_hostile_ts is None:
