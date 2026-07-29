@@ -23,6 +23,7 @@ from arena_coach.kb.indexer import KBIndex
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.orchestrator import pipeline
 from arena_coach.orchestrator.hint_queue import HintQueue
+from arena_coach.orchestrator.reactions import trinket_reaction
 from arena_coach.shared.settings import Settings
 
 # ── HintQueue ────────────────────────────────────────────────────────────────
@@ -278,4 +279,4 @@ class TestPipelineQueuesLocalHint:
         env["event"] = {"type": "TRINKET", "source_name": "Cekraj", "trinket_key": "pvp_trinket"}
         env["bridge_ts"] = "2026-07-24T12:00:40Z"
         await pipeline.process_event(ctx, env)
-        assert ctx.hint_queue.pop_fresh("Arenacoach") == ["Тринкет у Cekraj!"]
+        assert ctx.hint_queue.pop_fresh("Arenacoach") == [trinket_reaction().voice]

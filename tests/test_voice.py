@@ -23,6 +23,7 @@ from arena_coach.bot.voice import QueuedHint, VoiceManager
 from arena_coach.kb.indexer import KBIndex
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.orchestrator import pipeline
+from arena_coach.orchestrator.reactions import trinket_reaction
 from arena_coach.orchestrator.voice_phrases import (
     ability_phrase,
     arena_start_phrase,
@@ -340,4 +341,5 @@ class TestPipelineVoiceModes:
         }
         env["bridge_ts"] = "2026-07-24T12:00:40Z"
         await pipeline.process_event(ctx, env)
-        assert delivery["voice"][-1] == "Тринкет у Cekraj!"
+        # Phase 4.10: озвучиваем РЕАКЦИЮ на тринкет, а не сам факт («Тринкет у X!»).
+        assert delivery["voice"][-1] == trinket_reaction().voice

@@ -80,13 +80,33 @@ def stealth_opener_phrase() -> str:
     return "Арена. Никого не видно — стелс опенер. Кучкуйтесь."
 
 
+def arena_delta_phrase(new_classes: list[str], kill_target: str | None) -> str:
+    """'Плюс рога. Килл таргет — прист.' — доуточнение уже озвученного состава.
+
+    Аддон переотправляет ARENA_START, когда состав дорисовывается (враг вышел из
+    стелса, поздний зум). Полная стартовая фраза во второй раз звучит как заевшая
+    пластинка, поэтому во второй и последующие разы озвучиваем только дельту.
+    """
+    names = [_class_ru(c) for c in new_classes if c]
+    parts: list[str] = []
+    if names:
+        parts.append(f"Плюс {' и '.join(names)}.")
+    if kill_target:
+        parts.append(f"Килл таргет — {_target_ru(kill_target)}.")
+    return " ".join(parts) or "Состав уточнён."
+
+
 def trinket_phrase(source: str) -> str:
-    """'Тринкет у Секрадж!'"""
+    """'Тринкет у Секрадж!' — легаси-анонс факта.
+
+    С Phase 4.10 голос озвучивает РЕАКЦИЮ (`orchestrator.reactions`), а не факт;
+    функция оставлена для совместимости и тестов.
+    """
     return f"Тринкет у {source}!" if source else "Тринкет врага!"
 
 
 def ability_phrase(source: str, spell_key: str) -> str:
-    """'Айсблок у Фрости!' — только для ключей, которые реально хинтятся."""
+    """'Айсблок у Фрости!' — легаси-анонс факта (см. `trinket_phrase`)."""
     name = _SPELL_RU.get(spell_key, spell_key.replace("_", " "))
     capitalized = name[:1].upper() + name[1:]
     return f"{capitalized} у {source}!" if source else f"{capitalized}!"

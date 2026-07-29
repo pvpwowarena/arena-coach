@@ -38,6 +38,7 @@ from arena_coach.access.service import AccessService
 from arena_coach.access.usage import UsageService
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.kb.schema import KBDoc, Section
+from arena_coach.kb.slang import SlangRenderer
 from arena_coach.orchestrator import advice as advice_mod
 from arena_coach.orchestrator.advice import AdviceCache, TokenUsage, comp_signature
 from arena_coach.orchestrator.hint_queue import HintQueue
@@ -51,12 +52,16 @@ from arena_coach.orchestrator.postmatch import (
     timeline_digest,
     utcnow,
 )
+from arena_coach.orchestrator.reactions import (
+    ABILITY_REACTIONS,
+    ability_reaction,
+    trinket_reaction,
+)
 from arena_coach.orchestrator.threats import threat_lines, threat_voice
 from arena_coach.orchestrator.voice_phrases import (
-    ability_phrase,
+    arena_delta_phrase,
     arena_start_phrase,
     stealth_opener_phrase,
-    trinket_phrase,
 )
 from arena_coach.shared.settings import Settings
 
@@ -65,23 +70,9 @@ log = logging.getLogger(__name__)
 _HINT_EVENTS = {"ARENA_START", "TRINKET", "ABILITY"}
 
 # ABILITY: подсказываем только на ключевые дефы/бурсты, меняющие план.
-_ABILITY_HINT_KEYS = {
-    "evasion",
-    "cloak_of_shadows",
-    "vanish",
-    "preparation",
-    "blind",
-    "ice_block",
-    "divine_shield",
-    "shield_wall",
-    "retaliation",
-    "pain_suppression",
-    "power_infusion",
-    "bloodlust",
-    "elemental_mastery",
-    "innervate",
-    "barkskin",
-}
+# Источник истины — таблица реакций: если на спелл нечего ответить, хинтить его
+# нечем (Phase 4.10), поэтому список ключей выводится из неё, а не дублируется.
+_ABILITY_HINT_KEYS = frozenset(ABILITY_REACTIONS)
 
 _SECTION_PRIORITY: dict[str, list[str]] = {
     "ARENA_START": ["Opener", "Strategy", "Alternative opener"],
@@ -95,32 +86,79 @@ _PROVENANCE_RE = re.compile(r"^_Провенанс:.*?_\s*$", flags=re.MULTILINE
 
 
 class HintThrottle:
-    """Анти-спам для in-fight (ABILITY) подсказок.
+    """Анти-спам in-fight подсказок (Phase 4.10 — уже не только ABILITY).
+
+    Живой тест 2026-07-30 показал главную проблему realtime-слоя: реплики
+    сыпались как заевшая пластинка. Раньше троттлился только ABILITY, а TRINKET
+    вообще ничем не ограничивался — при этом мост поднимает по два события на один
+    спелл (`SPELL_CAST_SUCCESS` + `SPELL_AURA_APPLIED`, см. combat_tail), так что
+    дубль тринкета проходил насквозь.
 
     Правила (per discord_id):
-      • не чаще одного ABILITY-DM в min_interval_s;
-      • одинаковый spell_key не повторяем в течение repeat_window_s.
-    ARENA_START и TRINKET не троттлятся — это редкие ключевые события.
+      • ABILITY: не чаще одного в `min_interval_s`; тот же spell_key — не чаще
+        `repeat_window_s`; плюс `quiet_after_hint_s` тишины после ЛЮБОЙ подсказки
+        (в том числе после стартового разбора — он важнее мелких КД);
+      • TRINKET: тот же источник — не чаще `trinket_window_s` (PvP-тринкет и так
+        на 2 мин КД, так что окно режет только дубли одного события);
+      • ARENA_START: не троттлится — он и так дедуплицируется по сигнатуре состава,
+        а второй раз звучит короткой дельтой (`arena_delta_phrase`).
     """
 
-    def __init__(self, min_interval_s: float = 20.0, repeat_window_s: float = 60.0) -> None:
+    def __init__(
+        self,
+        min_interval_s: float = 20.0,
+        repeat_window_s: float = 60.0,
+        trinket_window_s: float = 45.0,
+        quiet_after_hint_s: float = 5.0,
+    ) -> None:
         self._min_interval_s = min_interval_s
         self._repeat_window_s = repeat_window_s
-        self._last_dm_at: dict[str, float] = {}
+        self._trinket_window_s = trinket_window_s
+        self._quiet_after_hint_s = quiet_after_hint_s
+        self._last_dm_at: dict[str, float] = {}  # последний ABILITY
+        self._last_any_at: dict[str, float] = {}  # последняя подсказка любого типа
         self._last_key_at: dict[tuple[str, str], float] = {}
 
-    def allow_ability(self, discord_id: str, spell_key: str, now: float | None = None) -> bool:
+    def allow(
+        self,
+        discord_id: str,
+        event_type: str,
+        key: str = "",
+        now: float | None = None,
+    ) -> bool:
+        """Пропускать ли подсказку. Побочный эффект: отмечает время выдачи."""
         t = time.monotonic() if now is None else now
-        last = self._last_dm_at.get(discord_id)
-        if last is not None and t - last < self._min_interval_s:
-            return False
-        key = (discord_id, spell_key)
-        last_key = self._last_key_at.get(key)
-        if last_key is not None and t - last_key < self._repeat_window_s:
-            return False
-        self._last_dm_at[discord_id] = t
-        self._last_key_at[key] = t
+
+        if event_type == "ABILITY":
+            last_any = self._last_any_at.get(discord_id)
+            if last_any is not None and t - last_any < self._quiet_after_hint_s:
+                return False
+            last = self._last_dm_at.get(discord_id)
+            if last is not None and t - last < self._min_interval_s:
+                return False
+            k = (discord_id, f"ABILITY:{key}")
+            last_key = self._last_key_at.get(k)
+            if last_key is not None and t - last_key < self._repeat_window_s:
+                return False
+            self._last_dm_at[discord_id] = t
+            self._last_key_at[k] = t
+        elif event_type == "TRINKET":
+            k = (discord_id, f"TRINKET:{key.lower()}")
+            last_key = self._last_key_at.get(k)
+            if last_key is not None and t - last_key < self._trinket_window_s:
+                return False
+            self._last_key_at[k] = t
+
+        self._last_any_at[discord_id] = t
         return True
+
+    def allow_ability(self, discord_id: str, spell_key: str, now: float | None = None) -> bool:
+        """Совместимость: то же, что `allow(..., "ABILITY", spell_key)`."""
+        return self.allow(discord_id, "ABILITY", spell_key, now)
+
+    def note_delivered(self, discord_id: str, now: float | None = None) -> None:
+        """Отметить, что игроку ушла подсказка (для окна тишины перед ABILITY)."""
+        self._last_any_at[discord_id] = time.monotonic() if now is None else now
 
 
 # ── Discord DM via REST ──────────────────────────────────────────────────────
@@ -185,9 +223,17 @@ def _find_section(doc: KBDoc, priority: list[str]) -> Section | None:
     return doc.sections[0] if doc.sections else None
 
 
-def _clean(text: str, limit: int) -> str:
-    """Убрать [[ability:x]]-обёртки и провенанс, схлопнуть пустые строки, обрезать."""
-    cleaned = _ABILITY_REF_RE.sub(lambda m: m.group(1).replace("-", " "), text)
+def _clean(text: str, limit: int, slang: SlangRenderer | None = None) -> str:
+    """Убрать [[ability:x]]-обёртки и провенанс, схлопнуть пустые строки, обрезать.
+
+    С Phase 4.10 имена способностей идут через сленг-слой (`slang` не None):
+    `[[ability:kidney-shot]]` → «кидни» вместо «kidney shot». Без рендерера —
+    прежнее поведение (дефисы в пробелы), чтобы старые вызовы/тесты не ломались.
+    """
+    if slang is not None:
+        cleaned = slang.render_refs(text)
+    else:
+        cleaned = _ABILITY_REF_RE.sub(lambda m: m.group(1).replace("-", " "), text)
     cleaned = _PROVENANCE_RE.sub("", cleaned)
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
     if len(cleaned) > limit:
@@ -223,8 +269,38 @@ def _enemies_desc(classes: list[str], specs: list[str | None]) -> str:
     return ", ".join(parts) if parts else "?"
 
 
-def _arena_voice(enemy_classes: list[str], kill_target: str | None, threat_v: str | None) -> str:
-    voice = arena_start_phrase(enemy_classes, kill_target)
+def _arena_voice(
+    ctx: PipelineContext,
+    player_name: str,
+    session_id: str,
+    enemy_classes: list[str],
+    kill_target: str | None,
+    threat_v: str | None,
+) -> str:
+    """Голос для ARENA_START: полная фраза в первый раз, дельта — при доуточнении.
+
+    Аддон переотправляет ARENA_START, когда состав дорисовывается (выход из
+    стелса, поздний зум): раньше игрок слышал всю стартовую фразу заново, включая
+    предупреждение по угрозам, — именно это в живом тесте звучало как заевшая
+    пластинка. Теперь второй и последующие анонсы в рамках сессии — только «Плюс
+    рога. Килл таргет — прист.».
+    """
+    key = f"{player_name.lower()}|{session_id}"
+    current = tuple(c for c in enemy_classes if c)
+    previous = ctx._announced_enemies.get(key)
+    ctx._announced_enemies[key] = current
+
+    if previous is not None:
+        seen = list(previous)
+        fresh: list[str] = []
+        for cls in current:
+            if cls in seen:
+                seen.remove(cls)  # мультимножество: дабл-рога остаётся дабл-рогой
+            else:
+                fresh.append(cls)
+        return arena_delta_phrase(fresh, kill_target)
+
+    voice = arena_start_phrase(list(current), kill_target)
     return f"{voice} {threat_v}" if threat_v else voice
 
 
@@ -250,6 +326,18 @@ class PipelineContext:
     _bg_tasks: set[asyncio.Task[Any]] = field(default_factory=set)
     # Дедуп ARENA_START-DM: player+session → сигнатура последнего разбора.
     _last_arena_sig: dict[str, str] = field(default_factory=dict)
+    # Phase 4.10: уже озвученный состав врагов (player+session → классы) —
+    # чтобы доуточнение шло дельтой, а не повтором стартовой фразы.
+    _announced_enemies: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    # Phase 4.10: сленг-рендерер (ленивая загрузка глоссария из KB).
+    _slang: SlangRenderer | None = None
+
+    @property
+    def slang(self) -> SlangRenderer:
+        """Рендерер имён способностей (RU-сленг на выходе); грузится один раз."""
+        if self._slang is None:
+            self._slang = SlangRenderer.from_kb_path(self.settings.kb_path)
+        return self._slang
 
     @property
     def llm_enabled(self) -> bool:
@@ -407,7 +495,9 @@ async def _handle_arena_start(
         if alt:
             dm_lines.append(alt)
         dm_lines.append(f"📖 `/matchup our:{doc.composition} vs:{doc.vs}` — полный гайд")
-        voice_text = _arena_voice(enemy_classes, doc.kill_target.primary, threat_v)
+        voice_text = _arena_voice(
+            ctx, player_name, session_id, enemy_classes, doc.kill_target.primary, threat_v
+        )
         return await _emit_arena(
             ctx,
             discord_id,
@@ -502,7 +592,7 @@ async def _emit_partial(
     if meta_guess:
         dm_lines.append(meta_guess)
     dm_lines.extend(threats)
-    voice_text = _arena_voice(enemy_classes, voice_kt, threat_v)
+    voice_text = _arena_voice(ctx, player_name, session_id, enemy_classes, voice_kt, threat_v)
     return await _emit_arena(
         ctx,
         discord_id,
@@ -577,7 +667,7 @@ async def _emit_unknown(
             )
         )
 
-    voice_text = _arena_voice(enemy_classes, kt_target, threat_v)
+    voice_text = _arena_voice(ctx, player_name, session_id, enemy_classes, kt_target, threat_v)
     # Дедуп по СОДЕРЖИМОМУ (без заголовка): спек-reveal меняет сигнатуру, но если
     # фоллбэк вернул тот же текст разбора — повторный DM игроку не нужен. Если же
     # содержимое реально изменилось (новые угрозы/разбор) — хеш другой, шлём.
@@ -638,16 +728,16 @@ async def _handle_trinket(
     source: str,
     doc: KBDoc | None,
 ) -> str:
+    reaction = trinket_reaction()
+    dm_lines = [f"💎 **{source} тринкетнул!**", reaction.dm]
     if doc is not None:
+        dm_lines[0] += f" | {doc.composition} vs {doc.vs}"
         sec = _find_section(doc, _SECTION_PRIORITY["TRINKET"])
-        plan = _clean(sec.body_md, 500) if sec else "Держи давление, не переоткрывай вслепую."
-        dm = f"💎 **{source} тринкетнул!** | {doc.composition} vs {doc.vs}\n{plan}"
-    else:
-        dm = (
-            f"💎 **{source} тринкетнул!**\n"
-            "Не вкладывай бурст вслепую — контроль/переоткрытие на тринкет, добивай в следующее окно."
-        )
-    return await _deliver(ctx, discord_id, player_name, dm, trinket_phrase(source), voice_mode)
+        if sec is not None:
+            dm_lines.append(_clean(sec.body_md, 500, ctx.slang))
+    return await _deliver(
+        ctx, discord_id, player_name, "\n".join(dm_lines)[:2000], reaction.voice, voice_mode
+    )
 
 
 async def _handle_ability(
@@ -659,15 +749,20 @@ async def _handle_ability(
     spell_key: str,
     doc: KBDoc | None,
 ) -> str:
-    if doc is not None:
-        sec = _find_section(doc, _SECTION_PRIORITY["ABILITY"])
-        title = sec.title if sec else "Ключевые КД"
-        body = _clean(sec.body_md, 350) if sec else ""
-        dm = f"⚡ **{source}: {spell_key}** | {title}\n{body}".strip()
-    else:
-        dm = f"⚡ **{source}: {spell_key}** — учитывай КД врага в размене."
+    # Имя способности — через сленг-слой: «кидни», а не «kidney_shot».
+    name = ctx.slang.name(spell_key.replace("_", "-"))
+    reaction = ability_reaction(spell_key)
+    dm_lines = [f"⚡ **{name[:1].upper()}{name[1:]} у {source}**"]
+    # Секцию «Key cooldowns to track» в бою НЕ вставляем: это перечень всех КД
+    # обеих команд — ровно тот шум, из-за которого realtime-подсказки выглядели
+    # «ни о чём». Ответ на конкретный КД — реакция; полный список даёт /matchup.
+    if reaction is not None:
+        dm_lines.append(reaction.dm)
+    else:  # в _ABILITY_HINT_KEYS попадают только ключи из таблицы — страховка
+        dm_lines.append("Учитывай этот КД врага в следующем размене.")
+    voice = reaction.voice if reaction is not None else f"{name} у врага."
     return await _deliver(
-        ctx, discord_id, player_name, dm, ability_phrase(source, spell_key), voice_mode
+        ctx, discord_id, player_name, "\n".join(dm_lines)[:2000], voice, voice_mode
     )
 
 
@@ -720,8 +815,12 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
         return "no_player"
     discord_id = entry.discord_id
 
-    # ── 3. Троттлинг in-fight ───────────────────────────────────────────
-    if event_type == "ABILITY" and not ctx.hint_throttle.allow_ability(discord_id, spell_key):
+    # ── 3. Троттлинг in-fight (Phase 4.10: все типы, не только ABILITY) ──
+    throttle_key = spell_key if event_type == "ABILITY" else str(event.get("source_name", ""))
+    if not ctx.hint_throttle.allow(discord_id, event_type, throttle_key):
+        log.debug(
+            "Подсказка %s/%s для %s подавлена троттлингом", event_type, throttle_key, discord_id
+        )
         return "throttled"
 
     # ── 4. Состав врагов: классы + спеки ────────────────────────────────
