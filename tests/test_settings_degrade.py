@@ -134,6 +134,7 @@ class TestIngestionSurvives:
         )
 
         assert await pipeline.process_event(ctx, _env({"type": "ARENA_START"})) == "sent"
+        await ctx.drain_bg()
         assert sent, "разбор на воротах должен доехать даже со сломанной схемой настроек"
 
 

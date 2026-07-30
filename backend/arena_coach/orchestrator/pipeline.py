@@ -365,6 +365,9 @@ class PipelineContext:
     advice_cache: AdviceCache = field(default_factory=AdviceCache)
     advice_store: AdviceStore | None = None  # L2 персистентный кэш (None в тестах без БД)
     _bg_tasks: set[asyncio.Task[Any]] = field(default_factory=set)
+    # Phase 4.18: цепочка фоновых DM на игрока — Discord ушёл с горячего пути,
+    # но порядок сообщений сохраняем (иначе постматч мог бы обогнать реплику боя).
+    _dm_chain: dict[str, asyncio.Task[Any]] = field(default_factory=dict)
     # Дедуп ARENA_START-DM: player+session → сигнатура последнего разбора.
     _last_arena_sig: dict[str, str] = field(default_factory=dict)
     # Phase 4.10: уже озвученный состав врагов (player+session → классы) —
@@ -411,8 +414,37 @@ class PipelineContext:
 
     def _bg_done(self, task: asyncio.Task[Any]) -> None:
         self._bg_tasks.discard(task)
+        for key, chained in list(self._dm_chain.items()):
+            if chained is task:
+                del self._dm_chain[key]
         if not task.cancelled() and task.exception() is not None:
             log.error("Фоновая задача pipeline упала: %s", task.exception())
+
+    def spawn_dm(self, discord_id: str, content: str) -> None:
+        """Отправить Discord DM ФОНОМ, сохраняя порядок сообщений игрока.
+
+        Phase 4.18 (корень 26-секундной задержки): раньше `/v1/events` ждал ответа
+        Discord REST внутри обработки запроса, а мост ждал ответа `/v1/events`
+        внутри цикла чтения combat-лога. Каждое событие = 0.3-1.5с блокировки
+        чтения, в бою мост отставал накопительно. Discord на критическом пути не
+        нужен: голос идёт через `/v1/hints` (in-memory очередь, микросекунды),
+        а текст читают уже после боя.
+
+        Порядок сохраняем цепочкой задач на `discord_id`: следующий DM ждёт
+        предыдущий. Ждёт ФОН, не запрос — цикл чтения лога свободен в любом случае.
+        """
+        prev = self._dm_chain.get(discord_id)
+        token = self.settings.discord_bot_token
+
+        async def _chained() -> None:
+            if prev is not None and not prev.done():
+                await asyncio.wait([prev])
+            await _send_discord_dm(token, discord_id, content)
+
+        task = asyncio.ensure_future(_chained())
+        self._dm_chain[discord_id] = task
+        self._bg_tasks.add(task)
+        task.add_done_callback(self._bg_done)
 
     async def drain_bg(self) -> None:
         """Дождаться фоновых задач (для тестов / graceful shutdown)."""
@@ -451,6 +483,10 @@ async def _deliver(
     урезали до двух строк; то есть игрок его всё равно не читает, а каждый такой DM —
     вызов Discord API и риск rate-limit. Разбор на воротах и постматч (`in_fight=False`)
     приходят всегда: их читают. Включить боевой текст обратно — `/coach text on`.
+
+    Phase 4.18: DM уходит ФОНОМ (`ctx.spawn_dm`) — ответ `/v1/events` больше не ждёт
+    Discord. Поэтому «sent» здесь означает «принято к доставке», а не «Discord
+    подтвердил»: ждать подтверждения некому — мост в этот момент обязан читать лог.
     """
     voice_sent = False
     if voice_mode != "off" and voice_text:
@@ -466,8 +502,8 @@ async def _deliver(
     # выключен или фразы нет) он остался бы вообще без подсказки.
     if voice_sent and (voice_mode == "only" or (in_fight and combat_text == "off")):
         return "sent"
-    ok = await _send_discord_dm(ctx.settings.discord_bot_token, discord_id, dm_text)
-    return "sent" if ok or voice_sent else "error"
+    ctx.spawn_dm(discord_id, dm_text)
+    return "sent"
 
 
 def _voice_ttl(reaction: Reaction | None) -> float:
@@ -560,7 +596,14 @@ async def _emit_arena(
 
 
 async def _finish_match(ctx: PipelineContext, player_name: str) -> str:
-    """ARENA_END: DM-разбор боя (LLM при ключе, иначе детерминированный)."""
+    """ARENA_END: DM-разбор боя (LLM при ключе, иначе детерминированный).
+
+    Phase 4.18: сборка отчёта и его доставка уходят в фон целиком. Постматч —
+    единственное место, где LLM (Sonnet) стоял в горячем пути: мост ждал ответа
+    `/v1/events` секундами, а следующий матч в это время уже начинался (после
+    ARENA_END сразу идёт новая prep-фаза). Разбор боя не терпит ничего — пусть
+    считается фоном.
+    """
     record = ctx.match_recorder.finish(player_name)
     if record is None:
         return "skipped"
@@ -573,13 +616,16 @@ async def _finish_match(ctx: PipelineContext, player_name: str) -> str:
         log.warning("Постматч: игрок '%s' не в whitelist", player_name)
         return "no_player"
 
-    candidates = ctx.kb_retriever.find_realtime_candidates(
-        record.enemy_classes, record.our_comp_hint
-    )
-    doc = candidates[0] if candidates else None
-    report = await _build_postmatch(ctx, record, doc)
-    ok = await _send_discord_dm(ctx.settings.discord_bot_token, entry.discord_id, report)
-    return "sent" if ok else "error"
+    async def _report() -> None:
+        candidates = ctx.kb_retriever.find_realtime_candidates(
+            record.enemy_classes, record.our_comp_hint
+        )
+        doc = candidates[0] if candidates else None
+        report = await _build_postmatch(ctx, record, doc)
+        ctx.spawn_dm(entry.discord_id, report)
+
+    ctx.spawn_bg(_report())
+    return "sent"
 
 
 #: Ниже этого числа событий LLM-разбор не запускаем (Phase 4.12).
@@ -923,11 +969,7 @@ async def _generate_and_send_advice(
     ctx.advice_cache.put(sig_key, result.text)
     if ctx.advice_store is not None:
         await ctx.advice_store.put(sig_key, result.text, model)
-    await _send_discord_dm(
-        ctx.settings.discord_bot_token,
-        discord_id,
-        f"🧠 **Разбор ({enemies_desc}):**\n{result.text}"[:2000],
-    )
+    ctx.spawn_dm(discord_id, f"🧠 **Разбор ({enemies_desc}):**\n{result.text}"[:2000])
 
 
 # ── TRINKET / ABILITY (детерминированно, мгновенно) ──────────────────────────

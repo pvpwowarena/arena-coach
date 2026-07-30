@@ -97,6 +97,7 @@ class TestMetaPriorsInDm:
     async def test_partial_dm_contains_meta_guess(self, kb_dir: Path, dms: list[str]) -> None:
         ctx = _ctx(kb_dir)
         r = await pipeline.process_event(ctx, _env([{"wow_class": "ROGUE", "race": "UNKNOWN"}]))
+        await ctx.drain_bg()
         assert r == "sent"
         assert "По мете это чаще всего" in dms[0]
         assert "Роге/Маг" in dms[0]
@@ -104,6 +105,7 @@ class TestMetaPriorsInDm:
     async def test_stealth_dm_names_stealth_comps(self, kb_dir: Path, dms: list[str]) -> None:
         ctx = _ctx(kb_dir)
         r = await pipeline.process_event(ctx, _env([], bracket="3v3"))
+        await ctx.drain_bg()
         assert r == "sent"
         assert "стелс-опенер" in dms[0]
         assert "Дабл-роге/Друид" in dms[0]
@@ -120,5 +122,6 @@ class TestMetaPriorsInDm:
                 bracket="3v3",
             ),
         )
+        await ctx.drain_bg()
         assert r == "sent"
         assert "По мете" not in dms[0]

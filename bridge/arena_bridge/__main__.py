@@ -137,6 +137,7 @@ async def _run_bridge(
     from .hint_poller import run_hint_poller
     from .local_tts import LocalTTS
     from .normalizer import SessionState, normalize_raw
+    from .send_queue import EventSender, LagClock
     from .ws_client import EventClient
 
     session = SessionState(default_our_comp=our_comp)
@@ -208,6 +209,14 @@ async def _run_bridge(
     else:
         log.info("Локальный голос: выкл (--no-local-voice / BRIDGE_LOCAL_VOICE=0)")
 
+    # Phase 4.18: чтение лога и отправка разведены очередью. Раньше `client.send`
+    # ждали ПРЯМО в цикле чтения — каждое событие блокировало тейлер на время POST,
+    # и в бою мост отставал накопительно (корень измеренных 26с). Теперь цикл
+    # только читает и кладёт в очередь; сеть живёт в своём воркере.
+    sender = EventSender(client.send)
+    sender.start()
+    lag = LagClock()
+
     try:
         async for raw_line in tailer.lines():
             if stop_event.is_set():
@@ -220,10 +229,8 @@ async def _run_bridge(
                 if envelope is None:
                     continue
 
-                payload = envelope.model_dump()
-                ok = await client.send(payload)
-                if not ok:
-                    log.warning("Событие потеряно: %s", raw_payload)
+                line_ts = getattr(interpreter, "last_line_ts", None) if interpreter else None
+                sender.submit(envelope.model_dump(), lag.lag_s(line_ts), raw_payload)
 
     except asyncio.CancelledError:
         log.info("Bridge: получен CancelledError, завершаю")
@@ -233,6 +240,8 @@ async def _run_bridge(
             poller_task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await poller_task
+        await sender.stop()
+        log.info("Конвейер событий: %s", sender.stats.summary())
         await client.close()
         log.info("Arena Bridge остановлен")
 

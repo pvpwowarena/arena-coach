@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -20,6 +21,9 @@ log = logging.getLogger(__name__)
 router = APIRouter(prefix="/v1", tags=["bridge"])
 
 _bearer_scheme = HTTPBearer(auto_error=True)
+
+#: Порог «медленной» обработки события в горячем пути (мс).
+SLOW_EVENT_MS = 150.0
 
 
 def _verify_token(
@@ -80,8 +84,23 @@ async def receive_event(
     player = body.get("player_name", "?")
     log.info("Event received: %s from player=%s", event_type, player)
 
+    # Phase 4.18: держим обработку в горячем пути измеримой. Мост ждёт этот ответ
+    # внутри своего конвейера, поэтому всё, что дольше десятков миллисекунд, —
+    # дефект: сеть (Discord, LLM) обязана уходить в фон через ctx.spawn_bg/spawn_dm.
+    started = time.perf_counter()
     result = await process_event(ctx, body)
-    log.info("Event processed: %s → %s", event_type, result)
+    elapsed_ms = (time.perf_counter() - started) * 1000.0
+    if elapsed_ms > SLOW_EVENT_MS:
+        log.warning(
+            "Event processed SLOW: %s → %s за %.0fмс (>%.0fмс — что-то сетевое "
+            "осталось в горячем пути)",
+            event_type,
+            result,
+            elapsed_ms,
+            SLOW_EVENT_MS,
+        )
+    else:
+        log.info("Event processed: %s → %s за %.1fмс", event_type, result, elapsed_ms)
 
     return {"status": result}
 

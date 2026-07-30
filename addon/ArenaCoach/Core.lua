@@ -6,7 +6,7 @@ ArenaCoach = ArenaCoach or {}
 local AC = ArenaCoach
 
 -- ── Версия ──────────────────────────────────────────────────────────────────
-AC.VERSION = "0.2.2"
+AC.VERSION = "0.3.0"
 
 -- ── SavedVariables schema ────────────────────────────────────────────────────
 -- ArenaCoachDB инициализируется один раз при первом логине.
@@ -103,12 +103,14 @@ SlashCmdList["ARENACOACH"] = function(msg)
             AC.Print("Форс-флаш чат-лога: " .. state .. ". Переключить: /ac flush on|off")
         end
     else
-        AC.Print("Команды: /ac status | /ac test | /ac log | /ac flush | /ac sessions | /ac reset")
+        AC.Print("Команды: /ac status | /ac ui | /ac overlay | /ac skull on|off")
+        AC.Print("          /ac test | /ac log | /ac flush | /ac sessions | /ac reset")
     end
 end
 
 function AC.PrintStatus()
     AC.Print("ArenaCoach v" .. AC.VERSION)
+    AC.Print("Матчапов в килл-таргет-таблице: " .. tostring(AC.KB_KILL_TARGETS_COUNT or 0))
     AC.Print("Сессий в DB: " .. #ArenaCoachDB.sessions)
     if AC.currentSession then
         AC.Print("Активная сессия: " .. AC.currentSession.id)

@@ -106,7 +106,9 @@ def test_arena_start_on_prep_removed() -> None:
     assert it.feed_line(_line("12:00:00.0000", PREP_ON_ME)) == []
     assert it.feed_line(_line("12:00:01.0000", PREP_ON_ALLY)) == []
     out = it.feed_line(_line("12:00:30.0000", PREP_OFF_ME))
-    assert out == ["ARENA_START#2v2##"]
+    # Phase 4.18: слот игрока в allies есть ВСЕГДА — при нераскрытом классе он
+    # честно UNKNOWN, чтобы напарник не занял позицию allies[0] (player_class).
+    assert out == ["ARENA_START#2v2##UNKNOWN/UNKNOWN"]
 
 
 def test_enemy_class_inference_reemits_start() -> None:
@@ -119,7 +121,7 @@ def test_enemy_class_inference_reemits_start() -> None:
         _line("12:00:40.0000", _enemy_cast("Player-1-E1", "Evilmage-X", 27072, "Frostbolt"))
     )
     # Frostbolt — WEAK-сигнал спека frost (Phase 4.7): раскрывается класс + спек-намёк
-    assert "ARENA_START#2v2#MAGE/UNKNOWN/frost-mage#" in out
+    assert "ARENA_START#2v2#MAGE/UNKNOWN/frost-mage#UNKNOWN/UNKNOWN" in out
 
 
 def test_trinket_and_ability_payloads() -> None:
@@ -240,12 +242,35 @@ def _friendly_cast(guid: str, name: str, spell_id: int, spell: str) -> str:
     )
 
 
-def test_ally_class_reveal_does_not_reemit() -> None:
-    """Раскрытие класса союзника не должно слать повторный ARENA_START."""
+def test_ally_class_reveal_reemits_our_comp() -> None:
+    """Поздно раскрывшийся напарник МЕНЯЕТ наш состав → re-emit (Phase 4.18).
+
+    Раньше здесь стояло обратное требование («не слать повтор»), и из-за него
+    our_comp фризился на первом варианте до конца матча: KB-матчап искался по
+    неполному нашему составу. Анти-спам живёт теперь на бэкенде — он дедупит DM
+    по выбранному KB-документу, то есть игрок увидит повтор, только если сменился
+    ПЛАН, а не строка payload.
+    """
     it = CombatInterpreter(player_name="Arenacoach")
     _setup_2v2(it)
     out = it.feed_line(
-        _line("12:00:35.0000", _friendly_cast("Player-1-AL", "Syskilla-X", 25454, "Earth Shock"))
+        _line("12:00:33.0000", _friendly_cast("Player-1-AL", "Syskilla-X", 25454, "Earth Shock"))
+    )
+    starts = [p for p in out if p.startswith("ARENA_START")]
+    assert starts == ["ARENA_START#2v2##UNKNOWN/UNKNOWN,SHAMAN/UNKNOWN"]
+
+
+def test_random_friendly_player_never_joins_our_roster() -> None:
+    """Ростер команды — только те, на кого падала Arena Preparation (Phase 4.18).
+
+    В живом логе 30.07 в «союзники» после матча влетали десятки имён из открытого
+    мира, а bracket считается по их числу — оценка состава уезжала целиком.
+    """
+    it = CombatInterpreter(player_name="Arenacoach")
+    _setup_2v2(it)
+    # До стелс-порога (6с от ворот), чтобы в вывод не влез стелс-анонс.
+    out = it.feed_line(
+        _line("12:00:33.0000", _friendly_cast("Player-1-XX", "Passerby-X", 25454, "Earth Shock"))
     )
     assert not any(p.startswith("ARENA_START") for p in out)
 
@@ -295,7 +320,7 @@ def test_strong_spec_repentance_ret_paladin() -> None:
     out = it.feed_line(
         _line("12:00:40.0000", _enemy_cast("Player-1-E1", "Judgex-X", 20066, "Repentance"))
     )
-    assert "ARENA_START#2v2#PALADIN/UNKNOWN/ret-paladin#" in out
+    assert "ARENA_START#2v2#PALADIN/UNKNOWN/ret-paladin#UNKNOWN/UNKNOWN" in out
 
 
 def test_strong_spec_overrides_weak_frost_to_fire() -> None:

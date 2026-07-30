@@ -299,11 +299,16 @@ local function OnArenaStart()
     AC.currentSession = session
     AC.Print("Арена началась (" .. session.bracket .. ") — трекинг активен.")
 
+    -- Визуальный слой (Phase 4.18) поднимаем ПЕРВЫМ: он не ждёт ни моста, ни
+    -- сети — килл-таргет виден в тот же кадр, что и ростер.
+    if AC.Overlay then AC.Overlay:StartMatch() end
+
     -- Сообщаем bridge о старте, составе врагов и союзников
     EmitArenaStart(session)
 end
 
 local function OnArenaEnd()
+    if AC.Overlay then AC.Overlay:EndMatch() end
     if not AC.currentSession then return end
     AC.currentSession.ended_at = AC.Now()
     AC.EmitToChat("ARENA_END", tostring(#AC.currentSession.events))
@@ -345,6 +350,9 @@ local function OnCombatLog(timestamp, subevent, sourceGUID, sourceName, sourceFl
             { trinket_type = AC.TRINKET_IDS[spellId], is_enemy = isEnemy }
         )
         if isEnemy then
+            -- Оверлей трекает тринкеты сам: метка «БЕЗ ТРИНКЕТА» и выбор цели
+            -- при дублях класса должны обновиться мгновенно, без круга через мост.
+            if AC.Overlay then AC.Overlay:NoteTrinket(sourceGUID) end
             AC.Print("ТРИНКЕТ: " .. (sourceName or "?") .. " использовал " .. (spellName or "?"))
             -- Сообщаем bridge — это самый важный real-time сигнал
             AC.EmitToChat("TRINKET", sourceName or "", tostring(spellId),
@@ -380,6 +388,7 @@ local function OnArenaOpponentUpdate()
     -- поздний зум). Если состав изменился — повторный ARENA_START, чтобы
     -- backend прислал уточнённый матчап-совет.
     ScanEnemies(AC.currentSession)
+    if AC.Overlay then AC.Overlay:ScanRoster() end
     EmitArenaStart(AC.currentSession)
 end
 
@@ -447,6 +456,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         local addonName = ...
         if addonName == "ArenaCoach" then
             AC.InitDB()
+            if AC.Overlay then AC.Overlay:RestorePosition() end
             AC.Print("v" .. AC.VERSION .. " загружен. /ac для помощи.")
         end
 

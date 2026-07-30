@@ -163,18 +163,22 @@ class TestDuplicateClasses:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         # Оба рога раскрылись кастами — только так бэкенд узнаёт ники.
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Cekraj", 1856, "vanish", "Vanish"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Shadow", 6770, "sap", "Sap"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         spoken.clear()
 
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, _trinket("Shadow")))
+        await ctx.drain_bg()
         assert spoken, "тринкет должен озвучиваться"
         assert "Шадов" in spoken[-1] or "Шэдов" in spoken[-1], spoken[-1]
 
@@ -186,13 +190,16 @@ class TestDuplicateClasses:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx, _env(ROGUE_MAGE, _ability("Cekraj", 1856, "vanish", "Vanish"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         spoken.clear()
 
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Cekraj")))
+        await ctx.drain_bg()
         # Ваниш + тринкет открыли окно — про него бот говорит первым (это ценнее),
         # а реплика на сам тринкет остаётся безымянной таблично.
         assert spoken[-1] == "Тринкета нет — вешай контроль."
@@ -205,17 +212,21 @@ class TestDuplicateClasses:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Cekraj", 1856, "vanish", "Vanish"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Shadow", 6770, "sap", "Sap"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         dms.clear()
 
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, _trinket("Shadow")))
+        await ctx.drain_bg()
         joined = "\n".join(dms)
         assert "Дубль класса" in joined
         assert "**Shadow**" in joined
@@ -228,21 +239,26 @@ class TestDuplicateClasses:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Cekraj", 1856, "vanish", "Vanish"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Shadow", 6770, "sap", "Sap"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, _trinket("Shadow")))
+        await ctx.drain_bg()
         clock[0] += 5.0
         dms.clear()
         spoken.clear()
 
         # Повторный ARENA_START — мост шлёт его при доуточнении состава.
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}, session="s1"))
+        await ctx.drain_bg()
         joined = "\n".join(dms)
         assert "Дубль рога" in joined, joined
         assert "**Shadow**" in joined
@@ -258,7 +274,9 @@ class TestOpenWindowInFight:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Frosty")))
+        await ctx.drain_bg()
         clock[0] += 5.0
         dms.clear()
 
@@ -266,6 +284,7 @@ class TestOpenWindowInFight:
         await pipeline.process_event(
             ctx, _env(ROGUE_MAGE, _ability("Frosty", 45438, "ice_block", "Ice Block"))
         )
+        await ctx.drain_bg()
         joined = "\n".join(dms)
         assert "Окно на Frosty" in joined
         assert "дожимайте" in joined.lower() or "вкладывайте" in joined.lower()
@@ -277,16 +296,20 @@ class TestOpenWindowInFight:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Frosty")))
+        await ctx.drain_bg()
         clock[0] += 5.0
         await pipeline.process_event(
             ctx, _env(ROGUE_MAGE, _ability("Frosty", 45438, "ice_block", "Ice Block"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         dms.clear()
         await pipeline.process_event(
             ctx, _env(ROGUE_MAGE, _ability("Frosty", 12472, "icy_veins", "Icy Veins"))
         )
+        await ctx.drain_bg()
         assert "Окно на Frosty" not in "\n".join(dms)
 
     async def test_cooldown_return_announced(
@@ -296,13 +319,16 @@ class TestOpenWindowInFight:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx, _env(ROGUE_MAGE, _ability("Cekraj", 1856, "vanish", "Vanish"))
         )
+        await ctx.drain_bg()
         clock[0] += 181.0
         dms.clear()
 
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _ability("Cekraj", 6770, "sap", "Sap")))
+        await ctx.drain_bg()
         assert "откатился" in "\n".join(dms)
 
     async def test_throttled_event_still_updates_the_ledger(
@@ -314,10 +340,13 @@ class TestOpenWindowInFight:
         # Жёсткий троттлинг: реплики не пройдут, учёт обязан идти всё равно.
         ctx.hint_throttle = pipeline.HintThrottle(gap_s=999.0, high_gap_s=999.0)
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Frosty")))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx, _env(ROGUE_MAGE, _ability("Frosty", 45438, "ice_block", "Ice Block"))
         )
+        await ctx.drain_bg()
         assert ctx.enemy_tracker.without_trinket("Arenacoach") == ["Frosty"]
         assert ctx.enemy_tracker.remaining_s("Arenacoach", "Frosty", "ice_block") == 300.0
 
@@ -327,8 +356,11 @@ class TestOpenWindowInFight:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Frosty")))
+        await ctx.drain_bg()
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_END"}))
+        await ctx.drain_bg()
         assert ctx.enemy_tracker.known("Arenacoach") == []
 
 
@@ -341,13 +373,16 @@ class TestVoiceTranslit:
         clock = [0.0]
         ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Cekraj", 1856, "vanish", "Vanish"))
         )
+        await ctx.drain_bg()
         clock[0] += 5.0
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Shadow", 6770, "sap", "Sap"))
         )
+        await ctx.drain_bg()
         assert spoken
         for phrase in spoken:
             assert not any("a" <= ch.lower() <= "z" for ch in phrase), phrase

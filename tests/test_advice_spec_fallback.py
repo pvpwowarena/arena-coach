@@ -126,6 +126,7 @@ class TestSpecFallback:
         ctx.advice_cache.put(CLASS_SIG, SEED_TEXT)
 
         r = await pipeline.process_event(ctx, _env(WITH_SPEC))
+        await ctx.drain_bg()
         assert r == "sent"
         assert len(dms) == 1
         assert SEED_TEXT in dms[0]
@@ -137,6 +138,7 @@ class TestSpecFallback:
         ctx = _ctx(kb_dir)
         ctx.advice_cache.put(CLASS_SIG, SEED_TEXT)
         await pipeline.process_event(ctx, _env(WITH_SPEC))
+        await ctx.drain_bg()
         assert ctx.advice_cache.get(SPEC_SIG) == SEED_TEXT
 
     async def test_fallback_reads_l2_store(
@@ -147,6 +149,7 @@ class TestSpecFallback:
         ctx = _ctx(kb_dir, store=store)
 
         r = await pipeline.process_event(ctx, _env(WITH_SPEC))
+        await ctx.drain_bg()
         assert r == "sent"
         assert SEED_TEXT in dms[0]
         await ctx.drain_bg()
@@ -157,6 +160,7 @@ class TestSpecFallback:
         ctx = _ctx(kb_dir, key="")
         ctx.advice_cache.put(CLASS_SIG, SEED_TEXT)
         r = await pipeline.process_event(ctx, _env(WITH_SPEC))
+        await ctx.drain_bg()
         assert r == "sent"
         assert SEED_TEXT in dms[0]
         assert "Матчапа в KB нет" not in dms[0]
@@ -164,6 +168,7 @@ class TestSpecFallback:
     async def test_no_fallback_when_nothing_seeded(self, kb_dir: Path, dms: list[str]) -> None:
         ctx = _ctx(kb_dir)
         r = await pipeline.process_event(ctx, _env(WITH_SPEC))
+        await ctx.drain_bg()
         assert r == "sent"
         assert "Генерю разбор" in dms[0]  # старое поведение: эвристика + фон-LLM
         await ctx.drain_bg()
@@ -177,6 +182,7 @@ class TestSpecFallback:
         ctx = _ctx(kb_dir)
         ctx.advice_cache.put(CLASS_SIG, SEED_TEXT)
         r = await pipeline.process_event(ctx, _env(NO_SPECS))
+        await ctx.drain_bg()
         assert r == "sent"
         assert SEED_TEXT in dms[0]
         await ctx.drain_bg()
@@ -191,9 +197,11 @@ class TestContentDedup:
         ctx.advice_cache.put(CLASS_SIG, SEED_TEXT)
 
         r1 = await pipeline.process_event(ctx, _env(NO_SPECS, session="s7"))
+        await ctx.drain_bg()
         assert r1 == "sent"
         # re-emit той же сессии: мост раскрыл спек, разбор тот же → дубль не шлём
         r2 = await pipeline.process_event(ctx, _env(WITH_SPEC, session="s7"))
+        await ctx.drain_bg()
         assert r2 == "skipped"
         assert len(dms) == 1
 
@@ -202,10 +210,12 @@ class TestContentDedup:
         # содержимое изменилось → re-emit шлём.
         ctx = _ctx(kb_dir, key="")
         r1 = await pipeline.process_event(ctx, _env(NO_SPECS, session="s8"))
+        await ctx.drain_bg()
         assert r1 == "sent"
         ctx.advice_cache.put(CLASS_SIG, SEED_TEXT)
         ctx.advice_cache.put(SPEC_SIG, SEED_TEXT)
         r2 = await pipeline.process_event(ctx, _env(WITH_SPEC, session="s8"))
+        await ctx.drain_bg()
         assert r2 == "sent"
         assert len(dms) == 2
         assert SEED_TEXT in dms[1]
@@ -213,6 +223,8 @@ class TestContentDedup:
     async def test_identical_reemit_still_skipped(self, kb_dir: Path, dms: list[str]) -> None:
         ctx = _ctx(kb_dir, key="")
         r1 = await pipeline.process_event(ctx, _env(NO_SPECS, session="s9"))
+        await ctx.drain_bg()
         r2 = await pipeline.process_event(ctx, _env(NO_SPECS, session="s9"))
+        await ctx.drain_bg()
         assert (r1, r2) == ("sent", "skipped")
         assert len(dms) == 1

@@ -278,6 +278,7 @@ class TestArenaEndPipeline:
         ctx = _ctx(kb_dir, {"Arenacoach": "111"})
 
         r1 = await pipeline.process_event(ctx, _envelope({"type": "ARENA_START", "bracket": "2v2"}))
+        await ctx.drain_bg()
         assert r1 in ("sent", "no_matchup")
         # CC-каст: с Phase 4.11 на кидни есть реакция (раньше был skipped),
         # и он же попадает в таймлайн постматча
@@ -293,6 +294,7 @@ class TestArenaEndPipeline:
                 ts="2026-07-24T12:00:30Z",
             ),
         )
+        await ctx.drain_bg()
         assert r2 == "sent"
         r3 = await pipeline.process_event(
             ctx,
@@ -306,12 +308,14 @@ class TestArenaEndPipeline:
                 ts="2026-07-24T12:01:10Z",
             ),
         )
+        await ctx.drain_bg()
         assert r3 == "sent"
 
         dm_count_before_end = len(sent_dms)
         r4 = await pipeline.process_event(
             ctx, _envelope({"type": "ARENA_END", "event_count": 3}, ts="2026-07-24T12:04:00Z")
         )
+        await ctx.drain_bg()
         assert r4 == "sent"
         assert len(sent_dms) == dm_count_before_end + 1
         report = sent_dms[-1][1]
@@ -326,6 +330,7 @@ class TestArenaEndPipeline:
         result = await pipeline.process_event(
             ctx, _envelope({"type": "ARENA_END", "event_count": 0})
         )
+        await ctx.drain_bg()
         assert result == "skipped"
         assert sent_dms == []
 
@@ -334,10 +339,12 @@ class TestArenaEndPipeline:
     ) -> None:
         ctx = _ctx(kb_dir, {"Arenacoach": "111"})
         await pipeline.process_event(ctx, _envelope({"type": "ARENA_START", "bracket": "2v2"}))
+        await ctx.drain_bg()
         dm_before = len(sent_dms)
         result = await pipeline.process_event(
             ctx, _envelope({"type": "ARENA_END", "event_count": 0}, ts="2026-07-24T12:01:00Z")
         )
+        await ctx.drain_bg()
         assert result == "skipped"
         assert len(sent_dms) == dm_before
 
@@ -346,6 +353,7 @@ class TestArenaEndPipeline:
     ) -> None:
         ctx = _ctx(kb_dir, {})
         await pipeline.process_event(ctx, _envelope({"type": "ARENA_START", "bracket": "2v2"}))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx,
             _envelope(
@@ -353,9 +361,11 @@ class TestArenaEndPipeline:
                 ts="2026-07-24T12:00:20Z",
             ),
         )
+        await ctx.drain_bg()
         result = await pipeline.process_event(
             ctx, _envelope({"type": "ARENA_END", "event_count": 1}, ts="2026-07-24T12:02:00Z")
         )
+        await ctx.drain_bg()
         assert result == "no_player"
         assert sent_dms == []
 

@@ -94,6 +94,12 @@ SlashCmdList["ARENACOACH"] = function(msg)
     local cmd = strtrim(msg or ""):lower()
     if cmd == "ui" then
         AC.ToggleUI()
+    elseif cmd == "overlay" then
+        if AC.Overlay then AC.Overlay:Toggle() end
+    elseif cmd == "skull on" then
+        if AC.Overlay then AC.Overlay:SetMarkEnabled(true) end
+    elseif cmd == "skull off" then
+        if AC.Overlay then AC.Overlay:SetMarkEnabled(false) end
     elseif cmd == "coach pause" then
         AC.SetBridgeEnabled(false)
     elseif cmd == "coach resume" then

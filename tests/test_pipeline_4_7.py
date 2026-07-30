@@ -127,6 +127,7 @@ class TestThreatsAndDeterministicFloor:
     async def test_kb_dm_includes_threats(self, kb_dir: Path, dms: list[str]) -> None:
         ctx = _ctx(kb_dir, key="")
         r = await pipeline.process_event(ctx, _env(ROGUE_MAGE, our="rogue+warlock"))
+        await ctx.drain_bg()
         assert r == "sent"
         assert len(dms) == 1
         assert "шаттер" in dms[0]  # угроза мага
@@ -137,6 +138,7 @@ class TestThreatsAndDeterministicFloor:
         r = await pipeline.process_event(
             ctx, _env(TRIPLE_MAGE, our="rogue+mage+priest", bracket="3v3")
         )
+        await ctx.drain_bg()
         assert r == "sent"
         assert len(dms) == 1  # только мгновенный floor, без фонового LLM
         assert "Нестандартный сетап" in dms[0]
@@ -157,12 +159,12 @@ class TestUnknownCompLLM:
         r = await pipeline.process_event(
             ctx, _env(TRIPLE_MAGE, our="rogue+mage+priest", bracket="3v3")
         )
-        assert r == "sent"
-        assert len(dms) == 1
-        assert "Генерю разбор" in dms[0]
-
         await ctx.drain_bg()
+        assert r == "sent"
+        # Phase 4.18: оба DM уходят фоном, но ПОРЯДОК сохранён цепочкой на игрока —
+        # мгновенный floor первым, фоновый LLM-разбор следом.
         assert len(dms) == 2
+        assert "Генерю разбор" in dms[0]
         assert "Разбор" in dms[1]
         assert len(ctx.advice_cache) == 1
         summary = await usage.summary()
@@ -198,6 +200,7 @@ class TestPostmatchLLM:
         ctx = _ctx(kb_dir, key="sk-test", client=client, usage=usage)
 
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, our="rogue+warlock"))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx,
             _env(
@@ -211,6 +214,7 @@ class TestPostmatchLLM:
                 },
             ),
         )
+        await ctx.drain_bg()
         # Phase 4.12: на разбор нужен минимум POSTMATCH_MIN_EVENTS событий —
         # на одном модель начинает сочинять (см. TestPostmatchThinMatch).
         for spell in ("vanish", "ice_block"):
@@ -227,10 +231,12 @@ class TestPostmatchLLM:
                     },
                 ),
             )
+            await ctx.drain_bg()
         r = await pipeline.process_event(
             ctx,
             _env(ROGUE_MAGE, our="rogue+warlock", event={"type": "ARENA_END", "event_count": 3}),
         )
+        await ctx.drain_bg()
         assert r == "sent"
         assert "Разбор тренера" in dms[-1]
         assert "Ваниш слил рано" in dms[-1]
@@ -248,6 +254,7 @@ class TestPostmatchLLM:
         ctx = _ctx(kb_dir, key="sk-test", client=client)
 
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, our="rogue+warlock"))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx,
             _env(
@@ -261,10 +268,12 @@ class TestPostmatchLLM:
                 },
             ),
         )
+        await ctx.drain_bg()
         r = await pipeline.process_event(
             ctx,
             _env(ROGUE_MAGE, our="rogue+warlock", event={"type": "ARENA_END", "event_count": 1}),
         )
+        await ctx.drain_bg()
         assert r == "sent"
         assert "Разбирать нечего" in dms[-1]
         assert "насочинял" not in dms[-1]
@@ -282,6 +291,7 @@ class TestPostmatchLLM:
         monkeypatch.setattr(pipeline.advice_mod, "generate_postmatch_review", _boom)
 
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, our="rogue+warlock"))
+        await ctx.drain_bg()
         await pipeline.process_event(
             ctx,
             _env(
@@ -295,10 +305,12 @@ class TestPostmatchLLM:
                 },
             ),
         )
+        await ctx.drain_bg()
         r = await pipeline.process_event(
             ctx,
             _env(ROGUE_MAGE, our="rogue+warlock", event={"type": "ARENA_END", "event_count": 1}),
         )
+        await ctx.drain_bg()
         assert r == "sent"
         assert "Разбор боя" in dms[-1]  # детерминированный фолбэк
 
@@ -307,7 +319,9 @@ class TestArenaStartDedup:
     async def test_same_signature_not_redelivered(self, kb_dir: Path, dms: list[str]) -> None:
         ctx = _ctx(kb_dir, key="")
         first = await pipeline.process_event(ctx, _env(ROGUE_MAGE, our="rogue+warlock"))
+        await ctx.drain_bg()
         second = await pipeline.process_event(ctx, _env(ROGUE_MAGE, our="rogue+warlock"))
+        await ctx.drain_bg()
         assert first == "sent"
         assert second == "skipped"
         assert len(dms) == 1

@@ -195,6 +195,140 @@ _CLASS_SPELLS: dict[str, set[int]] = {
 }
 SPELL_TO_CLASS: dict[int, str] = {sid: cls for cls, ids in _CLASS_SPELLS.items() for sid in ids}
 
+# Класс по ИМЕНИ спелла — фолбэк к таблице id (Phase 4.18).
+#
+# Зачем: живой лог 30.07 показал дыру ровно там, где она дороже всего — на воротах.
+# Враг Malødos скастовал `Arcane Intellect` (id 1459), в `_CLASS_SPELLS` лежал только
+# ранг 27126 → класс не опознан, состав уехал. У баффов по 5-7 рангов, и добивать
+# таблицу id рангами — бесконечная гонка с ошибками, а ИМЯ у всех рангов одно.
+#
+# Берём только class-EXCLUSIVE имена (второго класса с таким же именем в 2.4.3 нет),
+# с упором на «баффы на воротах»: их жмут в первые секунды, это самый ранний reveal.
+# Ограничение: работает на английском клиенте (лог локализован). Поэтому имя —
+# именно ФОЛБЭК: таблица id остаётся первичной и от локали не зависит.
+_CLASS_BY_SPELL_NAME: dict[str, str] = {
+    name.lower(): cls
+    for cls, names in {
+        "MAGE": (
+            "Arcane Intellect",
+            "Arcane Brilliance",
+            "Amplify Magic",
+            "Dampen Magic",
+            "Mana Shield",
+            "Frost Armor",
+            "Ice Armor",
+            "Molten Armor",
+            "Mage Armor",
+            "Fire Ward",
+            "Frost Ward",
+            "Slow Fall",
+            "Conjure Water",
+            "Conjure Food",
+        ),
+        "PRIEST": (
+            "Power Word: Fortitude",
+            "Prayer of Fortitude",
+            "Divine Spirit",
+            "Prayer of Spirit",
+            "Shadow Protection",
+            "Prayer of Shadow Protection",
+            "Inner Fire",
+            "Power Word: Shield",
+            "Fear Ward",
+            "Shadowform",
+        ),
+        "DRUID": (
+            "Mark of the Wild",
+            "Gift of the Wild",
+            "Thorns",
+            "Omen of Clarity",
+            "Bear Form",
+            "Cat Form",
+            "Travel Form",
+            "Aquatic Form",
+        ),
+        "WARRIOR": (
+            "Battle Shout",
+            "Commanding Shout",
+            "Battle Stance",
+            "Defensive Stance",
+            "Berserker Stance",
+            "Bloodrage",
+        ),
+        "PALADIN": (
+            "Blessing of Might",
+            "Blessing of Kings",
+            "Blessing of Wisdom",
+            "Blessing of Salvation",
+            "Blessing of Light",
+            "Blessing of Sanctuary",
+            "Greater Blessing of Might",
+            "Greater Blessing of Kings",
+            "Greater Blessing of Wisdom",
+            "Devotion Aura",
+            "Retribution Aura",
+            "Concentration Aura",
+            "Sanctity Aura",
+            "Seal of Command",
+            "Seal of Blood",
+            "Seal of Vengeance",
+        ),
+        "HUNTER": (
+            "Aspect of the Hawk",
+            "Aspect of the Monkey",
+            "Aspect of the Cheetah",
+            "Aspect of the Viper",
+            "Aspect of the Pack",
+            "Trueshot Aura",
+            "Hunter's Mark",
+            "Call Pet",
+            "Mend Pet",
+            "Feed Pet",
+        ),
+        "WARLOCK": (
+            "Fel Armor",
+            "Demon Armor",
+            "Demon Skin",
+            "Detect Invisibility",
+            "Unending Breath",
+            "Soul Link",
+            "Create Healthstone",
+            "Life Tap",
+        ),
+        "SHAMAN": (
+            "Water Shield",
+            "Lightning Shield",
+            "Earth Shield",
+            "Windfury Weapon",
+            "Flametongue Weapon",
+            "Rockbiter Weapon",
+            "Frostbrand Weapon",
+            "Ghost Wolf",
+        ),
+        "ROGUE": (
+            "Stealth",
+            "Slice and Dice",
+            "Sprint",
+            "Deadly Poison",
+            "Instant Poison",
+            "Crippling Poison",
+            "Mind-numbing Poison",
+        ),
+    }.items()
+    for name in names
+}
+
+
+def class_of_spell(spell_id: int, spell_name: str = "") -> str | None:
+    """Класс по spell_id, при промахе — по имени спелла (см. `_CLASS_BY_SPELL_NAME`)."""
+    cls = SPELL_TO_CLASS.get(spell_id)
+    if cls is not None:
+        return cls
+    if not spell_name:
+        return None
+    return _CLASS_BY_SPELL_NAME.get(spell_name.strip().strip('"').lower())
+
+
 # spell_id → спек: уточнение класса до специализации (Phase 4.7). Тонкости спеков
 # критичны (holy vs ret pala, resto vs feral, fire vs frost), а class-level матчинг
 # их терял. ВСЕ id ниже — уже валидированные в _CLASS_SPELLS (из живых логов /
@@ -363,6 +497,14 @@ class CombatInterpreter:
     player_name: str = ""
     _in_prep: bool = field(default=False, init=False)
     _session: bool = field(default=False, init=False)
+    # Phase 4.18: класс НАШЕГО персонажа и карта «ник → класс» живут дольше матча.
+    # Класс персонажа не меняется никогда, класс конкретного ника — тоже, а
+    # `_allies`/`_enemies` чистятся на каждых воротах. Именно из-за этого живой
+    # тест 30.07 ушёл в `player_class=HUNTER` при игроке-роге: рога за 26с ворот
+    # ничего «сигнатурного» не скастовала, в allies остался только напарник-хант,
+    # и весь опенер считался под чужой класс.
+    _self_class: str | None = field(default=None, init=False)
+    _known_classes: dict[str, str] = field(default_factory=dict, init=False)
     _allies: dict[str, _Unit] = field(default_factory=dict, init=False)
     _enemies: dict[str, _Unit] = field(default_factory=dict, init=False)
     _last_hostile_ts: datetime | None = field(default=None, init=False)
@@ -373,6 +515,9 @@ class CombatInterpreter:
     _stealth_announced: bool = field(default=False, init=False)
     _team_size: int = field(default=0, init=False)
     _last_enemies_key: str | None = field(default=None, init=False)
+    #: Время последней РАЗОБРАННОЙ строки лога — для замера «время в логе ↔ wall-clock»
+    #: (Phase 4.18). Без этой цифры мы дважды гадали о природе задержки.
+    last_line_ts: datetime | None = field(default=None, init=False)
 
     # ── публичный вход ──────────────────────────────────────────────────
 
@@ -382,6 +527,7 @@ class CombatInterpreter:
         if parsed is None:
             return []
         ts, fields = parsed
+        self.last_line_ts = ts
         out: list[str] = []
 
         out.extend(self._check_quiet_end(ts))
@@ -412,8 +558,19 @@ class CombatInterpreter:
             spell_id = int(fields[9])
         except ValueError:
             return []
+        spell_name = fields[10] if len(fields) > 10 else ""
 
         out: list[str] = []
+
+        # Классы СВОЕЙ стороны запоминаем ВСЕГДА и как можно раньше — вне матча,
+        # вне prep, с любого каста (хоть бафф в городе перед очередью). Класс ника
+        # не меняется, а на воротах выводить его уже поздно: 26с блиндового окна
+        # живого теста 30.07. Ростер матча по-прежнему собирается отдельно —
+        # эта память лишь подставляет классы уже известным никам.
+        if _is_friendly_player(src_flags):
+            known = class_of_spell(spell_id, spell_name)
+            if known is not None:
+                self._remember_class(src_name, known)
 
         # Arena Preparation — границы матча
         if spell_id in ARENA_PREP_SPELL_IDS and _is_player(dst_flags):
@@ -447,7 +604,7 @@ class CombatInterpreter:
         if not self._session:
             # Вне матча классы союзников всё равно копим — пригодятся на воротах
             if _is_friendly_player(src_flags) and self._in_prep:
-                self._note_class(self._allies, src_guid, src_name, spell_id)
+                self._note_ally_class(src_guid, src_name, spell_id, spell_name)
             return out
 
         # ── внутри матча ────────────────────────────────────────────────
@@ -456,14 +613,14 @@ class CombatInterpreter:
             if src_guid not in self._enemies and len(self._enemies) >= enemy_cap:
                 # Ростер полон. Если место занято pet-прокси того же класса —
                 # уступаем его реальному игроку (прокси был лишь намёком).
-                cls = SPELL_TO_CLASS.get(spell_id)
+                cls = class_of_spell(spell_id, spell_name) or self._known_classes.get(src_name)
                 if cls is None or not self._drop_proxy(cls):
                     # Иначе это hostile-игрок ВНЕ матча (мир после арены):
                     # не регистрируем, не хинтим и НЕ продлеваем сессию.
                     return out
 
             self._last_hostile_ts = ts
-            newly_cls = self._note_class(self._enemies, src_guid, src_name, spell_id)
+            newly_cls = self._note_class(self._enemies, src_guid, src_name, spell_id, spell_name)
             if newly_cls:
                 # Реальный игрок раскрыл класс — прокси того же класса больше
                 # не нужен (иначе в ростере фантомный «лишний» враг).
@@ -477,7 +634,6 @@ class CombatInterpreter:
                     out.append(start)  # уточнение состава/спеков врагов
 
             if event in ("SPELL_CAST_SUCCESS", "SPELL_AURA_APPLIED", "SPELL_CAST_START"):
-                spell_name = fields[10] if len(fields) > 10 else ""
                 # SPELL_CAST_START — единственный сигнал ДО факта: пока хилер
                 # кастует, решение ещё можно принять (кик, сайленс, разрыв).
                 phase = "start" if event == "SPELL_CAST_START" else ""
@@ -495,10 +651,13 @@ class CombatInterpreter:
                 if start:
                     out.append(start)
         elif _is_friendly_player(src_flags):
-            # Классы союзников копим для таргетинга, но re-emit НЕ делаем:
-            # в DM видны только враги, и каждый такой повтор выглядел бы
-            # дублем «Арена началась» (спам из живого теста 2026-07-23).
-            self._note_class(self._allies, src_guid, src_name, spell_id)
+            # Классы союзников уточняем по ходу боя: поздно раскрывшийся напарник
+            # меняет НАШ состав, а значит и KB-матчап (Phase 4.18 — до этого
+            # our_comp фризился на первом варианте до конца матча).
+            if self._note_ally_class(src_guid, src_name, spell_id, spell_name):
+                start = self._emit_arena_start()
+                if start:
+                    out.append(start)
 
         return out
 
@@ -568,13 +727,8 @@ class CombatInterpreter:
         self._stealth_announced = True
         team = max(len(self._allies), 1)
         bracket = f"{team}v{team}" if team in (2, 3, 5) else "unknown"
-        allies_units = sorted(
-            self._allies.values(),
-            key=lambda u: (u.name != self.player_name, u.name),
-        )
-        allies = ",".join(f"{u.wow_class}/UNKNOWN" for u in allies_units if u.wow_class)
         log.info("Combat-канал: %.0fс без единого врага — вероятен стелс-опенер", _STEALTH_DELAY_S)
-        return [f"ARENA_START#{bracket}##{allies}#stealth"]
+        return [f"ARENA_START#{bracket}##{self._encode_allies()}#stealth"]
 
     def _end_session(self) -> str:
         self._session = False
@@ -646,17 +800,53 @@ class CombatInterpreter:
 
     # ── состав ──────────────────────────────────────────────────────────
 
-    def _note_class(self, side: dict[str, _Unit], guid: str, name: str, spell_id: int) -> bool:
-        """Зафиксировать класс юнита по спеллу. True, если класс стал известен."""
+    def _note_class(
+        self, side: dict[str, _Unit], guid: str, name: str, spell_id: int, spell_name: str = ""
+    ) -> bool:
+        """Зафиксировать класс юнита по спеллу. True, если класс стал известен.
+
+        Порядок источников: id → имя спелла → память по нику (`_known_classes`).
+        Последняя помогает на реванше и вообще при повторной встрече: класс ника
+        не меняется, а вот сигнатурный каст в новом матче может прийти нескоро.
+        """
         unit = side.setdefault(guid, _Unit(name=name))
         if unit.wow_class is not None:
             return False
-        wow_class = SPELL_TO_CLASS.get(spell_id)
+        wow_class = class_of_spell(spell_id, spell_name) or self._known_classes.get(name)
         if wow_class is None:
             return False
         unit.wow_class = wow_class
+        self._remember_class(name, wow_class)
         log.info("Combat-канал: %s определён как %s", name, wow_class)
         return True
+
+    def _note_ally_class(self, guid: str, name: str, spell_id: int, spell_name: str = "") -> bool:
+        """Уточнить класс СОЮЗНИКА — только для тех, кто уже в ростере.
+
+        Ростер нашей команды формируется исключительно аурой Arena Preparation:
+        это ровно наша команда и никто больше. Раньше сюда через `setdefault`
+        попадал любой friendly-игрок, что-либо скастовавший, — в живом логе 30.07
+        после матча в «союзники» влетели десятки имён из открытого мира, а
+        `bracket` считается как `len(_allies)` и мог уехать в «20v20».
+        """
+        if guid not in self._allies:
+            return False
+        return self._note_class(self._allies, guid, name, spell_id, spell_name)
+
+    def _remember_class(self, name: str, wow_class: str) -> None:
+        """Запомнить «ник → класс» на весь запуск моста (+ отдельно свой класс)."""
+        self._known_classes[name] = wow_class
+        if name and name == self.player_name and self._self_class != wow_class:
+            self._self_class = wow_class
+            log.info("Combat-канал: свой класс — %s (запомнен до конца сессии)", wow_class)
+
+    def _recall_known(self, side: dict[str, _Unit]) -> None:
+        """Проставить классы юнитам, чьи ники уже встречались раньше."""
+        for unit in side.values():
+            if unit.wow_class is None:
+                remembered = self._known_classes.get(unit.name)
+                if remembered is not None:
+                    unit.wow_class = remembered
 
     def _note_spec(self, side: dict[str, _Unit], guid: str, spell_id: int) -> bool:
         """Уточнить спек юнита по сигнатурному спеллу. True, если спек изменился.
@@ -682,6 +872,29 @@ class CombatInterpreter:
             return True
         return False
 
+    def _encode_allies(self) -> str:
+        """Список союзников для payload; ИГРОК ВСЕГДА ПЕРВЫЙ — это контракт с бэкендом.
+
+        `player_class` бэкенд берёт из `allies[0]` (normalizer). Раньше юниты без
+        класса просто выпадали из строки, и если наш класс на воротах ещё не был
+        раскрыт, первым оказывался напарник — весь разбор считался под ЕГО класс
+        (живой тест 30.07: рога получала советы под ханта).
+
+        Теперь свой класс берём из долгой памяти (`_self_class`), а если и её нет —
+        отдаём явный `UNKNOWN/UNKNOWN` первой позицией: пусть бэкенд знает, что
+        класс НЕизвестен, чем уверенно считает нас напарником.
+        """
+        self._recall_known(self._allies)
+        self_unit = next((u for u in self._allies.values() if u.name == self.player_name), None)
+        self_class = (self_unit.wow_class if self_unit else None) or self._self_class
+        others = sorted(
+            (u for u in self._allies.values() if u is not self_unit),
+            key=lambda u: u.name,
+        )
+        parts = [f"{self_class or 'UNKNOWN'}/UNKNOWN"]
+        parts.extend(f"{u.wow_class}/UNKNOWN" for u in others if u.wow_class)
+        return ",".join(parts)
+
     def _emit_arena_start(self) -> str | None:
         """ARENA_START-payload; None, если состав ВРАГОВ не изменился.
 
@@ -692,14 +905,16 @@ class CombatInterpreter:
         team = max(len(self._allies), 1)
         bracket = f"{team}v{team}" if team in (2, 3, 5) else "unknown"
         enemies = ",".join(_encode_enemy(u) for u in self._enemies.values() if u.wow_class)
-        if self._last_enemies_key is not None and enemies == self._last_enemies_key:
+        allies = self._encode_allies()
+        # Дедуп по ОБОИМ составам (Phase 4.18). Раньше ключом были только враги —
+        # и позднее раскрытие напарника до бэкенда не доезжало вовсе: our_comp
+        # оставался неполным до конца матча, а KB-матчап искался по чужому составу.
+        # Спама это не добавляет: бэкенд дедупит DM по выбранному KB-документу,
+        # то есть повтор дойдёт до игрока только если сменился ПЛАН.
+        key = f"{enemies}#{allies}"
+        if self._last_enemies_key is not None and key == self._last_enemies_key:
             return None
-        self._last_enemies_key = enemies
-        allies_units = sorted(
-            self._allies.values(),
-            key=lambda u: (u.name != self.player_name, u.name),
-        )
-        allies = ",".join(f"{u.wow_class}/UNKNOWN" for u in allies_units if u.wow_class)
+        self._last_enemies_key = key
         return f"ARENA_START#{bracket}#{enemies}#{allies}"
 
 

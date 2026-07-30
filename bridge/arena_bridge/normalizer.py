@@ -154,7 +154,7 @@ class SessionState:
         if not self._session_id:
             self._session_id = str(uuid.uuid4())
         our_comp = _build_comp_hint(event.allies) or self._default_our_comp
-        player_class = event.allies[0].wow_class if event.allies else None
+        player_class = _player_class(event.allies)
         self._match = MatchInfo(
             bracket=event.bracket,
             enemies=event.enemies,
@@ -198,14 +198,34 @@ def _build_slug_hint(enemies: list[EnemyInfo]) -> str | None:
     return "-".join(classes)
 
 
+#: Класс союзника ещё не раскрыт. Мост шлёт этот маркер вместо того, чтобы молча
+#: выкинуть юнита из списка: позиция игрока (allies[0]) — контракт, а «не знаю»
+#: честнее, чем сдвинуть напарника на место игрока (см. combat_tail._encode_allies).
+UNKNOWN_CLASS = "UNKNOWN"
+
+
+def _known_classes(allies: list[EnemyInfo]) -> list[str]:
+    return [a.wow_class.lower() for a in allies if a.wow_class.upper() != UNKNOWN_CLASS]
+
+
+def _player_class(allies: list[EnemyInfo]) -> str | None:
+    """Класс ИГРОКА — строго allies[0]; `UNKNOWN` → None, а не класс напарника."""
+    if not allies:
+        return None
+    first = allies[0].wow_class
+    return None if first.upper() == UNKNOWN_CLASS else first
+
+
 def _build_comp_hint(allies: list[EnemyInfo]) -> str | None:
     """Наш состав из классов союзников: 'mage+rogue' (sorted, lowercase).
 
     Совпадает с форматом composition в KB (после нормализации на бэке).
+    Юниты с нераскрытым классом пропускаем: неполный состав («hunter») бэкенд
+    матчит частично, а «unknown+hunter» не совпал бы вообще ни с чем.
     """
-    if not allies:
+    classes = sorted(_known_classes(allies))
+    if not classes:
         return None
-    classes = sorted(a.wow_class.lower() for a in allies)
     return "+".join(classes)
 
 

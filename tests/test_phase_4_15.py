@@ -118,9 +118,11 @@ class TestCombatTextOptIn:
     ) -> None:
         ctx = _ctx(kb_dir, voice_mode="on", combat_text="off")
         await pipeline.process_event(ctx, _env({"type": "ARENA_START"}))
+        await ctx.drain_bg()
         dms.clear()
 
         r = await pipeline.process_event(ctx, _env(_TRINKET))
+        await ctx.drain_bg()
         assert r == "sent"
         assert dms == []  # текста в бою нет
         assert ctx.hint_queue.pop_fresh("Arenacoach")  # а голос есть
@@ -128,9 +130,11 @@ class TestCombatTextOptIn:
     async def test_in_fight_dm_sent_when_opted_in(self, kb_dir: Path, dms: list[str]) -> None:
         ctx = _ctx(kb_dir, voice_mode="on", combat_text="on")
         await pipeline.process_event(ctx, _env({"type": "ARENA_START"}))
+        await ctx.drain_bg()
         dms.clear()
 
         await pipeline.process_event(ctx, _env(_TRINKET))
+        await ctx.drain_bg()
         assert len(dms) == 1
         assert "тринкетнул" in dms[0]
 
@@ -138,6 +142,7 @@ class TestCombatTextOptIn:
         """Разбор на воротах читают — он не боевой поток и под opt-in не попадает."""
         ctx = _ctx(kb_dir, voice_mode="on", combat_text="off")
         r = await pipeline.process_event(ctx, _env({"type": "ARENA_START"}))
+        await ctx.drain_bg()
         assert r == "sent"
         assert len(dms) == 1
         assert "Килл-таргет" in dms[0]
@@ -145,20 +150,25 @@ class TestCombatTextOptIn:
     async def test_postmatch_dm_always_sent(self, kb_dir: Path, dms: list[str]) -> None:
         ctx = _ctx(kb_dir, voice_mode="on", combat_text="off")
         await pipeline.process_event(ctx, _env({"type": "ARENA_START"}))
+        await ctx.drain_bg()
         for _ in range(3):  # POSTMATCH_MIN_EVENTS
             await pipeline.process_event(ctx, _env(_TRINKET))
+            await ctx.drain_bg()
         dms.clear()
 
         await pipeline.process_event(ctx, _env({"type": "ARENA_END"}))
+        await ctx.drain_bg()
         assert len(dms) == 1
 
     async def test_without_voice_text_survives(self, kb_dir: Path, dms: list[str]) -> None:
         """Главный предохранитель: без голоса игрок не должен остаться ни с чем."""
         ctx = _ctx(kb_dir, voice_mode="off", combat_text="off")
         await pipeline.process_event(ctx, _env({"type": "ARENA_START"}))
+        await ctx.drain_bg()
         dms.clear()
 
         await pipeline.process_event(ctx, _env(_TRINKET))
+        await ctx.drain_bg()
         assert len(dms) == 1
         assert not ctx.hint_queue.pop_fresh("Arenacoach")
 
@@ -167,5 +177,6 @@ class TestCombatTextOptIn:
     ) -> None:
         ctx = _ctx(kb_dir, voice_mode="only", combat_text="on")
         await pipeline.process_event(ctx, _env({"type": "ARENA_START"}))
+        await ctx.drain_bg()
         assert dms == []
         assert ctx.hint_queue.pop_fresh("Arenacoach")

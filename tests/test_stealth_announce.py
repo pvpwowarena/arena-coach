@@ -87,6 +87,7 @@ class TestStealthAnnounce:
     ) -> None:
         ctx = _ctx(kb_dir)
         r = await pipeline.process_event(ctx, _env([]))
+        await ctx.drain_bg()
         assert r == "sent"
         assert len(sent["dm"]) == 1
         assert "стелс-опенер" in sent["dm"][0]
@@ -100,6 +101,7 @@ class TestStealthAnnounce:
     ) -> None:
         ctx = _ctx(kb_dir)
         await pipeline.process_event(ctx, _env([]))
+        await ctx.drain_bg()
         # С Phase 4.15 хопа api→bot нет: голос = очередь, которую поллит мост.
         assert ctx.hint_queue.pop_fresh("Arenacoach") == [
             "Арена. Никого не видно — стелс опенер. Кучкуйтесь."
@@ -108,7 +110,9 @@ class TestStealthAnnounce:
     async def test_reemit_empty_is_deduped(self, kb_dir: Path, sent: dict[str, list[str]]) -> None:
         ctx = _ctx(kb_dir)
         r1 = await pipeline.process_event(ctx, _env([], session="s3"))
+        await ctx.drain_bg()
         r2 = await pipeline.process_event(ctx, _env([], session="s3"))
+        await ctx.drain_bg()
         assert (r1, r2) == ("sent", "skipped")
         assert len(sent["dm"]) == 1
 
@@ -117,9 +121,11 @@ class TestStealthAnnounce:
     ) -> None:
         ctx = _ctx(kb_dir)
         await pipeline.process_event(ctx, _env([], session="s4"))
+        await ctx.drain_bg()
         r = await pipeline.process_event(
             ctx, _env([{"wow_class": "ROGUE", "race": "UNKNOWN"}], session="s4")
         )
+        await ctx.drain_bg()
         assert r == "sent"
         assert len(sent["dm"]) == 2
         assert "видно: ROGUE" in sent["dm"][1]

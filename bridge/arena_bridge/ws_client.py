@@ -13,7 +13,14 @@ import httpx
 
 log = logging.getLogger(__name__)
 
-_RETRY_DELAYS = [1.0, 2.0, 5.0, 10.0]  # секунды между попытками
+# Ретраи realtime-события (Phase 4.18). Было [1, 2, 5, 10] — до ~18с на одно
+# событие, и всё это время (до 4.18) стоял цикл чтения лога. Но подсказка в арене
+# живёт доли секунды: событие, доехавшее через 18с, вредно, а не полезно. Поэтому
+# одна быстрая повторная попытка на случай моргнувшей сети — и хватит.
+_RETRY_DELAYS = [0.3, 0.7]  # секунды между попытками
+
+#: Таймаут POST события. Дольше ждать нечего: см. комментарий про ретраи.
+DEFAULT_TIMEOUT_S = 4.0
 
 
 class EventClient:
@@ -29,7 +36,7 @@ class EventClient:
         self,
         backend_url: str,
         bearer_token: str,
-        timeout: float = 10.0,
+        timeout: float = DEFAULT_TIMEOUT_S,
     ) -> None:
         self._backend_url = backend_url.rstrip("/")
         self._endpoint = f"{self._backend_url}/v1/events"
