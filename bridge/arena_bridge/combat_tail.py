@@ -341,9 +341,11 @@ _SPELL_TO_SPEC_STRONG: dict[int, str] = {
     30330: "arms-warrior",  # Mortal Strike
     27070: "fire-mage",  # Pyroblast
     11129: "fire-mage",  # Combustion
-    33983: "feral-druid",  # Mangle (Cat)
-    8983: "feral-druid",  # Bash
-    9634: "feral-druid",  # Dire Bear Form
+    33983: "feral-druid",  # Mangle (Cat) — 41-й талант, спек однозначен
+    # Bash (8983) и Dire Bear Form (9634) отсюда УБРАНЫ (Phase 4.18): это не таланты,
+    # их учит любой друид, и рестор регулярно уходит в мишку, чтобы пережить трейн.
+    # Живой лог 30.07: Dymango дёргался resto↔feral пять раз за матч, и каждый флип
+    # переотправлял ARENA_START. Для определения КЛАССА оба спелла остаются.
     33763: "resto-druid",  # Lifebloom
     34917: "shadow-priest",  # Vampiric Touch
     10060: "discipline-priest",  # Power Infusion
@@ -859,7 +861,18 @@ class CombatInterpreter:
             return False
         strong = _SPELL_TO_SPEC_STRONG.get(spell_id)
         if strong is not None:
-            if unit.spec == strong and unit.spec_locked:
+            if unit.spec_locked:
+                # Спек уже определён talent-defining спеллом. Второй такой спелл —
+                # противоречие (41 очко нельзя вложить в две ветки), значит одна из
+                # таблиц врёт. Первому верим, флип игнорируем: иначе состав дёргается
+                # весь матч, а с ним и план (живой тест 30.07).
+                if unit.spec != strong:
+                    log.debug(
+                        "Combat-канал: %s уже %s, спелл говорит %s — оставляю первое",
+                        unit.name,
+                        unit.spec,
+                        strong,
+                    )
                 return False
             unit.spec = strong
             unit.spec_locked = True

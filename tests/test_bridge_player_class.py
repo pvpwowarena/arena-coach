@@ -126,3 +126,42 @@ class TestClassBySpellName:
             )
         )
         assert any(o.startswith("ARENA_START#2v2#MAGE/UNKNOWN#") for o in out)
+
+
+class TestSpecDoesNotFlipFlop:
+    """Спек не должен дёргаться весь матч (живой лог 30.07: resto↔feral пять раз).
+
+    Каждый флип переотправляет ARENA_START, бэкенд переискивает матчап, и план
+    в DM меняется на противоположный. 41 очко нельзя вложить в две ветки — значит
+    при противоречии одна из таблиц врёт, и верить надо первому сигналу.
+    """
+
+    def _druid_gates(self) -> CombatInterpreter:
+        it = CombatInterpreter(player_name=ME)
+        _gates(it)
+        it.feed_line(
+            _line("13:49:46.000", _cast("Player-EN", "Dymango", 26990, "Mark of the Wild", HOSTILE))
+        )
+        return it
+
+    def test_first_strong_spec_wins(self) -> None:
+        it = self._druid_gates()
+        it.feed_line(
+            _line("13:49:47.000", _cast("Player-EN", "Dymango", 33763, "Lifebloom", HOSTILE))
+        )
+        out = it.feed_line(
+            _line("13:49:48.000", _cast("Player-EN", "Dymango", 33983, "Mangle (Cat)", HOSTILE))
+        )
+        # Mangle пришёл вторым — спек не переключаем, повторного ARENA_START нет.
+        assert not any(o.startswith("ARENA_START") for o in out)
+
+    def test_bear_form_is_not_a_spec_signal(self) -> None:
+        """Мишка — не талант: рестор уходит в неё, чтобы пережить трейн."""
+        it = self._druid_gates()
+        it.feed_line(
+            _line("13:49:47.000", _cast("Player-EN", "Dymango", 33763, "Lifebloom", HOSTILE))
+        )
+        out = it.feed_line(
+            _line("13:49:49.000", _cast("Player-EN", "Dymango", 9634, "Dire Bear Form", HOSTILE))
+        )
+        assert not any(o.startswith("ARENA_START") for o in out)
