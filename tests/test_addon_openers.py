@@ -71,7 +71,8 @@ class TestFilesAreInSyncWithKB:
 
     def test_every_manifest_clip_exists_on_disk(self, manifest: dict) -> None:
         missing = [
-            row["clip"] for row in manifest.values()
+            row["clip"]
+            for row in manifest.values()
             if not (ADDON / "sfx" / f"{row['clip']}.ogg").exists()
         ]
         assert not missing, f"нет клипов: {missing[:5]}"
@@ -121,9 +122,19 @@ class TestSpeechBudget:
             if not path.exists():
                 continue
             out = subprocess.run(
-                [FFPROBE, "-v", "error", "-show_entries", "format=duration",
-                 "-of", "csv=p=0", str(path)],
-                capture_output=True, text=True, check=True,
+                [
+                    FFPROBE,
+                    "-v",
+                    "error",
+                    "-show_entries",
+                    "format=duration",
+                    "-of",
+                    "csv=p=0",
+                    str(path),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
             )
             seconds = float(out.stdout.strip())
             if seconds > MAX_CLIP_SECONDS:
@@ -143,9 +154,19 @@ class TestSpeechBudget:
             if not path.exists():
                 continue
             out = subprocess.run(
-                [FFPROBE, "-v", "error", "-show_entries", "format=duration",
-                 "-of", "csv=p=0", str(path)],
-                capture_output=True, text=True, check=True,
+                [
+                    FFPROBE,
+                    "-v",
+                    "error",
+                    "-show_entries",
+                    "format=duration",
+                    "-of",
+                    "csv=p=0",
+                    str(path),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
             )
             real = float(out.stdout.strip())
             predicted = GEN.seconds(row["text"])

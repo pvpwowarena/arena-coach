@@ -30,8 +30,13 @@ STUB = Path(__file__).resolve().parent / "fixtures" / "addon_stub.lua"
 
 #: Порядок загрузки — как в ArenaCoach.toc.
 FILES = (
-    "Core.lua", "Tracker.lua", "KillTargets.lua", "Openers.lua",
-    "Overlay.lua", "Voice.lua", "UI.lua",
+    "Core.lua",
+    "Tracker.lua",
+    "KillTargets.lua",
+    "Openers.lua",
+    "Overlay.lua",
+    "Voice.lua",
+    "UI.lua",
 )
 
 
