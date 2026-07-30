@@ -413,6 +413,7 @@ def main() -> int:
 
     # Локальный голос (Phase 4.6): CLI-флаг имеет приоритет; иначе из env (по
     # умолчанию ВКЛ, отключается BRIDGE_LOCAL_VOICE=0/false/off).
+    voice_chosen_by_user = args.local_voice is not None or "BRIDGE_LOCAL_VOICE" in os.environ
     if args.local_voice is None:
         args.local_voice = env["local_voice"].strip().lower() not in ("0", "false", "off")
 
@@ -435,6 +436,27 @@ def main() -> int:
         log_dir = wow_path / "Logs"
         if not log_dir.exists():
             errors.append(f"Папка Logs/ не найдена: {log_dir}. Убедись что путь к WoW правильный.")
+
+    # Аддон 0.4.0+ озвучивает бой САМ — в тот же кадр, без файла и без сети. Мост в
+    # это время отстаёт на 13-28с из-за буфера клиента (замер 30.07: худший POST
+    # 0.14с при отставании 18.50с), поэтому его голос не дубль, а помеха: повторяет
+    # уже неактуальное. Поэтому при говорящем аддоне боевой голос моста выключается
+    # ПО УМОЛЧАНИЮ. Явную волю пользователя не трогаем.
+    addon_voice_version: str | None = None
+    if args.local_voice and not voice_chosen_by_user and wow_path is not None:
+        from .updater import combat_voice_default, installed_addon_version
+
+        installed = installed_addon_version(wow_path / "Interface" / "AddOns")
+        if installed and not combat_voice_default(installed):
+            args.local_voice = False
+            addon_voice_version = installed
+            log.info(
+                "Боевой голос моста выключен: аддон v%s озвучивает бой сам, в тот же "
+                "кадр. Мост при этом отстаёт на 13-28с (буфер combat-лога), и его "
+                "голос повторял бы уже неактуальное. Вернуть: --local-voice или "
+                "BRIDGE_LOCAL_VOICE=1.",
+                installed,
+            )
 
     if not args.backend_url:
         errors.append("URL backend'а не задан. Укажи --backend-url или $BACKEND_URL.")
@@ -470,6 +492,11 @@ def main() -> int:
                 print(f"  Лок. голос  : ВКЛ ({_tts.describe()}, опрос {args.hint_poll_interval}s)")
             else:
                 print("  Лок. голос  : ВКЛ, но системный TTS недоступен на этой платформе")
+        elif addon_voice_version:
+            print(
+                f"  Лок. голос  : выкл — озвучивает аддон v{addon_voice_version} "
+                f"(включить: --local-voice)"
+            )
         else:
             print("  Лок. голос  : выкл")
 

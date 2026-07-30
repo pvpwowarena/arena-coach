@@ -143,6 +143,37 @@ def fetch_latest_release(
     return ReleaseInfo(tag=tag, assets=assets)
 
 
+#: С аддона **0.4.0** (Phase 4.19) голос живёт В КЛИЕНТЕ: аддон видит те же события
+#: напрямую из `COMBAT_LOG_EVENT_UNFILTERED` и играет нарезанные клипы — без файла,
+#: без сети, в тот же кадр.
+ADDON_SPEAKS_SINCE = "0.4.0"
+
+
+def combat_voice_default(addon_version: str | None) -> bool:
+    """Включать ли боевой голос МОСТА по умолчанию.
+
+    Замер живого матча 30.07 (лог моста 18:45): худший POST 0.14с — то есть сеть и
+    бэкенд ни при чём, — но отставание от лога 18.50с и 9 событий из 14 выброшено
+    как просроченные. Клиент сбрасывает combat-лог блоками ~48КБ, и это из моста не
+    чинится (`docs/phase-4.18-latency.md`).
+
+    Значит при установленном говорящем аддоне голос моста не добавляет ничего, кроме
+    ВТОРОЙ озвучки того же самого через 13-28 секунд и другим голосом: игрок слышит
+    «Бей шамана!» дважды, причём второй раз — уже после смерти шамана.
+
+    Поэтому дефолт зависит от того, есть ли у игрока аддон, который говорит сам.
+    Явную волю пользователя (`--local-voice` / `BRIDGE_LOCAL_VOICE`) это НЕ трогает:
+    у кого аддона нет, у того голос по-прежнему из моста.
+    """
+    if not addon_version:
+        return True
+    installed = parse_version(addon_version)
+    floor = parse_version(ADDON_SPEAKS_SINCE)
+    if installed is None or floor is None:
+        return True
+    return installed < floor
+
+
 def bridge_update_notice(current_version: str, release: ReleaseInfo) -> str | None:
     """Сообщение «есть новый мост», если тег релиза новее нашей версии."""
     latest = parse_version(release.tag)
