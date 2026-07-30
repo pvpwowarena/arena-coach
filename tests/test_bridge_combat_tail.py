@@ -137,7 +137,7 @@ def test_trinket_and_ability_payloads() -> None:
     )
     # Phase 4.12: пятым полем идёт английское имя способности — по нему бэкенд
     # резолвит то, чего нет в зашитой таблице моста.
-    assert "ABILITY#Evilwar#871#shield_wall#Shield Wall" in out
+    assert "ABILITY#Evilwar#871#shield_wall#Shield Wall#" in out
 
 
 def test_unknown_spell_is_forwarded_by_name() -> None:
@@ -149,7 +149,7 @@ def test_unknown_spell_is_forwarded_by_name() -> None:
     out = it.feed_line(
         _line("12:00:41.0000", _enemy_cast("Player-1-E2", "Huntard-X", 19503, "Scatter Shot"))
     )
-    assert "ABILITY#Huntard#19503#scatter_shot#Scatter Shot" in out
+    assert "ABILITY#Huntard#19503#scatter_shot#Scatter Shot#" in out
 
 
 def test_forward_budget_caps_unknown_flood() -> None:
@@ -332,3 +332,72 @@ def test_spec_flows_through_normalizer_to_enemyinfo() -> None:
     enemies = starts[0].match.enemies
     assert enemies and enemies[0].wow_class == "DRUID"
     assert enemies[0].spec == "feral-druid"
+
+
+# ── Стелс-опенер: пустой ростер ≠ инвиз (Phase 4.12) ─────────────────────────
+
+
+def _own_line(ts_spell: int = 1784) -> str:
+    """Своя строка в логе — время идёт, врагов по-прежнему не видно."""
+    return (
+        f'SPELL_CAST_SUCCESS,Player-1-ME,"Arenacoach-Spineshatter",{FRIENDLY},0x0,'
+        f'Player-1-ME,"Arenacoach-Spineshatter",{FRIENDLY},0x0,{ts_spell},"Stealth",0x1'
+    )
+
+
+def _is_stealth_marker(payload: str) -> bool:
+    return payload.startswith("ARENA_START#") and payload.endswith("#stealth")
+
+
+def test_stealth_marker_only_after_delay() -> None:
+    """На воротах состав всегда пуст — это не инвиз. Маркер идёт через 6с тишины."""
+    it = CombatInterpreter(player_name="Arenacoach")
+    it.feed_line(_line("12:00:00.0000", PREP_ON_ME))
+    it.feed_line(_line("12:00:00.0000", PREP_ON_ALLY))
+    out = it.feed_line(_line("12:00:30.0000", PREP_OFF_ME))
+    assert not any(_is_stealth_marker(p) for p in out), "на воротах инвиз не объявляем"
+
+    early = it.feed_line(_line("12:00:33.0000", _own_line()))
+    assert not any(_is_stealth_marker(p) for p in early), "3с — рано"
+
+    late = it.feed_line(_line("12:00:40.0000", _own_line()))
+    assert any(_is_stealth_marker(p) for p in late), "6с тишины — пора предупредить"
+
+    again = it.feed_line(_line("12:00:50.0000", _own_line()))
+    assert not any(_is_stealth_marker(p) for p in again), "повторно не спамим"
+
+
+def test_no_stealth_marker_when_enemy_revealed() -> None:
+    """Враг раскрылся — предупреждать об инвизе не о чем."""
+    it = CombatInterpreter(player_name="Arenacoach")
+    it.feed_line(_line("12:00:00.0000", PREP_ON_ME))
+    it.feed_line(_line("12:00:00.0000", PREP_ON_ALLY))
+    it.feed_line(_line("12:00:30.0000", PREP_OFF_ME))
+    it.feed_line(
+        _line("12:00:32.0000", _enemy_cast("Player-1-E1", "Evilwar-X", 871, "Shield Wall"))
+    )
+    out = it.feed_line(_line("12:00:45.0000", _own_line()))
+    assert not any(_is_stealth_marker(p) for p in out)
+
+
+# ── Начало каста: единственный сигнал ДО факта (Phase 4.12) ──────────────────
+
+
+def test_cast_start_forwarded_with_phase() -> None:
+    it = CombatInterpreter(player_name="Arenacoach")
+    it.feed_line(_line("12:00:00.0000", PREP_ON_ME))
+    it.feed_line(_line("12:00:30.0000", PREP_OFF_ME))
+
+    start = it.feed_line(
+        _line(
+            "12:00:41.0000",
+            _enemy_cast("Player-1-E2", "Shamy-X", 25357, "Healing Wave", "SPELL_CAST_START"),
+        )
+    )
+    assert any(p.endswith("#healing_wave#Healing Wave#start") for p in start)
+
+    # успех того же спелла — отдельное событие, дедуп по фазе его не съедает
+    done = it.feed_line(
+        _line("12:00:43.0000", _enemy_cast("Player-1-E2", "Shamy-X", 25357, "Healing Wave"))
+    )
+    assert any(p.endswith("#healing_wave#Healing Wave#") for p in done)

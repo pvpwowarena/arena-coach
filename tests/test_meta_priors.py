@@ -62,13 +62,15 @@ def _ctx(kb_dir: Path) -> Any:
     )
 
 
-def _env(enemies: list[dict[str, str]], *, bracket: str = "2v2") -> dict[str, Any]:
+def _env(
+    enemies: list[dict[str, str]], *, bracket: str = "2v2", phase: str = "stealth"
+) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "bridge_ts": "2026-07-27T12:00:00Z",
         "session_id": "s1",
         "player_name": "Arenacoach",
-        "event": {"type": "ARENA_START", "bracket": bracket},
+        "event": {"type": "ARENA_START", "bracket": bracket, "phase": phase},
         "match": {
             "bracket": bracket,
             "enemies": enemies,

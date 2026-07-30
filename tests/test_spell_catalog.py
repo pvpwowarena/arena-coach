@@ -25,7 +25,11 @@ from arena_coach.kb.pronunciation import Pronouncer
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.kb.spells import SpellCatalog, slugify
 from arena_coach.orchestrator import pipeline
-from arena_coach.orchestrator.reactions import CATEGORY_REACTIONS, category_reaction
+from arena_coach.orchestrator.reactions import (
+    CAST_REACTIONS,
+    CATEGORY_REACTIONS,
+    category_reaction,
+)
 from arena_coach.shared.settings import Settings
 
 # ── SpellCatalog ─────────────────────────────────────────────────────────────
@@ -91,11 +95,25 @@ class TestRealCatalog:
             assert cat.resolve(spell_name=name).category, f"шаман молчит на {name}"
 
     def test_every_category_has_reaction(self, kb_dir: Path) -> None:
-        """Категория без реакции = молчание на целый класс способностей."""
+        """Категория без реакции = молчание на целый класс способностей.
+
+        Категории каста (`heal`, `cast_cc`) живут в CAST_REACTIONS: на них
+        предупреждают ДО факта, а состоявшийся хил комментировать поздно.
+        """
         raw = json.loads((kb_dir / "glossary" / "realtime_spells.json").read_text(encoding="utf-8"))
         used = {v.get("category") for v in raw["spells"].values() if v.get("category")}
-        missing = sorted(c for c in used if c not in CATEGORY_REACTIONS)
-        assert not missing, f"категории без общей реакции: {missing}"
+        known = set(CATEGORY_REACTIONS) | set(CAST_REACTIONS)
+        missing = sorted(c for c in used if c not in known)
+        assert not missing, f"категории без реакции: {missing}"
+
+    def test_cast_alert_entries_have_cast_reaction(self, kb_dir: Path) -> None:
+        """Пометил спелл как cast_alert — будь добр иметь на него реплику."""
+        raw = json.loads((kb_dir / "glossary" / "realtime_spells.json").read_text(encoding="utf-8"))
+        alerts = {k: v for k, v in raw["spells"].items() if v.get("cast_alert")}
+        assert alerts, "каталог потерял предупреждения о кастах"
+        for key, entry in alerts.items():
+            cast_cat = entry.get("cast_category") or entry["category"]
+            assert cast_cat in CAST_REACTIONS, key
 
     def test_known_spells_keep_named_reactions(self, kb_dir: Path) -> None:
         """Каталог не должен переименовывать спеллы, у которых есть своя реплика."""
@@ -222,3 +240,75 @@ class TestPipelineUniversalSpells:
         assert await pipeline.process_event(ctx, env) == "sent"
         queued = ctx.hint_queue.pop_fresh("Arenacoach")
         assert queued and queued[0].startswith("Блок —")
+
+
+# ── Стелс: пустой ростер ≠ инвиз (Phase 4.12) ────────────────────────────────
+
+
+def _arena_start(enemies: list[dict[str, str]], phase: str = "") -> dict[str, Any]:
+    return {
+        "schema_version": 1,
+        "bridge_ts": "2026-07-30T02:00:00Z",
+        "session_id": "s-stealth",
+        "player_name": "Arenacoach",
+        "event": {"type": "ARENA_START", "bracket": "2v2", "phase": phase},
+        "match": {
+            "bracket": "2v2",
+            "enemies": enemies,
+            "allies": [],
+            "our_comp_hint": "rogue+resto-druid",
+            "player_class": "ROGUE",
+        },
+    }
+
+
+class TestStealthIsNotIgnorance:
+    async def test_gates_are_silent(self, kb_dir: Path, _no_delivery: None) -> None:
+        """На воротах состав ещё не раскрыт — это НЕ инвиз, голос молчит."""
+        ctx = _ctx(kb_dir)
+        assert await pipeline.process_event(ctx, _arena_start([])) == "sent"
+        assert ctx.hint_queue.pop_fresh("Arenacoach") == []
+
+    async def test_stealth_marker_announces(self, kb_dir: Path, _no_delivery: None) -> None:
+        """А вот явный маркер от моста (6с после ворот, никого) — озвучиваем."""
+        ctx = _ctx(kb_dir)
+        assert await pipeline.process_event(ctx, _arena_start([], phase="stealth")) == "sent"
+        queued = ctx.hint_queue.pop_fresh("Arenacoach")
+        assert queued and "не видно" in queued[0]
+
+
+# ── Предупреждение ДО факта: начало каста (Phase 4.12) ───────────────────────
+
+
+def _cast(spell_name: str, phase: str) -> dict[str, Any]:
+    env = _ability("", spell_name)
+    env["event"]["spell_name"] = spell_name
+    env["event"]["cast_phase"] = phase
+    env["event"]["source_name"] = "Shamy"
+    return env
+
+
+class TestCastAlerts:
+    async def test_heal_cast_start_warns(self, kb_dir: Path, _no_delivery: None) -> None:
+        """Пока хилер кастует — кик ещё возможен, это и есть «время на решение»."""
+        ctx = _ctx(kb_dir)
+        assert await pipeline.process_event(ctx, _cast("Healing Wave", "start")) == "sent"
+        queued = ctx.hint_queue.pop_fresh("Arenacoach")
+        assert queued and queued[0] == CAST_REACTIONS["heal"].voice
+
+    async def test_completed_heal_is_silent(self, kb_dir: Path, _no_delivery: None) -> None:
+        """Состоявшийся хил комментировать поздно — молчим."""
+        ctx = _ctx(kb_dir)
+        assert await pipeline.process_event(ctx, _cast("Healing Wave", "")) == "skipped"
+        assert ctx.hint_queue.pop_fresh("Arenacoach") == []
+
+    async def test_ordinary_cast_start_is_silent(self, kb_dir: Path, _no_delivery: None) -> None:
+        """Начало каста без пометки cast_alert не предупреждаем — иначе поток шума."""
+        ctx = _ctx(kb_dir)
+        assert await pipeline.process_event(ctx, _cast("Frost Shock", "start")) == "skipped"
+
+    async def test_cc_cast_start_warns(self, kb_dir: Path, _no_delivery: None) -> None:
+        ctx = _ctx(kb_dir)
+        assert await pipeline.process_event(ctx, _cast("Polymorph", "start")) == "sent"
+        queued = ctx.hint_queue.pop_fresh("Arenacoach")
+        assert queued and queued[0] == CAST_REACTIONS["cast_cc"].voice

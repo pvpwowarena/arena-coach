@@ -253,6 +253,8 @@ _FLAG_REACTION_HOSTILE = 0x0040
 _FLAG_REACTION_FRIENDLY = 0x0010
 
 _ARENA_END_QUIET_S = 90.0  # тишина активности ВРАГОВ МАТЧА → конец
+#: Сколько ждать после открытия ворот, прежде чем счесть тишину настоящим стелсом.
+_STEALTH_DELAY_S = 6.0
 _DUP_WINDOW_S = 5.0  # cast+aura одного спелла → одно событие
 #: Потолок форварда НЕзнакомых кастов (Phase 4.12) — на матч, в минуту.
 _FORWARD_BUDGET_PER_MIN = 90
@@ -364,9 +366,11 @@ class CombatInterpreter:
     _allies: dict[str, _Unit] = field(default_factory=dict, init=False)
     _enemies: dict[str, _Unit] = field(default_factory=dict, init=False)
     _last_hostile_ts: datetime | None = field(default=None, init=False)
-    _recent: dict[tuple[str, int], datetime] = field(default_factory=dict, init=False)
+    _recent: dict[tuple[str, int, str], datetime] = field(default_factory=dict, init=False)
     _event_count: int = field(default=0, init=False)
     _forwarded: deque[datetime] = field(default_factory=deque, init=False)
+    _session_start_ts: datetime | None = field(default=None, init=False)
+    _stealth_announced: bool = field(default=False, init=False)
     _team_size: int = field(default=0, init=False)
     _last_enemies_key: str | None = field(default=None, init=False)
 
@@ -383,8 +387,16 @@ class CombatInterpreter:
         out.extend(self._check_quiet_end(ts))
 
         event = fields[0]
-        if event in ("SPELL_AURA_APPLIED", "SPELL_AURA_REMOVED", "SPELL_CAST_SUCCESS"):
+        if event in (
+            "SPELL_AURA_APPLIED",
+            "SPELL_AURA_REMOVED",
+            "SPELL_CAST_SUCCESS",
+            "SPELL_CAST_START",
+        ):
             out.extend(self._handle_spell(ts, event, fields))
+        # Проверяем стелс ПОСЛЕ обработки строки: если враг раскрылся именно ею,
+        # предупреждать об инвизе уже не о чем.
+        out.extend(self._check_stealth_opener(ts))
         return out
 
     # ── prep-фаза и границы матча ───────────────────────────────────────
@@ -417,6 +429,8 @@ class CombatInterpreter:
             elif event == "SPELL_AURA_REMOVED" and self._in_prep:
                 self._in_prep = False
                 self._session = True
+                self._session_start_ts = ts
+                self._stealth_announced = False
                 self._last_hostile_ts = ts
                 self._event_count = 0
                 # Размер команды фиксируем на воротах: он ограничивает ростер
@@ -462,9 +476,14 @@ class CombatInterpreter:
                 if start:
                     out.append(start)  # уточнение состава/спеков врагов
 
-            if event == "SPELL_CAST_SUCCESS" or event == "SPELL_AURA_APPLIED":
+            if event in ("SPELL_CAST_SUCCESS", "SPELL_AURA_APPLIED", "SPELL_CAST_START"):
                 spell_name = fields[10] if len(fields) > 10 else ""
-                payload = self._emit_hostile_action(ts, src_guid, src_name, spell_id, spell_name)
+                # SPELL_CAST_START — единственный сигнал ДО факта: пока хилер
+                # кастует, решение ещё можно принять (кик, сайленс, разрыв).
+                phase = "start" if event == "SPELL_CAST_START" else ""
+                payload = self._emit_hostile_action(
+                    ts, src_guid, src_name, spell_id, spell_name, phase
+                )
                 if payload:
                     out.append(payload)
         elif _is_hostile_pet(src_flags) and spell_id in _PET_SPELL_TO_OWNER:
@@ -525,9 +544,43 @@ class CombatInterpreter:
             return [self._end_session()]
         return []
 
+    def _check_stealth_opener(self, ts: datetime) -> list[str]:
+        """Настоящий стелс-опенер ≠ «мы ещё никого не видели» (Phase 4.12).
+
+        На воротах ARENA_START уходит с ПУСТЫМ составом врагов — классы мы
+        узнаём из их кастов, а на старте никто ещё ничего не скастовал. Бэкенд
+        честно принимал это за полный инвиз и каждую арену говорил «никого не
+        видно», хотя враги стояли перед носом (живой тест 30.07).
+
+        Признак настоящего стелса — ворота открылись, прошло `_STEALTH_DELAY_S`,
+        а ни один враг так и не проявился. Тогда шлём отдельный маркер, и только
+        по нему бэкенд предупреждает об опенере из стелса.
+        """
+        if (
+            not self._session
+            or self._stealth_announced
+            or self._enemies
+            or self._session_start_ts is None
+        ):
+            return []
+        if (ts - self._session_start_ts).total_seconds() < _STEALTH_DELAY_S:
+            return []
+        self._stealth_announced = True
+        team = max(len(self._allies), 1)
+        bracket = f"{team}v{team}" if team in (2, 3, 5) else "unknown"
+        allies_units = sorted(
+            self._allies.values(),
+            key=lambda u: (u.name != self.player_name, u.name),
+        )
+        allies = ",".join(f"{u.wow_class}/UNKNOWN" for u in allies_units if u.wow_class)
+        log.info("Combat-канал: %.0fс без единого врага — вероятен стелс-опенер", _STEALTH_DELAY_S)
+        return [f"ARENA_START#{bracket}##{allies}#stealth"]
+
     def _end_session(self) -> str:
         self._session = False
         self._in_prep = False
+        self._session_start_ts = None
+        self._stealth_announced = False
         self._team_size = 0
         self._last_enemies_key = None
         count, self._event_count = self._event_count, 0
@@ -538,7 +591,13 @@ class CombatInterpreter:
     # ── события внутри матча ────────────────────────────────────────────
 
     def _emit_hostile_action(
-        self, ts: datetime, guid: str, name: str, spell_id: int, spell_name: str = ""
+        self,
+        ts: datetime,
+        guid: str,
+        name: str,
+        spell_id: int,
+        spell_name: str = "",
+        phase: str = "",
     ) -> str | None:
         """Событие враждебного каста → AC-payload.
 
@@ -553,13 +612,13 @@ class CombatInterpreter:
         Дедуп по (guid, spell_id) в пределах `_DUP_WINDOW_S` остаётся: клиент
         пишет cast_success и aura_applied как две строки об одном действии.
         """
-        key = (guid, spell_id)
+        key = (guid, spell_id, phase)
         prev = self._recent.get(key)
         if prev is not None and (ts - prev).total_seconds() < _DUP_WINDOW_S:
             return None  # cast + aura одного спелла = одно событие
         self._recent[key] = ts
 
-        if spell_id in TRINKET_IDS:
+        if spell_id in TRINKET_IDS and not phase:
             self._event_count += 1
             return f"TRINKET#{name}#{spell_id}#{TRINKET_IDS[spell_id]}"
 
@@ -569,7 +628,7 @@ class CombatInterpreter:
         if spell_id not in TRACKED_SPELLS and not self._forward_budget_ok(ts):
             return None
         self._event_count += 1
-        return f"ABILITY#{name}#{spell_id}#{spell_key}#{spell_name}"
+        return f"ABILITY#{name}#{spell_id}#{spell_key}#{spell_name}#{phase}"
 
     def _forward_budget_ok(self, ts: datetime) -> bool:
         """Потолок форварда незнакомых кастов: 90/мин на матч.

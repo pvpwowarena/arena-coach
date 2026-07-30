@@ -61,6 +61,7 @@ from arena_coach.orchestrator.reactions import (
     NORMAL,
     Reaction,
     ability_reaction,
+    cast_reaction,
     category_reaction,
     trinket_reaction,
 )
@@ -466,7 +467,7 @@ async def _emit_arena(
     session_id: str,
     sig: str,
     dm_text: str,
-    voice_text: str,
+    voice_text: str | None,
     voice_mode: str,
 ) -> str:
     """ARENA_START-доставка с дедупом по сигнатуре в рамках сессии (анти-спам re-emit)."""
@@ -506,11 +507,27 @@ async def _finish_match(ctx: PipelineContext, player_name: str) -> str:
     return "sent" if ok else "error"
 
 
+#: Ниже этого числа событий LLM-разбор не запускаем (Phase 4.12).
+POSTMATCH_MIN_EVENTS = 3
+
+
 async def _build_postmatch(ctx: PipelineContext, record: MatchRecord, doc: KBDoc | None) -> str:
     """LLM-разбор боя (если ключ есть), иначе детерминированный отчёт-таймлайн."""
     deterministic = build_postmatch_report(record, doc)
     if not ctx.llm_enabled:
         return deterministic
+    if len(record.events) < POSTMATCH_MIN_EVENTS:
+        # На одном событии модель начинает сочинять: живой тест 30.07 получил
+        # разбор с «оба рога должны открываться на шамана» при составе
+        # rogue+resto-druid и с несуществующим предметом. Мало данных — честно
+        # говорим об этом, а не выдаём выдумку за анализ.
+        log.info("Постматч: событий %d — LLM не зовём", len(record.events))
+        return (
+            f"{deterministic}\n\n"
+            "🧠 Разбирать нечего: в бою записалось меньше "
+            f"{POSTMATCH_MIN_EVENTS} событий. Обычно это значит, что мост стартовал "
+            "позже боя или враги не использовали ничего из отслеживаемого."
+        )[:2000]
     model = ctx.settings.anthropic_model_synth
     try:
         kb_plan: str | None = None
@@ -545,6 +562,7 @@ async def _handle_arena_start(
     enemy_specs: list[str | None],
     our_comp_hint: str | None,
     player_class: str | None,
+    stealth: bool = False,
 ) -> str:
     candidates = ctx.kb_retriever.find_realtime_candidates(
         enemy_classes, our_comp_hint, enemy_specs=enemy_specs
@@ -594,6 +612,7 @@ async def _handle_arena_start(
             our_comp_hint,
             threats,
             threat_v,
+            stealth=stealth,
         )
     return await _emit_unknown(
         ctx,
@@ -624,29 +643,41 @@ async def _emit_partial(
     our_comp_hint: str | None,
     threats: list[str],
     threat_v: str | None,
+    stealth: bool = False,
 ) -> str:
     """Состав раскрыт частично: провизорный килл-таргет, если частичные кандидаты
     сходятся; полноценный разбор придёт с полным re-emit состава."""
     if not enemy_classes:
-        # Полный инвиз на воротах (дабл/трипл-стелс): классов ещё нет, но молчать
-        # нельзя — предупреждаем об опенере. Re-emit с первым раскрытым классом
-        # сменит сигнатуру и пришлёт уточнение.
-        dm_lines = [
-            f"🏟 **Арена** | {bracket} | врагов на воротах не видно — вероятен **стелс-опенер**",
-            "🛡 Кучкуйтесь у столба, пилы наготове; тринкет не сливайте на первый стан — "
-            "берегите на их килл-чейн. Состав уточню, как только кто-то откроется.",
-        ]
-        stealth_guess = guess_line(stealth_comps(bracket))
-        if stealth_guess:
-            dm_lines.append(f"{stealth_guess} — жди сап/опенер в хилера.")
+        # Пустой состав НЕ означает инвиз (Phase 4.12). На воротах мы ещё никого
+        # не видели — классы узнаются из их кастов, поэтому первый ARENA_START
+        # всегда приходит пустым, и голос каждую арену объявлял стелс-опенер
+        # (живой тест 30.07). Настоящий стелс мост присылает отдельным маркером
+        # `phase=stealth` — только он озвучивается.
+        if stealth:
+            dm_lines = [
+                f"🏟 **Арена** | {bracket} | врагов не видно — вероятен **стелс-опенер**",
+                "🛡 Кучкуйтесь у столба, пилы наготове; тринкет не сливайте на первый стан — "
+                "берегите на их килл-чейн. Состав уточню, как только кто-то откроется.",
+            ]
+            stealth_guess = guess_line(stealth_comps(bracket))
+            if stealth_guess:
+                dm_lines.append(f"{stealth_guess} — жди сап/опенер в хилера.")
+            voice: str | None = stealth_opener_phrase()
+            sig0 = "partial0:stealth"
+        else:
+            dm_lines = [
+                f"🏟 **Арена** | {bracket} | состав врагов пока не раскрыт — уточню по их первым действиям",
+            ]
+            voice = None  # молчим: на воротах говорить ещё нечего
+            sig0 = "partial0:gates"
         return await _emit_arena(
             ctx,
             discord_id,
             player_name,
             session_id,
-            "partial0:stealth",
+            sig0,
             "\n".join(dm_lines)[:2000],
-            stealth_opener_phrase(),
+            voice,
             voice_mode,
         )
     partial = ctx.kb_retriever.find_partial_candidates(enemy_classes, our_comp_hint)
@@ -876,14 +907,24 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     # же фразу — та самая заевшая пластинка, но уже на общих репликах.
     throttle_subject = raw_key
     hint_reaction: Reaction | None = None
+    cast_phase = str(event.get("cast_phase", ""))
     if event_type == "ABILITY":
         info = ctx.spells.resolve(spell_id, raw_key, spell_name)
         spell_key = info.key or raw_key
-        hint_reaction = ability_reaction(spell_key)
-        throttle_subject = spell_key
-        if hint_reaction is None:
-            hint_reaction = category_reaction(info.category)
-            throttle_subject = f"cat:{info.category}"
+        if cast_phase == "start":
+            # Каст только начался: предупреждаем лишь о том, что помечено
+            # `cast_alert` (хилы и кастуемый контроль) — остальное превратилось бы
+            # в поток из шоков и автоатак. Зато это единственная подсказка ДО факта.
+            cast_cat = info.cast_category or info.category
+            hint_reaction = cast_reaction(cast_cat) if info.cast_alert else None
+            throttle_subject = f"cast:{cast_cat}"
+        else:
+            hint_reaction = ability_reaction(spell_key)
+            throttle_subject = spell_key
+            if hint_reaction is None and info.category not in ("heal", "cast_cc"):
+                # Состоявшийся хил комментировать поздно — реагируем только на старт.
+                hint_reaction = category_reaction(info.category)
+                throttle_subject = f"cat:{info.category}"
     elif event_type == "TRINKET":
         hint_reaction = trinket_reaction()
 
@@ -965,6 +1006,7 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
             enemy_specs,
             our_comp_hint,
             player_class,
+            stealth=str(event.get("phase", "")) == "stealth",
         )
 
     candidates = ctx.kb_retriever.find_realtime_candidates(

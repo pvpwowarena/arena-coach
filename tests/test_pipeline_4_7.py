@@ -215,15 +215,64 @@ class TestPostmatchLLM:
                 },
             ),
         )
+        # Phase 4.12: на разбор нужен минимум POSTMATCH_MIN_EVENTS событий —
+        # на одном модель начинает сочинять (см. TestPostmatchThinMatch).
+        for spell in ("vanish", "ice_block"):
+            await pipeline.process_event(
+                ctx,
+                _env(
+                    ROGUE_MAGE,
+                    our="rogue+warlock",
+                    event={
+                        "type": "ABILITY",
+                        "source_name": "Frostee",
+                        "spell_id": 0,
+                        "spell_key": spell,
+                    },
+                ),
+            )
         r = await pipeline.process_event(
             ctx,
-            _env(ROGUE_MAGE, our="rogue+warlock", event={"type": "ARENA_END", "event_count": 1}),
+            _env(ROGUE_MAGE, our="rogue+warlock", event={"type": "ARENA_END", "event_count": 3}),
         )
         assert r == "sent"
         assert "Разбор тренера" in dms[-1]
         assert "Ваниш слил рано" in dms[-1]
         summary = await usage.summary()
         assert any(b.purpose == "postmatch" for b in summary.buckets)
+
+    async def test_thin_match_skips_llm(self, kb_dir: Path, tmp_path: Path, dms: list[str]) -> None:
+        """Один event — LLM не зовём: на таких данных она сочиняет бой.
+
+        Живой тест 30.07: при составе rogue+resto-druid и единственном событии
+        модель выдала «оба рога должны открываться на шамана» и несуществующий
+        предмет. Теперь вместо выдумки — честная строка.
+        """
+        client = _FakeAnthropic(text="я бы тут насочинял")
+        ctx = _ctx(kb_dir, key="sk-test", client=client)
+
+        await pipeline.process_event(ctx, _env(ROGUE_MAGE, our="rogue+warlock"))
+        await pipeline.process_event(
+            ctx,
+            _env(
+                ROGUE_MAGE,
+                our="rogue+warlock",
+                event={
+                    "type": "TRINKET",
+                    "source_name": "Frostee",
+                    "spell_id": 42292,
+                    "trinket_key": "pvp_trinket",
+                },
+            ),
+        )
+        r = await pipeline.process_event(
+            ctx,
+            _env(ROGUE_MAGE, our="rogue+warlock", event={"type": "ARENA_END", "event_count": 1}),
+        )
+        assert r == "sent"
+        assert "Разбирать нечего" in dms[-1]
+        assert "насочинял" not in dms[-1]
+        assert not client.messages.calls  # модель не дёргали вовсе
 
     async def test_postmatch_falls_back_when_llm_errors(
         self, kb_dir: Path, tmp_path: Path, dms: list[str], monkeypatch: pytest.MonkeyPatch

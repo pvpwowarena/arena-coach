@@ -1,20 +1,22 @@
 {
-  "_comment": "Каталог realtime-способностей (Phase 4.12). Решает БЭКЕНД: мост форвардит все касты врагов (id + slug имени), а что важно — определяется здесь. Добавление класса/спелла = правка этого файла + деплой, без релиза моста. ids заполнены только там, где они подтверждены кодом моста (TRACKED_SPELLS); для остальных резолв идёт по английскому имени из combat-лога — id не выдумываем.",
+  "_comment": "Каталог realtime-способностей (Phase 4.12). Решает БЭКЕНД: мост форвардит все касты врагов (id + slug имени), а что важно — определяется здесь. Добавление класса/спелла = правка этого файла + деплой, без релиза моста. ids заполнены только там, где они подтверждены кодом моста (TRACKED_SPELLS); для остальных резолв идёт по английскому имени из combat-лога — id не выдумываем. Поле cast_alert:true = реагируем на НАЧАЛО каста (SPELL_CAST_START): пока хилер кастует, кик ещё возможен — это единственный сигнал до факта.",
   "_categories": [
-    "stun",
-    "incapacitate",
+    "burst",
+    "cast_cc",
+    "defensive",
+    "dispel",
     "fear",
+    "freedom",
+    "heal",
+    "immunity",
+    "incapacitate",
+    "interrupt",
+    "mana",
+    "mobility",
+    "reset",
     "root",
     "silence",
-    "interrupt",
-    "immunity",
-    "defensive",
-    "burst",
-    "mobility",
-    "dispel",
-    "mana",
-    "reset",
-    "freedom",
+    "stun",
     "taunt"
   ],
   "spells": {
@@ -96,7 +98,9 @@
       ],
       "names": [
         "Cyclone"
-      ]
+      ],
+      "cast_alert": true,
+      "cast_category": "cast_cc"
     },
     "death_coil": {
       "category": "fear",
@@ -136,7 +140,9 @@
       ],
       "names": [
         "Fear"
-      ]
+      ],
+      "cast_alert": true,
+      "cast_category": "cast_cc"
     },
     "frost_nova": {
       "category": "root",
@@ -216,7 +222,9 @@
       ],
       "names": [
         "Polymorph"
-      ]
+      ],
+      "cast_alert": true,
+      "cast_category": "cast_cc"
     },
     "power_infusion": {
       "category": "burst",
@@ -633,7 +641,9 @@
       "ids": [],
       "names": [
         "Mana Burn"
-      ]
+      ],
+      "cast_alert": true,
+      "cast_category": "cast_cc"
     },
     "howl_of_terror": {
       "category": "fear",
@@ -641,7 +651,9 @@
       "ids": [],
       "names": [
         "Howl of Terror"
-      ]
+      ],
+      "cast_alert": true,
+      "cast_category": "cast_cc"
     },
     "spell_lock": {
       "category": "silence",
@@ -657,7 +669,9 @@
       "ids": [],
       "names": [
         "Seduction"
-      ]
+      ],
+      "cast_alert": true,
+      "cast_category": "cast_cc"
     },
     "soul_link": {
       "category": "defensive",
@@ -698,6 +712,106 @@
       "names": [
         "Avenging Wrath"
       ]
+    },
+    "healing_wave": {
+      "category": "heal",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Healing Wave"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "lesser_healing_wave": {
+      "category": "heal",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Lesser Healing Wave"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "chain_heal": {
+      "category": "heal",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Chain Heal"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "healing_touch": {
+      "category": "heal",
+      "class": "DRUID",
+      "ids": [],
+      "names": [
+        "Healing Touch"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "regrowth": {
+      "category": "heal",
+      "class": "DRUID",
+      "ids": [],
+      "names": [
+        "Regrowth"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "flash_heal": {
+      "category": "heal",
+      "class": "PRIEST",
+      "ids": [],
+      "names": [
+        "Flash Heal"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "greater_heal": {
+      "category": "heal",
+      "class": "PRIEST",
+      "ids": [],
+      "names": [
+        "Greater Heal"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "binding_heal": {
+      "category": "heal",
+      "class": "PRIEST",
+      "ids": [],
+      "names": [
+        "Binding Heal"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "holy_light": {
+      "category": "heal",
+      "class": "PALADIN",
+      "ids": [],
+      "names": [
+        "Holy Light"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
+    },
+    "flash_of_light": {
+      "category": "heal",
+      "class": "PALADIN",
+      "ids": [],
+      "names": [
+        "Flash of Light"
+      ],
+      "cast_alert": true,
+      "cast_category": "heal"
     }
   }
 }

@@ -59,6 +59,10 @@ class SpellInfo:
     key: str
     category: str = ""
     wow_class: str = ""
+    #: True — реагируем на НАЧАЛО каста (пока его ещё можно прервать).
+    cast_alert: bool = False
+    #: Категория для фазы каста (если отличается от основной).
+    cast_category: str = ""
 
 
 class SpellCatalog:
@@ -74,6 +78,8 @@ class SpellCatalog:
                 key=key,
                 category=str(raw.get("category", "")),
                 wow_class=str(raw.get("class", "")).upper(),
+                cast_alert=bool(raw.get("cast_alert", False)),
+                cast_category=str(raw.get("cast_category", "")),
             )
             self._by_key[key] = info
             for name in raw.get("names", []) or []:

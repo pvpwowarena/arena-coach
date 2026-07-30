@@ -1,4 +1,4 @@
-"""Стелс-анонс: полный инвиз врагов на воротах → предупреждение, а не пустышка.
+"""Стелс-анонс: настоящий инвиз врагов → предупреждение, а не пустышка.
 
 Раньше при пустом ростере (дабл/трипл-стелс) DM был «видно: ? (состав
 уточняется…)», голос — «Арена.» Теперь: явное предупреждение о стелс-опенере
@@ -48,13 +48,17 @@ def _ctx(kb_dir: Path, *, key: str = "sk-test") -> Any:
     )
 
 
-def _env(enemies: list[dict[str, str]], *, session: str = "s1") -> dict[str, Any]:
+def _env(
+    enemies: list[dict[str, str]], *, session: str = "s1", phase: str = "stealth"
+) -> dict[str, Any]:
+    """Phase 4.12: пустой ростер сам по себе больше не значит инвиз — нужен маркер
+    `phase=stealth` от моста (он ставит его, когда после ворот 6с никто не проявился)."""
     return {
         "schema_version": 1,
         "bridge_ts": "2026-07-27T12:00:00Z",
         "session_id": session,
         "player_name": "Arenacoach",
-        "event": {"type": "ARENA_START", "bracket": "2v2"},
+        "event": {"type": "ARENA_START", "bracket": "2v2", "phase": phase},
         "match": {
             "bracket": "2v2",
             "enemies": enemies,

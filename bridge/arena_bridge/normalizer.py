@@ -76,6 +76,10 @@ class ArenaStartEvent(BaseModel):
     bracket: str
     enemies: list[EnemyInfo]
     allies: list[EnemyInfo] = Field(default_factory=list)  # игрок первый (addon >= 0.2.0)
+    # Phase 4.12: "stealth" — ворота открылись, прошло несколько секунд, и НИ ОДИН
+    # враг не проявился. Пустой состав сам по себе этого не значит: на воротах мы
+    # ещё никого не видели, и бэкенд каждую арену объявлял инвиз (живой тест 30.07).
+    phase: str = ""
 
 
 class TrinketEvent(BaseModel):
@@ -93,6 +97,9 @@ class AbilityEvent(BaseModel):
     # Phase 4.12: английское имя способности из combat-лога. Мост больше не решает,
     # что важно — по имени бэкенд резолвит спеллы, которых нет в его таблице id.
     spell_name: str = ""
+    # Phase 4.12: "start" — каст ТОЛЬКО НАЧАЛСЯ (единственный сигнал до факта:
+    # пока хилер кастует, кик ещё возможен). Пусто = действие уже состоялось.
+    cast_phase: str = ""
 
 
 class ArenaEndEvent(BaseModel):
@@ -238,7 +245,8 @@ def parse_event(raw: str) -> AnyEvent | None:
             bracket = parts[1] if len(parts) > 1 else "unknown"
             enemies = _parse_units(parts[2] if len(parts) > 2 else "")
             allies = _parse_units(parts[3] if len(parts) > 3 else "")
-            return ArenaStartEvent(bracket=bracket, enemies=enemies, allies=allies)
+            phase = parts[4] if len(parts) > 4 else ""
+            return ArenaStartEvent(bracket=bracket, enemies=enemies, allies=allies, phase=phase)
 
         elif event_type == "TRINKET":
             # [TRINKET|EnemyName|42292|pvp_trinket]
@@ -255,6 +263,7 @@ def parse_event(raw: str) -> AnyEvent | None:
                 spell_id=int(parts[2]) if len(parts) > 2 else 0,
                 spell_key=parts[3] if len(parts) > 3 else "",
                 spell_name=parts[4] if len(parts) > 4 else "",
+                cast_phase=parts[5] if len(parts) > 5 else "",
             )
 
         elif event_type == "ARENA_END":
