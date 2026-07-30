@@ -254,7 +254,7 @@ function O:Refresh()
                 line = line .. " |cffff4040БЕЗ ТРИНКЕТА|r"
             end
             if isTarget and not self.targetSure then
-                line = line .. " |cffaaaaaa(≈)|r"
+                line = line .. " |cffaaaaaa(?)|r"
             end
             row.text:SetText(line)
         end
@@ -266,7 +266,7 @@ frame:SetScript("OnEnter", function(self)
     GameTooltip:AddLine("ArenaCoach — килл-таргет")
     GameTooltip:AddLine("Источник: " .. (O.source or "—"), 0.7, 0.7, 0.7)
     if not O.targetSure then
-        GameTooltip:AddLine("Цель предположительная (≈)", 1, 0.8, 0.2)
+        GameTooltip:AddLine("Цель предположительная: матчапа нет в KB", 1, 0.8, 0.2)
     end
     GameTooltip:AddLine(" ")
     GameTooltip:AddLine("Череп — цель. БЕЗ ТРИНКЕТА — тринкет уже потрачен.", 0.7, 0.7, 0.7)

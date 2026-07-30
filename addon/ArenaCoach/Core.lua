@@ -92,6 +92,8 @@ SlashCmdList["ARENACOACH"] = function(msg)
             if AC.EnsureCombatLogging then AC.EnsureCombatLogging() end
             AC.Print("Запись боя: была ВЫКЛ — включил сейчас (канал bridge, Phase 4.2).")
         end
+    elseif cmd == "flushtest" then
+        if AC.FlushCombatLog then AC.FlushCombatLog() end
     elseif cmd:match("^flush") then
         local arg = cmd:match("^flush%s+(%S+)")
         if arg == "on" and AC.SetFlushEnabled then
@@ -104,7 +106,7 @@ SlashCmdList["ARENACOACH"] = function(msg)
         end
     else
         AC.Print("Команды: /ac status | /ac ui | /ac overlay | /ac skull on|off")
-        AC.Print("          /ac test | /ac log | /ac flush | /ac sessions | /ac reset")
+        AC.Print("          /ac test | /ac log | /ac flush | /ac flushtest | /ac sessions | /ac reset")
     end
 end
 
