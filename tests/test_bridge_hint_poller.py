@@ -11,7 +11,12 @@ import asyncio
 import httpx
 import pytest
 
-from arena_bridge.hint_poller import LocalHintDedup, poll_hints_once, run_hint_poller
+from arena_bridge.hint_poller import (
+    LocalHintDedup,
+    SpeechChannel,
+    poll_hints_once,
+    run_hint_poller,
+)
 from arena_bridge.ws_client import EventClient
 
 # ── LocalHintDedup ───────────────────────────────────────────────────────────
@@ -58,8 +63,10 @@ class TestPollOnce:
 
         dedup = LocalHintDedup(window_s=6.0, clock=lambda: 100.0)
         n = await poll_hints_once(fetch, speak, "Vlad", dedup)
+        # Phase 4.12: батч не выстраивается в очередь — произносится самая свежая
+        # фраза, остальные вытесняются (иначе голос отстаёт от боя).
         assert n == 2
-        assert spoken == ["раз", "два"]
+        assert spoken == ["два"]
 
     async def test_dedups_within_batch(self) -> None:
         spoken: list[str] = []
@@ -73,8 +80,8 @@ class TestPollOnce:
 
         dedup = LocalHintDedup(window_s=6.0, clock=lambda: 100.0)
         n = await poll_hints_once(fetch, speak, "P", dedup)
-        assert n == 2
-        assert spoken == ["a", "b"]
+        assert n == 2  # 'a' дедуплицирован внутри батча
+        assert spoken == ["b"]  # озвучена самая свежая
 
     async def test_empty_batch(self) -> None:
         async def fetch(player: str) -> list[str]:
@@ -85,6 +92,76 @@ class TestPollOnce:
 
         dedup = LocalHintDedup(window_s=6.0, clock=lambda: 100.0)
         assert await poll_hints_once(fetch, speak, "P", dedup) == 0
+
+
+# ── SpeechChannel (Phase 4.12) ───────────────────────────────────────────────
+
+
+class TestSpeechChannel:
+    async def test_newer_phrase_replaces_pending(self) -> None:
+        """Свежий совет отменяет прошлый, а не встаёт за ним в очередь."""
+        spoken: list[str] = []
+        release = asyncio.Event()
+
+        async def speak(text: str) -> bool:
+            spoken.append(text)
+            await release.wait()
+            return True
+
+        ch = SpeechChannel(speak)
+        ch.offer("первая")
+        ch.pump()  # первая пошла в речь
+        await asyncio.sleep(0)
+        ch.offer("вторая")
+        ch.offer("третья")  # вытесняет 'вторую'
+        assert ch.dropped == 1
+        release.set()
+        await ch.drain()
+        ch.pump()
+        await ch.drain()
+        assert spoken == ["первая", "третья"]
+
+    async def test_stale_phrase_not_spoken(self) -> None:
+        """«Тринкеть под кидни» через восемь секунд — вредный совет, молчим."""
+        spoken: list[str] = []
+        now = {"t": 100.0}
+
+        async def speak(text: str) -> bool:
+            spoken.append(text)
+            return True
+
+        ch = SpeechChannel(speak, clock=lambda: now["t"], max_age_s=6.0)
+        ch.offer("устареет")
+        now["t"] += 8.0
+        ch.pump()
+        await ch.drain()
+        assert spoken == []
+        assert ch.dropped == 1
+
+    async def test_speech_does_not_block_polling(self) -> None:
+        """Главный фикс: длинная речь больше не тормозит опрос /v1/hints."""
+        stop = asyncio.Event()
+        fetches = {"n": 0}
+        release = asyncio.Event()
+
+        async def fetch(player: str) -> list[str]:
+            fetches["n"] += 1
+            if fetches["n"] == 1:
+                return ["длинная фраза"]
+            if fetches["n"] >= 5:
+                release.set()
+                stop.set()
+            return []
+
+        async def speak(text: str) -> bool:
+            await release.wait()  # «речь» длится, пока идут опросы
+            return True
+
+        await asyncio.wait_for(
+            run_hint_poller(fetch, speak, "P", stop, interval_s=0.01),
+            timeout=2.0,
+        )
+        assert fetches["n"] >= 5
 
 
 # ── run_hint_poller ──────────────────────────────────────────────────────────
@@ -111,7 +188,7 @@ class TestRunPoller:
             run_hint_poller(fetch, speak, "P", stop, interval_s=0.01),
             timeout=2.0,
         )
-        assert spoken == ["раз", "два"]
+        assert spoken == ["два"]
 
     async def test_survives_fetch_error(self) -> None:
         stop = asyncio.Event()

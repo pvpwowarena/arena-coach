@@ -135,7 +135,40 @@ def test_trinket_and_ability_payloads() -> None:
     out = it.feed_line(
         _line("12:00:50.0000", _enemy_cast("Player-1-E2", "Evilwar-X", 871, "Shield Wall"))
     )
-    assert "ABILITY#Evilwar#871#shield_wall" in out
+    # Phase 4.12: пятым полем идёт английское имя способности — по нему бэкенд
+    # резолвит то, чего нет в зашитой таблице моста.
+    assert "ABILITY#Evilwar#871#shield_wall#Shield Wall" in out
+
+
+def test_unknown_spell_is_forwarded_by_name() -> None:
+    """Хант и шаман не были в TRACKED_SPELLS — теперь они не теряются."""
+    it = CombatInterpreter(player_name="Arenacoach")
+    it.feed_line(_line("12:00:00.0000", PREP_ON_ME))
+    it.feed_line(_line("12:00:30.0000", PREP_OFF_ME))
+
+    out = it.feed_line(
+        _line("12:00:41.0000", _enemy_cast("Player-1-E2", "Huntard-X", 19503, "Scatter Shot"))
+    )
+    assert "ABILITY#Huntard#19503#scatter_shot#Scatter Shot" in out
+
+
+def test_forward_budget_caps_unknown_flood() -> None:
+    """Потолок форварда незнакомых кастов — 90 в минуту на матч."""
+    it = CombatInterpreter(player_name="Arenacoach")
+    it.feed_line(_line("12:00:00.0000", PREP_ON_ME))
+    it.feed_line(_line("12:00:30.0000", PREP_OFF_ME))
+
+    emitted = 0
+    for i in range(200):
+        # разные spell_id, чтобы не сработал дедуп cast+aura
+        out = it.feed_line(
+            _line(
+                "12:00:41.0000",
+                _enemy_cast("Player-1-E2", "Spammer-X", 900000 + i, f"Spam {i}"),
+            )
+        )
+        emitted += sum(1 for p in out if p.startswith("ABILITY#"))
+    assert emitted == 90
 
 
 def test_cast_plus_aura_dedupped() -> None:

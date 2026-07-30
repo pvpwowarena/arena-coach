@@ -6,7 +6,7 @@
   [AC#ARENA_START#2v2#WARRIOR/ORC,PALADIN/BLOODELF#ROGUE/HUMAN,MAGE/GNOME]
   [AC#ARENA_START#2v2#WARRIOR/ORC,PALADIN/BLOODELF]      # addon 0.1.x — без союзников
   [AC#TRINKET#EnemyName#42292#pvp_trinket]
-  [AC#ABILITY#EnemyName#33786#cyclone]
+  [AC#ABILITY#EnemyName#33786#cyclone#Cyclone]   # 5-е поле с 0.9.0 (Phase 4.12)
   [AC#ARENA_END#42]
 
 В allies игрок ВСЕГДА первый — backend таргетирует советы под его класс.
@@ -90,6 +90,9 @@ class AbilityEvent(BaseModel):
     source_name: str
     spell_id: int
     spell_key: str
+    # Phase 4.12: английское имя способности из combat-лога. Мост больше не решает,
+    # что важно — по имени бэкенд резолвит спеллы, которых нет в его таблице id.
+    spell_name: str = ""
 
 
 class ArenaEndEvent(BaseModel):
@@ -251,6 +254,7 @@ def parse_event(raw: str) -> AnyEvent | None:
                 source_name=parts[1] if len(parts) > 1 else "",
                 spell_id=int(parts[2]) if len(parts) > 2 else 0,
                 spell_key=parts[3] if len(parts) > 3 else "",
+                spell_name=parts[4] if len(parts) > 4 else "",
             )
 
         elif event_type == "ARENA_END":

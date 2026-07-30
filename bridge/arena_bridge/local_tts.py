@@ -175,6 +175,21 @@ class LocalTTS:
             return f"Linux {self._binary or 'espeak-ng'}"
         return f"нет TTS для платформы {self._platform}"
 
+    async def resolve_voice(self) -> str | None:
+        """Имя фактически выбранного голоса (macOS) — для лога и диагностики.
+
+        Живой тест 30.07: «голос как у робота». Причина — Milena не установлена, и
+        `say` читает кириллицу дефолтным английским голосом. В логе это никак не
+        отражалось, поэтому поймать было нечем; теперь мост печатает, какой голос
+        реально выбран, и предупреждает, если русского нет.
+        """
+        if self._platform != "darwin":
+            return None
+        if not self._mac_voice_resolved:
+            self._mac_voice = await self._resolve_mac_voice()
+            self._mac_voice_resolved = True
+        return self._mac_voice
+
     async def say(self, text: str) -> bool:
         """Озвучить фразу. Никогда не бросает; False = недоступно/не удалось.
 

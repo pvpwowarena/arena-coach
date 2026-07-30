@@ -1,0 +1,703 @@
+{
+  "_comment": "Каталог realtime-способностей (Phase 4.12). Решает БЭКЕНД: мост форвардит все касты врагов (id + slug имени), а что важно — определяется здесь. Добавление класса/спелла = правка этого файла + деплой, без релиза моста. ids заполнены только там, где они подтверждены кодом моста (TRACKED_SPELLS); для остальных резолв идёт по английскому имени из combat-лога — id не выдумываем.",
+  "_categories": [
+    "stun",
+    "incapacitate",
+    "fear",
+    "root",
+    "silence",
+    "interrupt",
+    "immunity",
+    "defensive",
+    "burst",
+    "mobility",
+    "dispel",
+    "mana",
+    "reset",
+    "freedom",
+    "taunt"
+  ],
+  "spells": {
+    "barkskin": {
+      "category": "defensive",
+      "class": "DRUID",
+      "ids": [
+        22812
+      ],
+      "names": [
+        "Barkskin"
+      ]
+    },
+    "blessing_of_freedom": {
+      "category": "freedom",
+      "class": "PALADIN",
+      "ids": [
+        1044
+      ],
+      "names": [
+        "Blessing of Freedom"
+      ]
+    },
+    "blind": {
+      "category": "incapacitate",
+      "class": "ROGUE",
+      "ids": [
+        2094
+      ],
+      "names": [
+        "Blind"
+      ]
+    },
+    "challenging_shout": {
+      "category": "taunt",
+      "class": "WARRIOR",
+      "ids": [
+        1161
+      ],
+      "names": [
+        "Challenging Shout"
+      ]
+    },
+    "cheap_shot": {
+      "category": "stun",
+      "class": "ROGUE",
+      "ids": [
+        1833
+      ],
+      "names": [
+        "Cheap Shot"
+      ]
+    },
+    "cloak_of_shadows": {
+      "category": "immunity",
+      "class": "ROGUE",
+      "ids": [
+        31224
+      ],
+      "names": [
+        "Cloak of Shadows"
+      ]
+    },
+    "counterspell": {
+      "category": "interrupt",
+      "class": "MAGE",
+      "ids": [
+        2139
+      ],
+      "names": [
+        "Counterspell"
+      ]
+    },
+    "cyclone": {
+      "category": "incapacitate",
+      "class": "DRUID",
+      "ids": [
+        33786
+      ],
+      "names": [
+        "Cyclone"
+      ]
+    },
+    "death_coil": {
+      "category": "fear",
+      "class": "WARLOCK",
+      "ids": [
+        6789
+      ],
+      "names": [
+        "Death Coil"
+      ]
+    },
+    "divine_shield": {
+      "category": "immunity",
+      "class": "PALADIN",
+      "ids": [
+        642
+      ],
+      "names": [
+        "Divine Shield"
+      ]
+    },
+    "evasion": {
+      "category": "defensive",
+      "class": "ROGUE",
+      "ids": [
+        26669
+      ],
+      "names": [
+        "Evasion"
+      ]
+    },
+    "fear": {
+      "category": "fear",
+      "class": "WARLOCK",
+      "ids": [
+        5782
+      ],
+      "names": [
+        "Fear"
+      ]
+    },
+    "frost_nova": {
+      "category": "root",
+      "class": "MAGE",
+      "ids": [
+        122
+      ],
+      "names": [
+        "Frost Nova"
+      ]
+    },
+    "hammer_of_justice": {
+      "category": "stun",
+      "class": "PALADIN",
+      "ids": [
+        853
+      ],
+      "names": [
+        "Hammer of Justice"
+      ]
+    },
+    "ice_block": {
+      "category": "immunity",
+      "class": "MAGE",
+      "ids": [
+        45438
+      ],
+      "names": [
+        "Ice Block"
+      ]
+    },
+    "innervate": {
+      "category": "mana",
+      "class": "DRUID",
+      "ids": [
+        29166
+      ],
+      "names": [
+        "Innervate"
+      ]
+    },
+    "intimidating_shout": {
+      "category": "fear",
+      "class": "WARRIOR",
+      "ids": [
+        5246
+      ],
+      "names": [
+        "Intimidating Shout"
+      ]
+    },
+    "kidney_shot": {
+      "category": "stun",
+      "class": "ROGUE",
+      "ids": [
+        408
+      ],
+      "names": [
+        "Kidney Shot"
+      ]
+    },
+    "pain_suppression": {
+      "category": "defensive",
+      "class": "PRIEST",
+      "ids": [
+        33206
+      ],
+      "names": [
+        "Pain Suppression"
+      ]
+    },
+    "polymorph": {
+      "category": "incapacitate",
+      "class": "MAGE",
+      "ids": [
+        118
+      ],
+      "names": [
+        "Polymorph"
+      ]
+    },
+    "power_infusion": {
+      "category": "burst",
+      "class": "PRIEST",
+      "ids": [
+        10060
+      ],
+      "names": [
+        "Power Infusion"
+      ]
+    },
+    "preparation": {
+      "category": "reset",
+      "class": "ROGUE",
+      "ids": [
+        14185
+      ],
+      "names": [
+        "Preparation"
+      ]
+    },
+    "psychic_scream": {
+      "category": "fear",
+      "class": "PRIEST",
+      "ids": [
+        8122
+      ],
+      "names": [
+        "Psychic Scream"
+      ]
+    },
+    "retaliation": {
+      "category": "defensive",
+      "class": "WARRIOR",
+      "ids": [
+        20230
+      ],
+      "names": [
+        "Retaliation"
+      ]
+    },
+    "sap": {
+      "category": "incapacitate",
+      "class": "ROGUE",
+      "ids": [
+        6770
+      ],
+      "names": [
+        "Sap"
+      ]
+    },
+    "shield_wall": {
+      "category": "defensive",
+      "class": "WARRIOR",
+      "ids": [
+        871
+      ],
+      "names": [
+        "Shield Wall"
+      ]
+    },
+    "vanish": {
+      "category": "reset",
+      "class": "ROGUE",
+      "ids": [
+        1856
+      ],
+      "names": [
+        "Vanish"
+      ]
+    },
+    "scatter_shot": {
+      "category": "incapacitate",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Scatter Shot"
+      ]
+    },
+    "freezing_trap": {
+      "category": "incapacitate",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Freezing Trap Effect",
+        "Freezing Trap"
+      ]
+    },
+    "intimidation": {
+      "category": "stun",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Intimidation"
+      ]
+    },
+    "wyvern_sting": {
+      "category": "incapacitate",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Wyvern Sting"
+      ]
+    },
+    "silencing_shot": {
+      "category": "silence",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Silencing Shot"
+      ]
+    },
+    "deterrence": {
+      "category": "defensive",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Deterrence"
+      ]
+    },
+    "bestial_wrath": {
+      "category": "burst",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Bestial Wrath"
+      ]
+    },
+    "feign_death": {
+      "category": "reset",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Feign Death"
+      ]
+    },
+    "disengage": {
+      "category": "mobility",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Disengage"
+      ]
+    },
+    "readiness": {
+      "category": "reset",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Readiness"
+      ]
+    },
+    "viper_sting": {
+      "category": "mana",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Viper Sting"
+      ]
+    },
+    "aspect_of_the_pack": {
+      "category": "mobility",
+      "class": "HUNTER",
+      "ids": [],
+      "names": [
+        "Aspect of the Pack"
+      ]
+    },
+    "bloodlust": {
+      "category": "burst",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Bloodlust",
+        "Heroism"
+      ]
+    },
+    "elemental_mastery": {
+      "category": "burst",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Elemental Mastery"
+      ]
+    },
+    "natures_swiftness": {
+      "category": "burst",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Nature's Swiftness"
+      ]
+    },
+    "grounding_totem": {
+      "category": "dispel",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Grounding Totem",
+        "Grounding Totem Effect"
+      ]
+    },
+    "tremor_totem": {
+      "category": "dispel",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Tremor Totem"
+      ]
+    },
+    "mana_tide_totem": {
+      "category": "mana",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Mana Tide Totem"
+      ]
+    },
+    "earth_shock": {
+      "category": "interrupt",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Earth Shock"
+      ]
+    },
+    "purge": {
+      "category": "dispel",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Purge"
+      ]
+    },
+    "frost_shock": {
+      "category": "root",
+      "class": "SHAMAN",
+      "ids": [],
+      "names": [
+        "Frost Shock"
+      ]
+    },
+    "gouge": {
+      "category": "incapacitate",
+      "class": "ROGUE",
+      "ids": [],
+      "names": [
+        "Gouge"
+      ]
+    },
+    "kick": {
+      "category": "interrupt",
+      "class": "ROGUE",
+      "ids": [],
+      "names": [
+        "Kick"
+      ]
+    },
+    "shadowstep": {
+      "category": "mobility",
+      "class": "ROGUE",
+      "ids": [],
+      "names": [
+        "Shadowstep"
+      ]
+    },
+    "cold_blood": {
+      "category": "burst",
+      "class": "ROGUE",
+      "ids": [],
+      "names": [
+        "Cold Blood"
+      ]
+    },
+    "adrenaline_rush": {
+      "category": "burst",
+      "class": "ROGUE",
+      "ids": [],
+      "names": [
+        "Adrenaline Rush"
+      ]
+    },
+    "blink": {
+      "category": "mobility",
+      "class": "MAGE",
+      "ids": [],
+      "names": [
+        "Blink"
+      ]
+    },
+    "cold_snap": {
+      "category": "reset",
+      "class": "MAGE",
+      "ids": [],
+      "names": [
+        "Cold Snap"
+      ]
+    },
+    "icy_veins": {
+      "category": "burst",
+      "class": "MAGE",
+      "ids": [],
+      "names": [
+        "Icy Veins"
+      ]
+    },
+    "evocation": {
+      "category": "mana",
+      "class": "MAGE",
+      "ids": [],
+      "names": [
+        "Evocation"
+      ]
+    },
+    "pummel": {
+      "category": "interrupt",
+      "class": "WARRIOR",
+      "ids": [],
+      "names": [
+        "Pummel"
+      ]
+    },
+    "spell_reflection": {
+      "category": "immunity",
+      "class": "WARRIOR",
+      "ids": [],
+      "names": [
+        "Spell Reflection"
+      ]
+    },
+    "intercept": {
+      "category": "mobility",
+      "class": "WARRIOR",
+      "ids": [],
+      "names": [
+        "Intercept"
+      ]
+    },
+    "recklessness": {
+      "category": "burst",
+      "class": "WARRIOR",
+      "ids": [],
+      "names": [
+        "Recklessness"
+      ]
+    },
+    "death_wish": {
+      "category": "burst",
+      "class": "WARRIOR",
+      "ids": [],
+      "names": [
+        "Death Wish"
+      ]
+    },
+    "entangling_roots": {
+      "category": "root",
+      "class": "DRUID",
+      "ids": [],
+      "names": [
+        "Entangling Roots"
+      ]
+    },
+    "natures_grasp": {
+      "category": "root",
+      "class": "DRUID",
+      "ids": [],
+      "names": [
+        "Nature's Grasp"
+      ]
+    },
+    "feral_charge": {
+      "category": "stun",
+      "class": "DRUID",
+      "ids": [],
+      "names": [
+        "Feral Charge"
+      ]
+    },
+    "travel_form": {
+      "category": "mobility",
+      "class": "DRUID",
+      "ids": [],
+      "names": [
+        "Travel Form"
+      ]
+    },
+    "silence": {
+      "category": "silence",
+      "class": "PRIEST",
+      "ids": [],
+      "names": [
+        "Silence"
+      ]
+    },
+    "mass_dispel": {
+      "category": "dispel",
+      "class": "PRIEST",
+      "ids": [],
+      "names": [
+        "Mass Dispel"
+      ]
+    },
+    "fear_ward": {
+      "category": "dispel",
+      "class": "PRIEST",
+      "ids": [],
+      "names": [
+        "Fear Ward"
+      ]
+    },
+    "mana_burn": {
+      "category": "mana",
+      "class": "PRIEST",
+      "ids": [],
+      "names": [
+        "Mana Burn"
+      ]
+    },
+    "howl_of_terror": {
+      "category": "fear",
+      "class": "WARLOCK",
+      "ids": [],
+      "names": [
+        "Howl of Terror"
+      ]
+    },
+    "spell_lock": {
+      "category": "silence",
+      "class": "WARLOCK",
+      "ids": [],
+      "names": [
+        "Spell Lock"
+      ]
+    },
+    "seduction": {
+      "category": "incapacitate",
+      "class": "WARLOCK",
+      "ids": [],
+      "names": [
+        "Seduction"
+      ]
+    },
+    "soul_link": {
+      "category": "defensive",
+      "class": "WARLOCK",
+      "ids": [],
+      "names": [
+        "Soul Link"
+      ]
+    },
+    "repentance": {
+      "category": "incapacitate",
+      "class": "PALADIN",
+      "ids": [],
+      "names": [
+        "Repentance"
+      ]
+    },
+    "blessing_of_protection": {
+      "category": "immunity",
+      "class": "PALADIN",
+      "ids": [],
+      "names": [
+        "Blessing of Protection"
+      ]
+    },
+    "divine_protection": {
+      "category": "immunity",
+      "class": "PALADIN",
+      "ids": [],
+      "names": [
+        "Divine Protection"
+      ]
+    },
+    "avenging_wrath": {
+      "category": "burst",
+      "class": "PALADIN",
+      "ids": [],
+      "names": [
+        "Avenging Wrath"
+      ]
+    }
+  }
+}

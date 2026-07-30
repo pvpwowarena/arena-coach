@@ -256,7 +256,10 @@ class TestPipelineRefinement:
         await pipeline.process_event(ctx, second)
         delta = ctx.hint_queue.pop_fresh("Arenacoach")
         assert delta, "доуточнение состава должно озвучиваться"
-        assert delta[0].startswith("Плюс рога.")
+        # «ро́га» — с ударением из словаря произношения (Phase 4.12): в очередь
+        # голоса кладётся уже озвучиваемый вариант, в DM текст остаётся обычным.
+        assert delta[0].startswith("Плюс ро")
+        assert "Килл таргет" in delta[0]
         assert "Против" not in delta[0]
 
     async def test_ability_reaction_queued_not_announcement(

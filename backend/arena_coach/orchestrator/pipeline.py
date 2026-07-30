@@ -37,9 +37,11 @@ from arena_coach.access.advice_store import AdviceStore
 from arena_coach.access.player_settings import DEFAULT_VOICE_MODE, PlayerSettingsService
 from arena_coach.access.service import AccessService
 from arena_coach.access.usage import UsageService
+from arena_coach.kb.pronunciation import Pronouncer
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.kb.schema import KBDoc, Section
 from arena_coach.kb.slang import SlangRenderer
+from arena_coach.kb.spells import SpellCatalog
 from arena_coach.orchestrator import advice as advice_mod
 from arena_coach.orchestrator.advice import AdviceCache, TokenUsage, comp_signature
 from arena_coach.orchestrator.hint_queue import HintQueue
@@ -59,6 +61,7 @@ from arena_coach.orchestrator.reactions import (
     NORMAL,
     Reaction,
     ability_reaction,
+    category_reaction,
     trinket_reaction,
 )
 from arena_coach.orchestrator.threats import threat_lines, threat_voice
@@ -365,6 +368,10 @@ class PipelineContext:
     _announced_enemies: dict[str, tuple[str, ...]] = field(default_factory=dict)
     # Phase 4.10: сленг-рендерер (ленивая загрузка глоссария из KB).
     _slang: SlangRenderer | None = None
+    # Phase 4.12: каталог способностей — что важно, решает бэкенд, а не мост.
+    _spells: SpellCatalog | None = None
+    # Phase 4.12: словарь произношения для TTS (ударения в сленге).
+    _pronouncer: Pronouncer | None = None
 
     @property
     def slang(self) -> SlangRenderer:
@@ -372,6 +379,20 @@ class PipelineContext:
         if self._slang is None:
             self._slang = SlangRenderer.from_kb_path(self.settings.kb_path)
         return self._slang
+
+    @property
+    def spells(self) -> SpellCatalog:
+        """Каталог realtime-способностей (id/имя → ключ+категория); грузится один раз."""
+        if self._spells is None:
+            self._spells = SpellCatalog.from_kb_path(self.settings.kb_path)
+        return self._spells
+
+    @property
+    def pronouncer(self) -> Pronouncer:
+        """Замены для TTS (ро́га, а не рога́); грузится один раз."""
+        if self._pronouncer is None:
+            self._pronouncer = Pronouncer.from_kb_path(self.settings.kb_path)
+        return self._pronouncer
 
     @property
     def llm_enabled(self) -> bool:
@@ -421,8 +442,10 @@ async def _deliver(
     """
     voice_sent = False
     if voice_mode != "off" and voice_text:
-        ctx.hint_queue.push(player_name, voice_text, ttl_s=voice_ttl_s)
-        voice_sent = await _send_voice_hint(ctx.settings, voice_text)
+        # Ударения правим только в голосе: в DM человек читает нормальный текст.
+        spoken = ctx.pronouncer.apply(voice_text)
+        ctx.hint_queue.push(player_name, spoken, ttl_s=voice_ttl_s)
+        voice_sent = await _send_voice_hint(ctx.settings, spoken)
     if voice_mode == "only" and voice_sent:
         return "sent"
     ok = await _send_discord_dm(ctx.settings.discord_bot_token, discord_id, dm_text)
@@ -800,11 +823,10 @@ async def _handle_ability(
     voice_mode: str,
     source: str,
     spell_key: str,
-    doc: KBDoc | None,
+    reaction: Reaction | None,
 ) -> str:
     # Имя способности — через сленг-слой: «кидни», а не «kidney_shot».
     name = ctx.slang.name(spell_key.replace("_", "-"))
-    reaction = ability_reaction(spell_key)
     dm_lines = [f"⚡ **{name[:1].upper()}{name[1:]} у {source}**"]
     # Секцию «Key cooldowns to track» в бою НЕ вставляем: это перечень всех КД
     # обеих команд — ровно тот шум, из-за которого realtime-подсказки выглядели
@@ -837,9 +859,35 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     enemies_raw = match_info.get("enemies", [])
     session_id = str(envelope.get("session_id", ""))
 
-    # ── 0. Постматч-копилка (до хинт-фильтров) ──────────────────────────
+    # ── 0. Резолв способности (Phase 4.12) ──────────────────────────────
+    # Мост больше не решает, что важно: он форвардит все касты врагов (id + slug
+    # имени), а каталог `kb/glossary/realtime_spells.json` превращает это в
+    # канонический ключ и категорию. Новый класс/спелл = правка данных, без релиза.
     ts = parse_bridge_ts(str(envelope.get("bridge_ts", ""))) or utcnow()
-    spell_key = str(event.get("spell_key", "") or event.get("trinket_key", ""))
+    raw_key = str(event.get("spell_key", "") or event.get("trinket_key", ""))
+    spell_name = str(event.get("spell_name", ""))
+    try:
+        spell_id = int(event.get("spell_id", 0) or 0)
+    except (TypeError, ValueError):
+        spell_id = 0
+    spell_key = raw_key
+    # Ключ анти-спама: у именной реакции — сам спелл, у общей — категория. Иначе
+    # ловушка и скаттер ханта (обе «incapacitate») прочитали бы подряд одну и ту
+    # же фразу — та самая заевшая пластинка, но уже на общих репликах.
+    throttle_subject = raw_key
+    hint_reaction: Reaction | None = None
+    if event_type == "ABILITY":
+        info = ctx.spells.resolve(spell_id, raw_key, spell_name)
+        spell_key = info.key or raw_key
+        hint_reaction = ability_reaction(spell_key)
+        throttle_subject = spell_key
+        if hint_reaction is None:
+            hint_reaction = category_reaction(info.category)
+            throttle_subject = f"cat:{info.category}"
+    elif event_type == "TRINKET":
+        hint_reaction = trinket_reaction()
+
+    # ── 0b. Постматч-копилка (до хинт-фильтров) ─────────────────────────
     if event_type == "ARENA_START":
         ctx.match_recorder.start(
             player_name,
@@ -849,7 +897,9 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
             enemies=[{str(k): str(v) for k, v in e.items() if v is not None} for e in enemies_raw],
             our_comp_hint=str(match_info.get("our_comp_hint") or "") or None,
         )
-    elif event_type in ("TRINKET", "ABILITY"):
+    elif event_type in ("TRINKET", "ABILITY") and hint_reaction is not None:
+        # Пишем только то, что каталог опознал: мост форвардит все касты, и без
+        # фильтра постматч-таймлайн превратился бы в дамп боевого лога.
         ctx.match_recorder.note(
             player_name, ts, event_type, str(event.get("source_name", "враг")), spell_key
         )
@@ -859,7 +909,9 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     # ── 1. Фильтр важных событий ────────────────────────────────────────
     if event_type not in _HINT_EVENTS:
         return "skipped"
-    if event_type == "ABILITY" and spell_key not in _ABILITY_HINT_KEYS:
+    if event_type == "ABILITY" and hint_reaction is None:
+        # Способности нет ни в именной таблице, ни в категориях каталога.
+        log.debug("ABILITY %s (id=%s, name=%r) не опознан — молчим", raw_key, spell_id, spell_name)
         return "skipped"
 
     # ── 2. Игрок в whitelist ────────────────────────────────────────────
@@ -870,12 +922,9 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     discord_id = entry.discord_id
 
     # ── 3. Троттлинг in-fight (Phase 4.11: приоритеты + бюджет речи) ────
-    throttle_key = spell_key if event_type == "ABILITY" else str(event.get("source_name", ""))
-    hint_reaction: Reaction | None = None
-    if event_type == "ABILITY":
-        hint_reaction = ability_reaction(spell_key)
-    elif event_type == "TRINKET":
-        hint_reaction = trinket_reaction()
+    throttle_key = (
+        throttle_subject if event_type == "ABILITY" else str(event.get("source_name", ""))
+    )
     if not ctx.hint_throttle.allow(
         discord_id,
         event_type,
@@ -925,4 +974,6 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     source = str(event.get("source_name", "враг"))
     if event_type == "TRINKET":
         return await _handle_trinket(ctx, discord_id, player_name, voice_mode, source, doc)
-    return await _handle_ability(ctx, discord_id, player_name, voice_mode, source, spell_key, doc)
+    return await _handle_ability(
+        ctx, discord_id, player_name, voice_mode, source, spell_key, hint_reaction
+    )

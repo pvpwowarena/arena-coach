@@ -32,9 +32,11 @@ from __future__ import annotations
 import asyncio
 import csv
 import logging
+import re
+from collections import deque
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 log = logging.getLogger(__name__)
@@ -252,6 +254,16 @@ _FLAG_REACTION_FRIENDLY = 0x0010
 
 _ARENA_END_QUIET_S = 90.0  # тишина активности ВРАГОВ МАТЧА → конец
 _DUP_WINDOW_S = 5.0  # cast+aura одного спелла → одно событие
+#: Потолок форварда НЕзнакомых кастов (Phase 4.12) — на матч, в минуту.
+_FORWARD_BUDGET_PER_MIN = 90
+#: Слаг имени способности: "Scatter Shot" → "scatter_shot" (зеркало backend.kb.spells).
+_SLUG_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _slugify(name: str) -> str:
+    return _SLUG_RE.sub("_", name.strip().lower()).strip("_")
+
+
 _MAX_ENEMY_FALLBACK = 5  # кап ростера врагов, если размер команды не определился
 
 _TS_FORMAT = "%m/%d/%Y %H:%M:%S.%f"
@@ -354,6 +366,7 @@ class CombatInterpreter:
     _last_hostile_ts: datetime | None = field(default=None, init=False)
     _recent: dict[tuple[str, int], datetime] = field(default_factory=dict, init=False)
     _event_count: int = field(default=0, init=False)
+    _forwarded: deque[datetime] = field(default_factory=deque, init=False)
     _team_size: int = field(default=0, init=False)
     _last_enemies_key: str | None = field(default=None, init=False)
 
@@ -450,7 +463,8 @@ class CombatInterpreter:
                     out.append(start)  # уточнение состава/спеков врагов
 
             if event == "SPELL_CAST_SUCCESS" or event == "SPELL_AURA_APPLIED":
-                payload = self._emit_hostile_action(ts, src_guid, src_name, spell_id)
+                spell_name = fields[10] if len(fields) > 10 else ""
+                payload = self._emit_hostile_action(ts, src_guid, src_name, spell_id, spell_name)
                 if payload:
                     out.append(payload)
         elif _is_hostile_pet(src_flags) and spell_id in _PET_SPELL_TO_OWNER:
@@ -523,7 +537,22 @@ class CombatInterpreter:
 
     # ── события внутри матча ────────────────────────────────────────────
 
-    def _emit_hostile_action(self, ts: datetime, guid: str, name: str, spell_id: int) -> str | None:
+    def _emit_hostile_action(
+        self, ts: datetime, guid: str, name: str, spell_id: int, spell_name: str = ""
+    ) -> str | None:
+        """Событие враждебного каста → AC-payload.
+
+        Phase 4.12: мост больше НЕ решает, что важно. Раньше он фильтровал по
+        зашитому `TRACKED_SPELLS` (27 id, семь классов из девяти — ханта и шамана
+        не было вовсе), и любое расширение требовало новой сборки. Теперь
+        форвардим всё, что скастовал враг: известный id отдаём каноническим
+        ключом, неизвестный — слагом английского имени из лога плюс само имя
+        пятым полем. Что с этим делать, решает каталог на бэкенде
+        (`kb/glossary/realtime_spells.json`) — правка данных вместо релиза.
+
+        Дедуп по (guid, spell_id) в пределах `_DUP_WINDOW_S` остаётся: клиент
+        пишет cast_success и aura_applied как две строки об одном действии.
+        """
         key = (guid, spell_id)
         prev = self._recent.get(key)
         if prev is not None and (ts - prev).total_seconds() < _DUP_WINDOW_S:
@@ -533,10 +562,28 @@ class CombatInterpreter:
         if spell_id in TRINKET_IDS:
             self._event_count += 1
             return f"TRINKET#{name}#{spell_id}#{TRINKET_IDS[spell_id]}"
-        if spell_id in TRACKED_SPELLS:
-            self._event_count += 1
-            return f"ABILITY#{name}#{spell_id}#{TRACKED_SPELLS[spell_id]}"
-        return None
+
+        spell_key = TRACKED_SPELLS.get(spell_id) or _slugify(spell_name)
+        if not spell_key:
+            return None  # ни id, ни имени — форвардить нечего
+        if spell_id not in TRACKED_SPELLS and not self._forward_budget_ok(ts):
+            return None
+        self._event_count += 1
+        return f"ABILITY#{name}#{spell_id}#{spell_key}#{spell_name}"
+
+    def _forward_budget_ok(self, ts: datetime) -> bool:
+        """Потолок форварда незнакомых кастов: 90/мин на матч.
+
+        Страховка от аномалии в логе (мультибокс, странный аддон, спам-аура):
+        бэкенд всё равно троттлит речь, но трафик и БД беречь стоит.
+        """
+        cutoff = ts - timedelta(seconds=60)
+        while self._forwarded and self._forwarded[0] < cutoff:
+            self._forwarded.popleft()
+        if len(self._forwarded) >= _FORWARD_BUDGET_PER_MIN:
+            return False
+        self._forwarded.append(ts)
+        return True
 
     # ── состав ──────────────────────────────────────────────────────────
 

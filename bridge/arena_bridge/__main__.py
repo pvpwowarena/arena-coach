@@ -44,6 +44,8 @@ import signal
 import sys
 from pathlib import Path
 
+from . import __version__ as _pkg_version
+
 log = logging.getLogger("arena_bridge")
 
 
@@ -70,6 +72,11 @@ def _setup_logging(level: str = "INFO") -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
         level=getattr(logging, level.upper(), logging.INFO),
     )
+    # httpx пишет INFO на КАЖДЫЙ запрос, а поллер подсказок ходит на /v1/hints
+    # дважды в секунду — в этом потоке не видно ни обновлений, ни ошибок.
+    # Наши собственные логи опроса остаются на DEBUG.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 
 def _exe_dir() -> Path:
@@ -103,7 +110,7 @@ def _load_config_from_env() -> dict[str, str]:
         "combat_log": os.environ.get("BRIDGE_COMBAT_LOG", "1"),
         "auto_update": os.environ.get("BRIDGE_AUTO_UPDATE", "1"),
         "local_voice": os.environ.get("BRIDGE_LOCAL_VOICE", "1"),
-        "hint_poll_interval": os.environ.get("BRIDGE_HINT_POLL_INTERVAL", "1.0"),
+        "hint_poll_interval": os.environ.get("BRIDGE_HINT_POLL_INTERVAL", "0.5"),
     }
 
 
@@ -117,7 +124,7 @@ async def _run_bridge(
     our_comp: str | None = None,
     combat_log: bool = True,
     local_voice: bool = True,
-    hint_poll_interval: float = 1.0,
+    hint_poll_interval: float = 0.5,
 ) -> None:
     """Основной asyncio-loop: (combat|chat)_tail → normalizer → http POST.
 
@@ -160,7 +167,8 @@ async def _run_bridge(
         log.info("Канал: chat-лог (легаси-режим)")
 
     log.info(
-        "Arena Bridge запущен | лог: %s | игрок: %s | backend: %s",
+        "Arena Bridge %s запущен | лог: %s | игрок: %s | backend: %s",
+        _pkg_version,
         log_dir,
         player_name,
         backend_url,
@@ -172,7 +180,20 @@ async def _run_bridge(
     if local_voice:
         speaker = LocalTTS()
         if speaker.available:
-            log.info("Локальный голос: ВКЛ (%s)", speaker.describe())
+            voice_name = await speaker.resolve_voice()
+            if speaker.describe() == "macOS say" and voice_name is None:
+                log.warning(
+                    "Локальный голос: ВКЛ (macOS say), но РУССКИЙ голос не найден — "
+                    "кириллицу прочитает английский голос. Поставь его: Системные "
+                    "настройки → Универсальный доступ → Проговаривание → Системный "
+                    "голос → Русский (Milena, лучше Enhanced)."
+                )
+            else:
+                log.info(
+                    "Локальный голос: ВКЛ (%s%s)",
+                    speaker.describe(),
+                    f", голос {voice_name}" if voice_name else "",
+                )
             poller_task = asyncio.create_task(
                 run_hint_poller(
                     fetch=client.get_hints,
@@ -359,12 +380,18 @@ def main() -> int:
         "--hint-poll-interval",
         type=float,
         default=float(env["hint_poll_interval"]),
-        help="Интервал опроса обратного канала /v1/hints в секундах (default: 1.0)",
+        help="Интервал опроса обратного канала /v1/hints в секундах (default: 0.5)",
     )
     parser.add_argument(
         "--check-config",
         action="store_true",
         help="Проверить конфигурацию и выйти (не запускать демон)",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"arena-bridge {_pkg_version}",
+        help="Показать версию моста и выйти",
     )
     parser.add_argument(
         "--setup",
@@ -411,6 +438,7 @@ def main() -> int:
 
     if args.check_config:
         print("=== Arena Bridge — конфигурация ===")
+        print(f"  Version     : {_pkg_version}")
         if _env_file_info is not None:
             print(f"  Config file : {_env_file_info[0]}")
         else:
