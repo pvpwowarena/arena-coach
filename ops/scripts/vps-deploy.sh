@@ -17,9 +17,59 @@ echo "==> backend deps (idempotent)"
 "$VENV/bin/pip" install -e "$REPO/backend" --quiet
 
 echo "==> DB migrations (alembic direct — CLI has no 'db upgrade'; idempotent)"
+# Прод-инцидент 30.07.2026. Здесь была «тихая» первая попытка:
+#   alembic upgrade head 2>/dev/null || ( . api.env; alembic upgrade head )
+# Без api.env переменной DATABASE_URL нет, а дефолт в settings — ОТНОСИТЕЛЬНЫЙ путь
+# (sqlite:///./coach.db). Alembic создавал и честно мигрировал файл
+# /opt/arena-coach/backend/coach.db, выходил с кодом 0, фолбэк не срабатывал — и
+# боевая БД в /var/lib оставалась без миграции. Вся диагностика ушла в /dev/null,
+# а прод получил 500 на каждый /v1/events (no such column: combat_text).
+# Теперь: env грузим ВСЕГДА и заранее, вывод НЕ глушим, а относительный путь к БД
+# считаем ошибкой конфигурации, а не поводом молча мигрировать не туда.
+API_ENV=/etc/arena-coach/api.env
+if [ ! -r "$API_ENV" ]; then
+  echo "ERROR: $API_ENV не читается — без него DATABASE_URL неизвестен" >&2
+  exit 1
+fi
+set -a
+# shellcheck disable=SC1091
+. "$API_ENV"
+set +a
+
+if [ -z "${DATABASE_URL:-}" ]; then
+  echo "ERROR: DATABASE_URL не задан в $API_ENV — миграция ушла бы в файл рядом с кодом" >&2
+  exit 1
+fi
+case "$DATABASE_URL" in
+  sqlite*:////*) : ;;                 # sqlite с АБСОЛЮТНЫМ путём — то, что нужно
+  sqlite*)                            # sqlite:///./coach.db и подобное — ловушка
+    echo "ERROR: DATABASE_URL='$DATABASE_URL' — относительный путь к sqlite." >&2
+    echo "       Нужен абсолютный: sqlite+aiosqlite:////var/lib/arena-coach/coach.db" >&2
+    exit 1 ;;
+  *) : ;;                             # не sqlite (postgres и т.п.) — путь не при чём
+esac
+
+echo "    БД: $DATABASE_URL"
 cd "$REPO/backend"
-"$VENV/bin/alembic" -c alembic.ini upgrade head 2>/dev/null \
-  || ( set -a; . /etc/arena-coach/api.env 2>/dev/null; set +a; "$VENV/bin/alembic" -c alembic.ini upgrade head )
+echo "    ревизия до:"
+"$VENV/bin/alembic" -c alembic.ini current
+"$VENV/bin/alembic" -c alembic.ini upgrade head || {
+  # Вторая половина инцидента 30.07.2026: боевую БД создал `Base.metadata.create_all`
+  # при старте приложения, поэтому таблицы есть, а `alembic_version` НЕТ. Alembic в
+  # таком случае идёт с 0001 и падает на «table whitelist_entries already exists».
+  # `create_all` при этом создаёт только ОТСУТСТВУЮЩИЕ таблицы и никогда не меняет
+  # существующие — отсюда и пропавшая колонка player_settings.combat_text.
+  echo "" >&2
+  echo "ERROR: alembic upgrade не прошёл." >&2
+  echo "  Если ошибка вида 'table ... already exists' — БД не зарегистрирована в alembic" >&2
+  echo "  (нет alembic_version, её создал create_all). Разово, на ВПС:" >&2
+  echo "    alembic -c alembic.ini stamp 0002 && alembic -c alembic.ini upgrade head" >&2
+  echo "  stamp именно 0002, а не 0004: тогда 0003/0004 создадут свои таблицы, если их нет," >&2
+  echo "  а если есть — самопропустятся guard'ами." >&2
+  exit 1
+}
+echo "    ревизия после:"
+"$VENV/bin/alembic" -c alembic.ini current
 cd "$REPO"
 
 echo "==> static HTML → /var/www/arena-coach"
