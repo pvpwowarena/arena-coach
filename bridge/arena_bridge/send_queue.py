@@ -40,6 +40,25 @@ DEFAULT_STALE_AFTER_S = 5.0
 #: Порог, с которого задержка «лог → отправка» попадает в лог как предупреждение.
 LAG_WARN_S = 1.0
 
+#: Событие боя, пролежавшее в ЛОГЕ дольше этого, не отправляем вовсе.
+#:
+#: Живой тест 30.07: голос произнёс подсказку уже ПОСЛЕ выхода с арены. Механика —
+#: не в голосе: мост отставал от лога на десятки секунд, бэкенд получал событие
+#: свежим (TTL очереди голоса считается от момента постановки) и честно озвучивал
+#: то, что случилось полминуты назад. Отставание мы уменьшили, но убрать не можем:
+#: клиент буферизует запись лога на тихих фазах, и это не в нашей власти.
+#: Поэтому годность считаем по времени СОБЫТИЯ, а не по времени доставки.
+STALE_LOG_LAG_S = 3.0
+
+#: Типы, которые протухают. `ARENA_START`/`ARENA_END` пропускаем всегда: состав и
+#: постматч ценны и с опозданием, а вот «кик!» через 10 секунд — вредная помеха.
+PERISHABLE_PREFIXES = ("ABILITY#", "TRINKET#")
+
+
+def _is_perishable(label: str) -> bool:
+    return label.startswith(PERISHABLE_PREFIXES)
+
+
 SendFn = Callable[[dict[str, Any]], Awaitable[bool]]
 
 
@@ -52,13 +71,15 @@ class SendStats:
     failed: int = 0
     dropped_full: int = 0
     dropped_stale: int = 0
+    dropped_late: int = 0
     max_post_s: float = 0.0
     max_lag_s: float = 0.0
 
     def summary(self) -> str:
         return (
             f"отправлено {self.sent}/{self.submitted}, ошибок {self.failed}, "
-            f"выброшено (очередь полна/протухло) {self.dropped_full}/{self.dropped_stale}, "
+            f"выброшено (очередь полна/очередь протухла/лог отстал) "
+            f"{self.dropped_full}/{self.dropped_stale}/{self.dropped_late}, "
             f"худший POST {self.max_post_s:.2f}с, худшее отставание от лога "
             f"{self.max_lag_s:.2f}с"
         )
@@ -120,6 +141,15 @@ class EventSender:
                     log_lag_s,
                     label or "?",
                 )
+        if log_lag_s is not None and log_lag_s > STALE_LOG_LAG_S and _is_perishable(label):
+            self.stats.dropped_late += 1
+            log.warning(
+                "Событие %s случилось %.1fс назад — не отправляю: подсказка о нём уже "
+                "не подсказка, а помеха",
+                label or "?",
+                log_lag_s,
+            )
+            return
         item = _Item(payload=payload, queued_at=time.monotonic(), log_lag_s=log_lag_s, label=label)
         while True:
             try:

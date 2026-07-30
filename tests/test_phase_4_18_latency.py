@@ -83,6 +83,29 @@ class TestSendQueue:
         assert sent == []
         assert sender.stats.dropped_stale == 1
 
+    async def test_late_combat_event_is_not_sent_at_all(self) -> None:
+        """Событие боя, случившееся давно, не отправляем — оно уже помеха.
+
+        Живой тест 30.07: голос читал подсказку уже после выхода с арены, потому
+        что мост отставал от лога, а TTL очереди голоса считался от доставки.
+        """
+        sent: list[str] = []
+
+        async def _send(payload: dict[str, object]) -> bool:
+            sent.append(str(payload.get("k")))
+            return True
+
+        sender = EventSender(_send)
+        sender.start()
+        sender.submit({"k": "late"}, log_lag_s=12.0, label="ABILITY#Enemy#123#kick")
+        sender.submit({"k": "fresh"}, log_lag_s=0.2, label="ABILITY#Enemy#123#kick")
+        # Состав и постматч ценны и с опозданием — их не режем.
+        sender.submit({"k": "roster"}, log_lag_s=12.0, label="ARENA_START#2v2#MAGE/UNKNOWN#")
+        await sender.stop()
+
+        assert sent == ["fresh", "roster"]
+        assert sender.stats.dropped_late == 1
+
     async def test_lag_clock_measures_log_to_wallclock(self) -> None:
         line_ts = datetime(2026, 7, 30, 13, 49, 45)
         clock = LagClock(now=lambda: line_ts + timedelta(seconds=2.5))
