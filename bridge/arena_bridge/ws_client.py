@@ -19,6 +19,12 @@ log = logging.getLogger(__name__)
 # одна быстрая повторная попытка на случай моргнувшей сети — и хватит.
 _RETRY_DELAYS = [0.3, 0.7]  # секунды между попытками
 
+# Ретраи для событий, которые НЕ протухают (состав на воротах, конец матча).
+# Живой тест 30.07: деплой перезапустил API прямо в матче, nginx отдавал 502
+# около пяти секунд, и коротких ретраев не хватило — состав врагов потерялся
+# совсем. Такие события ценны и с опозданием, поэтому им даём пережить рестарт.
+_RETRY_DELAYS_DURABLE = [0.5, 1.5, 3.0, 6.0]
+
 #: Таймаут POST события. Дольше ждать нечего: см. комментарий про ретраи.
 DEFAULT_TIMEOUT_S = 4.0
 
@@ -49,16 +55,18 @@ class EventClient:
             headers=self._headers,
         )
 
-    async def send(self, payload: dict[str, object]) -> bool:
+    async def send(self, payload: dict[str, object], durable: bool = False) -> bool:
         """Отправить одно событие на backend.
 
         Args:
             payload: dict, готовый для JSON-сериализации (CanonicalEnvelope.model_dump())
+            durable: событие не протухает (ARENA_START/ARENA_END) — упорствуем дольше.
 
         Returns:
             True если сервер ответил 2xx, False иначе.
         """
-        for attempt, delay in enumerate(_RETRY_DELAYS, start=1):
+        delays = _RETRY_DELAYS_DURABLE if durable else _RETRY_DELAYS
+        for attempt, delay in enumerate(delays, start=1):
             try:
                 resp = await self._client.post(self._endpoint, json=payload)
                 if resp.is_success:
@@ -80,7 +88,7 @@ class EventClient:
                         "Backend ответил %s, попытка %d/%d",
                         resp.status_code,
                         attempt,
-                        len(_RETRY_DELAYS),
+                        len(delays),
                     )
 
             except httpx.ConnectError:
@@ -88,22 +96,22 @@ class EventClient:
                     "Нет соединения с backend %s, попытка %d/%d",
                     self._endpoint,
                     attempt,
-                    len(_RETRY_DELAYS),
+                    len(delays),
                 )
             except httpx.TimeoutException:
                 log.warning(
                     "Timeout при отправке события, попытка %d/%d",
                     attempt,
-                    len(_RETRY_DELAYS),
+                    len(delays),
                 )
             except Exception as exc:
                 log.error("Неожиданная ошибка при отправке: %s", exc)
                 return False
 
-            if attempt < len(_RETRY_DELAYS):
+            if attempt < len(delays):
                 await asyncio.sleep(delay)
 
-        log.error("Не удалось отправить событие после %d попыток", len(_RETRY_DELAYS))
+        log.error("Не удалось отправить событие после %d попыток", len(delays))
         return False
 
     async def health_check(self) -> bool:

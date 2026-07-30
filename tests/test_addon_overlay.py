@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import textwrap
@@ -28,7 +29,7 @@ ADDON = REPO / "addon" / "ArenaCoach"
 STUB = Path(__file__).resolve().parent / "fixtures" / "addon_stub.lua"
 
 #: Порядок загрузки — как в ArenaCoach.toc.
-FILES = ("Core.lua", "Tracker.lua", "KillTargets.lua", "Overlay.lua", "UI.lua")
+FILES = ("Core.lua", "Tracker.lua", "KillTargets.lua", "Overlay.lua", "Voice.lua", "UI.lua")
 
 
 def _run(scenario_lua: str, probe_lua: str) -> dict[str, object]:
@@ -71,6 +72,11 @@ print("{" ..
     '"units":' .. q(#O.units) .. "," ..
     '"marks":' .. q(#S.marks) ..
 "}")
+"""
+
+
+_EMIT_VOICE = """
+print("{" .. '"clips":"' .. table.concat(SCENARIO.clips, ",") .. '"}')
 """
 
 
@@ -215,3 +221,70 @@ class TestGeneratedTable:
         toc = (ADDON / "ArenaCoach.toc").read_text(encoding="utf-8")
         for path in sorted(ADDON.glob("*.lua")):
             assert path.name in toc, f"{path.name} не подключён в .toc"
+
+
+@needs_lua
+class TestVoiceClips:
+    """Phase 4.19: голос аддона — решение и звук локально, без моста и сети."""
+
+    def test_target_announced_once_per_match(self) -> None:
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "WARLOCK"},
+                [{"class": "DRUID"}, {"class": "ROGUE"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()\nO:Recompute()\nO:Recompute()",
+            _EMIT_VOICE,
+        )
+        # Килл-таргет — друид: клип «Бей друида!», и ровно один раз за матч.
+        assert res["clips"] == "target_druid"
+
+    def test_healer_cast_start_triggers_kick(self) -> None:
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "WARLOCK"},
+                [{"class": "PRIEST"}, {"class": "ROGUE"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()"
+            + '\nArenaCoach.Voice:OnCombatLog("SPELL_CAST_START","GUID-arena1","E",0,'
+            '"GUID-me","Me",0,2060,"Greater Heal")',
+            _EMIT_VOICE,
+        )
+        assert "kick" in str(res["clips"]).split(",")
+
+    def test_own_cast_is_ignored(self) -> None:
+        """Свои касты игрок и так видит — озвучиваем только врагов."""
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "WARLOCK"},
+                [{"class": "PRIEST"}, {"class": "ROGUE"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()"
+            + '\nArenaCoach.Voice:OnCombatLog("SPELL_CAST_START","GUID-me","Me",0,'
+            '"GUID-me","Me",0,2060,"Greater Heal")',
+            _EMIT_VOICE,
+        )
+        assert "kick" not in str(res["clips"]).split(",")
+
+    def test_every_clip_key_has_a_file(self) -> None:
+        """Каждый ключ из Voice.lua должен существовать как .ogg."""
+        voice = (ADDON / "Voice.lua").read_text(encoding="utf-8")
+        keys = set(re.findall(r'Say\("([a-z_]+)"', voice))
+        keys |= set(re.findall(r'= "(target_[a-z]+)"', voice))
+        assert keys, "не нашёл ни одного ключа клипа"
+        for key in sorted(keys):
+            assert (ADDON / "sfx" / f"{key}.ogg").exists(), f"нет клипа {key}.ogg"
+
+
+class TestGeneratedVoice:
+    def test_all_clips_present(self) -> None:
+        proc = subprocess.run(
+            ["python3", str(REPO / "tools" / "gen_addon_voice.py"), "--check"],
+            capture_output=True,
+            text=True,
+            cwd=REPO,
+        )
+        assert proc.returncode == 0, proc.stdout + proc.stderr

@@ -136,6 +136,15 @@ local function PickUnit(targetClass)
     return best
 end
 
+--- Является ли GUID одним из врагов на арене (нужен голосу для фильтра «свой/чужой»).
+function O:IsEnemyGUID(guid)
+    if not guid then return false end
+    for _, u in ipairs(self.units) do
+        if UnitExists(u.unit) and UnitGUID(u.unit) == guid then return true end
+    end
+    return false
+end
+
 function O:Recompute()
     local enemyList = {}
     for _, u in ipairs(self.units) do
@@ -158,6 +167,13 @@ function O:Recompute()
     self.source = source or "—"
     self:ApplyMark(pick)
     self:Refresh()
+
+    -- Голос произносит цель ОДИН раз за матч (анти-спам в Voice:Say). Это самая
+    -- ранняя полезная фраза: оверлей знает класс уже на воротах, без единого каста.
+    if pick and AC.Voice then AC.Voice:AnnounceTarget(pick.class) end
+
+    -- «Тринкета нет» — отдельный сигнал: окно на добив открывается именно тут.
+    if pick and pick.trinketUsed and AC.Voice then AC.Voice:Say("notrinket") end
 end
 
 -- ── Череп на цели ───────────────────────────────────────────────────────────
@@ -310,6 +326,7 @@ function O:StartMatch()
     self.units = {}
     self.targetUnit = nil
     self.markedGUID = nil
+    if AC.Voice then AC.Voice:ResetMatch() end
     self:ScanRoster()
 end
 

@@ -104,3 +104,14 @@ scenario.marks = {}
 function _G.SetRaidTarget(unit, index)
     table.insert(scenario.marks, { unit = unit, index = index })
 end
+
+-- Голосовые клипы: записываем, что аддон пытался проиграть.
+scenario.clips = {}
+function _G.PlaySoundFile(path, channel)
+    local key = string.match(path, "([^\\]+)%.ogg$") or path
+    table.insert(scenario.clips, key)
+    return true
+end
+function _G.PlaySound(name)
+    table.insert(scenario.clips, "builtin:" .. tostring(name))
+end

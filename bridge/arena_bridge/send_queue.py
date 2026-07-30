@@ -59,7 +59,8 @@ def _is_perishable(label: str) -> bool:
     return label.startswith(PERISHABLE_PREFIXES)
 
 
-SendFn = Callable[[dict[str, Any]], Awaitable[bool]]
+#: `send(payload, durable=...)` — второй аргумент говорит клиенту, стоит ли упорствовать.
+SendFn = Callable[..., Awaitable[bool]]
 
 
 @dataclass
@@ -92,6 +93,8 @@ class _Item:
     #: Отставание «время строки в логе ↔ wall-clock» в момент постановки (сек).
     log_lag_s: float | None
     label: str
+    #: Событие не протухает → пережидаем перезапуск бэкенда, а не сдаёмся сразу.
+    durable: bool = False
 
 
 class EventSender:
@@ -150,7 +153,13 @@ class EventSender:
                 log_lag_s,
             )
             return
-        item = _Item(payload=payload, queued_at=time.monotonic(), log_lag_s=log_lag_s, label=label)
+        item = _Item(
+            payload=payload,
+            queued_at=time.monotonic(),
+            log_lag_s=log_lag_s,
+            label=label,
+            durable=not _is_perishable(label),
+        )
         while True:
             try:
                 self._queue.put_nowait(item)
@@ -194,7 +203,7 @@ class EventSender:
             )
             return
         started = time.monotonic()
-        ok = await self._send(item.payload)
+        ok = await self._send(item.payload, durable=item.durable)
         post_s = time.monotonic() - started
         self.stats.max_post_s = max(self.stats.max_post_s, post_s)
         if ok:

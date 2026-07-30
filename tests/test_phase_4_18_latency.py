@@ -28,7 +28,7 @@ class TestSendQueue:
     async def test_submit_does_not_wait_for_network(self) -> None:
         released = asyncio.Event()
 
-        async def _slow_send(payload: dict[str, object]) -> bool:
+        async def _slow_send(payload: dict[str, object], **kw: object) -> bool:
             await released.wait()
             return True
 
@@ -52,7 +52,7 @@ class TestSendQueue:
         seen: list[int] = []
         gate = asyncio.Event()
 
-        async def _send(payload: dict[str, object]) -> bool:
+        async def _send(payload: dict[str, object], **kw: object) -> bool:
             await gate.wait()
             seen.append(int(payload["n"]))  # type: ignore[arg-type]
             return True
@@ -72,7 +72,7 @@ class TestSendQueue:
     async def test_stale_events_are_not_sent(self) -> None:
         sent: list[dict[str, object]] = []
 
-        async def _send(payload: dict[str, object]) -> bool:
+        async def _send(payload: dict[str, object], **kw: object) -> bool:
             sent.append(payload)
             return True
 
@@ -91,7 +91,7 @@ class TestSendQueue:
         """
         sent: list[str] = []
 
-        async def _send(payload: dict[str, object]) -> bool:
+        async def _send(payload: dict[str, object], **kw: object) -> bool:
             sent.append(str(payload.get("k")))
             return True
 
@@ -190,3 +190,108 @@ def _ctx(kb_dir: Path) -> pipeline.PipelineContext:
         anthropic_client=SimpleNamespace(),
         settings=Settings(discord_bot_token="t", anthropic_api_key=""),
     )
+
+
+class TestNoiseAndDurability:
+    """Phase 4.19: мусор не едет в канал, а ценное переживает рестарт бэкенда."""
+
+    async def test_self_buff_proc_is_not_forwarded(self) -> None:
+        """`Leader of the Pack` на себе — пассивный прок, подсказки на него нет.
+
+        Живой лог 30.07: такими событиями (`Find Herbs`, `Furor`, `Clearcasting`)
+        забило очередь отправки — восемь событий выброшено по переполнению.
+        """
+        it = CombatInterpreter(player_name="Vlad")
+        _open_arena(it)
+        out = it.feed_line(
+            _cleu(
+                "13:50:00.000",
+                "SPELL_AURA_APPLIED",
+                "Player-EN",
+                "Enemy",
+                "0x548",
+                "Player-EN",
+                "Enemy",
+                "0x548",
+                24932,
+                "Leader of the Pack",
+            )
+        )
+        assert not any(o.startswith("ABILITY") for o in out)
+
+    async def test_cast_by_the_same_enemy_still_forwarded(self) -> None:
+        """Каст — это действие, а не прок: режем только ауры НА СЕБЯ."""
+        it = CombatInterpreter(player_name="Vlad")
+        _open_arena(it)
+        out = it.feed_line(
+            _cleu(
+                "13:50:01.000",
+                "SPELL_CAST_SUCCESS",
+                "Player-EN",
+                "Enemy",
+                "0x548",
+                "Player-EN",
+                "Enemy",
+                "0x548",
+                26980,
+                "Regrowth",
+            )
+        )
+        assert any(o.startswith("ABILITY") for o in out)
+
+    async def test_roster_is_durable_and_combat_is_not(self) -> None:
+        """Состав едет с длинными ретраями, реплика боя — с короткими.
+
+        Живой тест 30.07: автодеплой перезапустил API прямо в матче, nginx отдавал
+        502 около пяти секунд, и состав врагов потерялся совсем. Он не протухает —
+        значит должен пережидать рестарт; «кик!» — наоборот, сдаваться сразу.
+        """
+        seen: list[tuple[str, bool]] = []
+
+        async def _send(payload: dict[str, object], durable: bool = False) -> bool:
+            seen.append((str(payload["k"]), durable))
+            return True
+
+        sender = EventSender(_send)
+        sender.start()
+        sender.submit({"k": "roster"}, log_lag_s=0.0, label="ARENA_START#2v2#MAGE/UNKNOWN#")
+        sender.submit({"k": "end"}, log_lag_s=0.0, label="ARENA_END#7")
+        sender.submit({"k": "kick"}, log_lag_s=0.0, label="ABILITY#Enemy#123#kick")
+        sender.submit({"k": "trink"}, log_lag_s=0.0, label="TRINKET#Enemy#42292#pvp_trinket")
+        await sender.stop()
+
+        assert seen == [("roster", True), ("end", True), ("kick", False), ("trink", False)]
+
+    async def test_durable_retry_schedule_is_longer(self) -> None:
+        """Расписание ретраев durable-события должно перекрывать рестарт сервиса."""
+        from arena_bridge import ws_client
+
+        assert sum(ws_client._RETRY_DELAYS) < 2.0  # реплика боя сдаётся быстро
+        assert sum(ws_client._RETRY_DELAYS_DURABLE) >= 10.0  # состав пережидает деплой
+
+
+def _cleu(
+    ts: str,
+    event: str,
+    src_guid: str,
+    src_name: str,
+    src_flags: str,
+    dst_guid: str,
+    dst_name: str,
+    dst_flags: str,
+    spell_id: int,
+    spell_name: str,
+) -> str:
+    return (
+        f'7/30/2026 {ts}  {event},{src_guid},"{src_name}",{src_flags},0x0,'
+        f'{dst_guid},"{dst_name}",{dst_flags},0x0,{spell_id},"{spell_name}",0x1'
+    )
+
+
+def _open_arena(it: CombatInterpreter) -> None:
+    prep = (
+        '{ev},Player-ME,"Vlad",0x511,0x0,Player-ME,"Vlad",0x511,0x0,'
+        '32727,"Arena Preparation",0x1,BUFF'
+    )
+    it.feed_line(f"7/30/2026 13:49:40.000  {prep.format(ev='SPELL_AURA_APPLIED')}")
+    it.feed_line(f"7/30/2026 13:49:45.000  {prep.format(ev='SPELL_AURA_REMOVED')}")

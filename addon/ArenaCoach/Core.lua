@@ -6,7 +6,7 @@ ArenaCoach = ArenaCoach or {}
 local AC = ArenaCoach
 
 -- ── Версия ──────────────────────────────────────────────────────────────────
-AC.VERSION = "0.3.0"
+AC.VERSION = "0.4.0"
 
 -- ── SavedVariables schema ────────────────────────────────────────────────────
 -- ArenaCoachDB инициализируется один раз при первом логине.
@@ -106,6 +106,7 @@ SlashCmdList["ARENACOACH"] = function(msg)
         end
     else
         AC.Print("Команды: /ac status | /ac ui | /ac overlay | /ac skull on|off")
+        AC.Print("          /ac sound on|off|test — голос аддона")
         AC.Print("          /ac test | /ac log | /ac flush | /ac flushtest | /ac sessions | /ac reset")
     end
 end

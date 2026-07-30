@@ -640,7 +640,13 @@ class CombatInterpreter:
                 # кастует, решение ещё можно принять (кик, сайленс, разрыв).
                 phase = "start" if event == "SPELL_CAST_START" else ""
                 payload = self._emit_hostile_action(
-                    ts, src_guid, src_name, spell_id, spell_name, phase
+                    ts,
+                    src_guid,
+                    src_name,
+                    spell_id,
+                    spell_name,
+                    phase,
+                    self_aura=event == "SPELL_AURA_APPLIED" and src_guid == dst_guid,
                 )
                 if payload:
                     out.append(payload)
@@ -754,6 +760,7 @@ class CombatInterpreter:
         spell_id: int,
         spell_name: str = "",
         phase: str = "",
+        self_aura: bool = False,
     ) -> str | None:
         """Событие враждебного каста → AC-payload.
 
@@ -781,8 +788,18 @@ class CombatInterpreter:
         spell_key = TRACKED_SPELLS.get(spell_id) or _slugify(spell_name)
         if not spell_key:
             return None  # ни id, ни имени — форвардить нечего
-        if spell_id not in TRACKED_SPELLS and not self._forward_budget_ok(ts):
-            return None
+        if spell_id not in TRACKED_SPELLS:
+            # Phase 4.18: неизвестная аура, повешенная врагом НА СЕБЯ, — это
+            # пассивный прок или бафф, а не действие. Живой лог 30.07: канал забили
+            # `Find Herbs`, `Furor`, `Leader of the Pack`, `Clearcasting`,
+            # `Lightning Speed` — на них подсказки нет и быть не может, а очередь
+            # они переполняли (8 событий выброшено). Решение Phase 4.12 («что важно,
+            # решает бэкенд») в силе: касты и ауры НА ДРУГИХ по-прежнему уезжают
+            # целиком, режем только заведомо неинформативный класс событий.
+            if self_aura:
+                return None
+            if not self._forward_budget_ok(ts):
+                return None
         self._event_count += 1
         return f"ABILITY#{name}#{spell_id}#{spell_key}#{spell_name}#{phase}"
 

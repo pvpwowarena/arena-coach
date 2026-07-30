@@ -100,6 +100,12 @@ SlashCmdList["ARENACOACH"] = function(msg)
         if AC.Overlay then AC.Overlay:SetMarkEnabled(true) end
     elseif cmd == "skull off" then
         if AC.Overlay then AC.Overlay:SetMarkEnabled(false) end
+    elseif cmd == "sound on" then
+        if AC.Voice then AC.Voice:Toggle(true) end
+    elseif cmd == "sound off" then
+        if AC.Voice then AC.Voice:Toggle(false) end
+    elseif cmd == "sound test" then
+        if AC.Voice then AC.Voice:Test() end
     elseif cmd == "coach pause" then
         AC.SetBridgeEnabled(false)
     elseif cmd == "coach resume" then

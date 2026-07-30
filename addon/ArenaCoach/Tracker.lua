@@ -348,6 +348,13 @@ local function OnCombatLog(timestamp, subevent, sourceGUID, sourceName, sourceFl
                             destGUID, destName, destFlags, spellId, spellName, spellSchool, ...)
     if not AC.currentSession then return end
 
+    -- Голос смотрит событие ПЕРВЫМ и до фильтров: ему нужен SPELL_CAST_START,
+    -- единственный сигнал ДО факта (пока хилер кастует, кик ещё имеет смысл).
+    if AC.Voice then
+        AC.Voice:OnCombatLog(subevent, sourceGUID, sourceName, sourceFlags,
+            destGUID, destName, destFlags, tonumber(spellId), spellName)
+    end
+
     -- Нас интересуют только SPELL_CAST_SUCCESS и SPELL_AURA_APPLIED
     if subevent ~= "SPELL_CAST_SUCCESS" and subevent ~= "SPELL_AURA_APPLIED" then
         return
