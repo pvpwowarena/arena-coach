@@ -13,9 +13,6 @@ REPO=/opt/arena-coach
 VENV="$REPO/.venv"
 DOMAIN="https://pvpwowarena.surprise4you.dev"
 
-echo "==> system deps for voice (ffmpeg — idempotent, Phase 4.5)"
-command -v ffmpeg >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq ffmpeg; }
-
 echo "==> backend deps (idempotent)"
 "$VENV/bin/pip" install -e "$REPO/backend" --quiet
 

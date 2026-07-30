@@ -76,8 +76,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         advice_store=advice_store,
     )
     log.info(
-        "PipelineContext готов. /v1/events активен. Voice: %s | LLM: %s",
-        "ВКЛ" if settings.discord_voice_channel_id else "выкл",
+        "PipelineContext готов. /v1/events активен. LLM: %s",
         "ВКЛ" if settings.anthropic_api_key else "выкл (нет ключа)",
     )
 

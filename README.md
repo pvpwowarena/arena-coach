@@ -98,7 +98,7 @@ arena-coach/
 - **Phase 2** — Discord-бот (read-only): slash-команды `/matchup`, `/glossary`, `/access`, whitelist, audit log. *(in progress)*
 - **Phase 3** — **Combat-log bridge** (Python-демон у тестера читает `Logs/WoWCombatLog.txt`, без аддона). Минимальный install у тестера.
 - **Phase 4** — Real-time text-hints (event → KB-retrieve → LLM synth → Discord embed).
-- **Phase 4c** — Voice hints (Edge-TTS в Discord voice channel), см. [`docs/phase-4.5-voice.md`](docs/phase-4.5-voice.md).
+- **Phase 4c** — голосовые подсказки. Discord-voice вариант снят в Phase 4.15; голос читается локально на машине игрока (мост + системный TTS), см. [`docs/phase-4.15-simplify.md`](docs/phase-4.15-simplify.md).
 - **Phase 5a** — Lua-аддон (опциональный upgrade для ≤1 сек latency + custom-событий).
 - **Phase 5b** — Twitch-CV fallback (видео-анализ для observer-режима).
 

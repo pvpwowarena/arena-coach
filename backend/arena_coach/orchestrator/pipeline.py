@@ -34,7 +34,11 @@ from typing import Any
 import httpx
 
 from arena_coach.access.advice_store import AdviceStore
-from arena_coach.access.player_settings import DEFAULT_VOICE_MODE, PlayerSettingsService
+from arena_coach.access.player_settings import (
+    DEFAULT_COMBAT_TEXT,
+    DEFAULT_VOICE_MODE,
+    PlayerSettingsService,
+)
 from arena_coach.access.service import AccessService
 from arena_coach.access.usage import UsageService
 from arena_coach.kb.pronunciation import Pronouncer
@@ -234,24 +238,11 @@ async def _send_discord_dm(bot_token: str, discord_id: str, content: str) -> boo
     return True
 
 
-# ── Voice hint via bot-процесс (Phase 4.5) ───────────────────────────────────
-
-
-async def _send_voice_hint(settings: Settings, text: str) -> bool:
-    """POST короткой фразы в voice-приёмник bot-процесса. Строго best-effort."""
-    if not settings.discord_voice_channel_id or not text:
-        return False
-    url = f"http://{settings.voice_http_host}:{settings.voice_http_port}/speak"
-    headers = {}
-    if settings.bridge_bearer_token:
-        headers["Authorization"] = f"Bearer {settings.bridge_bearer_token}"
-    try:
-        async with httpx.AsyncClient(timeout=3.0) as client:
-            resp = await client.post(url, json={"text": text}, headers=headers)
-            return bool(resp.is_success)
-    except Exception as exc:
-        log.debug("Voice-хинт не доставлен (%s): %s", url, exc)
-        return False
+# Discord-voice (Phase 4.5) СНЯТ в 4.15 вместе с `_send_voice_hint`: внутренний хоп
+# api→bot по `http://127.0.0.1:8100/speak` существовал только чтобы бот читал фразу в
+# voice-канале. Его вытеснил локальный голос (Phase 4.6): мост забирает ту же фразу
+# через `GET /v1/hints` и произносит системным TTS у игрока — приватнее, быстрее и
+# без зависимостей edge-tts/PyNaCl/ffmpeg на сервере.
 
 
 # ── KB helpers ────────────────────────────────────────────────────────────────
@@ -447,11 +438,19 @@ async def _deliver(
     voice_text: str | None,
     voice_mode: str,
     voice_ttl_s: float = VOICE_TTL_NORMAL_S,
+    in_fight: bool = False,
+    combat_text: str = DEFAULT_COMBAT_TEXT,
 ) -> str:
-    """Общая доставка: локальный голос (очередь + best-effort Discord-voice) + текст.
+    """Общая доставка: фраза в очередь локального голоса + текст в Discord DM.
 
     `voice_ttl_s` — сколько фраза имеет смысл. Мост синтезирует речь блокирующе,
     очередь может простоять: советы по CC протухают быстро, стартовый разбор — нет.
+
+    `in_fight` + `combat_text` (Phase 4.15): боевой DM по умолчанию НЕ шлётся. Живой
+    тест 30.07 — «огромный текст в бою читать не очень удобно», после чего боевой DM
+    урезали до двух строк; то есть игрок его всё равно не читает, а каждый такой DM —
+    вызов Discord API и риск rate-limit. Разбор на воротах и постматч (`in_fight=False`)
+    приходят всегда: их читают. Включить боевой текст обратно — `/coach text on`.
     """
     voice_sent = False
     if voice_mode != "off" and voice_text:
@@ -461,8 +460,11 @@ async def _deliver(
         # русским голосом читается как каша — транслитерируем ТОЛЬКО для TTS.
         spoken = latin_to_cyrillic(spoken)
         ctx.hint_queue.push(player_name, spoken, ttl_s=voice_ttl_s)
-        voice_sent = await _send_voice_hint(ctx.settings, spoken)
-    if voice_mode == "only" and voice_sent:
+        voice_sent = True
+
+    # Текст глушим только когда игроку реально есть что услышать: иначе (голос
+    # выключен или фразы нет) он остался бы вообще без подсказки.
+    if voice_sent and (voice_mode == "only" or (in_fight and combat_text == "off")):
         return "sent"
     ok = await _send_discord_dm(ctx.settings.discord_bot_token, discord_id, dm_text)
     return "sent" if ok or voice_sent else "error"
@@ -480,6 +482,7 @@ async def _emit_state_hints(
     discord_id: str,
     player_name: str,
     voice_mode: str,
+    combat_text: str = DEFAULT_COMBAT_TEXT,
 ) -> bool:
     """Подсказки по СОСТОЯНИЮ врага (Phase 4.14) — идут раньше обычной реакции.
 
@@ -511,7 +514,15 @@ async def _emit_state_hints(
             continue
         ttl = VOICE_TTL_HIGH_S if hint.priority == HIGH else VOICE_TTL_NORMAL_S
         status = await _deliver(
-            ctx, discord_id, player_name, hint.dm[:2000], hint.voice, voice_mode, ttl
+            ctx,
+            discord_id,
+            player_name,
+            hint.dm[:2000],
+            hint.voice,
+            voice_mode,
+            ttl,
+            in_fight=True,
+            combat_text=combat_text,
         )
         sent = sent or status == "sent"
     return sent
@@ -922,6 +933,7 @@ async def _handle_trinket(
     voice_mode: str,
     source: str,
     doc: KBDoc | None,
+    combat_text: str = DEFAULT_COMBAT_TEXT,
 ) -> str:
     reaction = trinket_reaction()
     # В бою длинный план из KB не читается («огромный текст в бою читать не очень
@@ -951,6 +963,8 @@ async def _handle_trinket(
         voice,
         voice_mode,
         _voice_ttl(reaction),
+        in_fight=True,
+        combat_text=combat_text,
     )
 
 
@@ -962,6 +976,7 @@ async def _handle_ability(
     source: str,
     spell_key: str,
     reaction: Reaction | None,
+    combat_text: str = DEFAULT_COMBAT_TEXT,
 ) -> str:
     # Имя способности — через сленг-слой: «кидни», а не «kidney_shot».
     name = ctx.slang.name(spell_key.replace("_", "-"))
@@ -981,7 +996,15 @@ async def _handle_ability(
         voice = f"{source}: {voice}"
     ttl = _voice_ttl(reaction)
     return await _deliver(
-        ctx, discord_id, player_name, "\n".join(dm_lines)[:2000], voice, voice_mode, ttl
+        ctx,
+        discord_id,
+        player_name,
+        "\n".join(dm_lines)[:2000],
+        voice,
+        voice_mode,
+        ttl,
+        in_fight=True,
+        combat_text=combat_text,
     )
 
 
@@ -1107,8 +1130,10 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
 
     # ── 4. Режим голоса ─────────────────────────────────────────────────
     voice_mode = DEFAULT_VOICE_MODE
+    combat_text = DEFAULT_COMBAT_TEXT
     if ctx.player_settings is not None:
         voice_mode = await ctx.player_settings.get_voice_mode(discord_id)
+        combat_text = await ctx.player_settings.get_combat_text(discord_id)
 
     # ── 5. Подсказки по состоянию врага (Phase 4.14) ─────────────────────
     # Идут ПЕРЕД троттлингом события: «у него ни тринкета, ни дефа» ценнее
@@ -1117,7 +1142,7 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     # услышал более важное. На воротах состояния ещё нет, поэтому только in-fight.
     state_sent = False
     if event_type in ("TRINKET", "ABILITY"):
-        state_sent = await _emit_state_hints(ctx, discord_id, player_name, voice_mode)
+        state_sent = await _emit_state_hints(ctx, discord_id, player_name, voice_mode, combat_text)
 
     # ── 6. Троттлинг in-fight (Phase 4.11: приоритеты + бюджет речи) ────
     throttle_key = (
@@ -1158,7 +1183,9 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     doc = candidates[0] if candidates else None
     source = str(event.get("source_name", "враг"))
     if event_type == "TRINKET":
-        return await _handle_trinket(ctx, discord_id, player_name, voice_mode, source, doc)
+        return await _handle_trinket(
+            ctx, discord_id, player_name, voice_mode, source, doc, combat_text
+        )
     return await _handle_ability(
-        ctx, discord_id, player_name, voice_mode, source, spell_key, hint_reaction
+        ctx, discord_id, player_name, voice_mode, source, spell_key, hint_reaction, combat_text
     )

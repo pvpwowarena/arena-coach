@@ -141,12 +141,17 @@ class CoachCog(commands.Cog, name="coach"):
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    # ── Phase 4.5: голосовые подсказки ───────────────────────────────────
+    # ── Голос (4.5, с 4.15 — только локальный) ───────────────────────────
 
     _VOICE_MODE_LABELS: ClassVar[dict[str, str]] = {
         "on": "🔊 текст + голос",
         "off": "🔇 только текст",
         "only": "🎧 только голос (без text-spam)",
+    }
+
+    _COMBAT_TEXT_LABELS: ClassVar[dict[str, str]] = {
+        "on": "📝 боевой текст включён",
+        "off": "🤫 боевой текст выключен (только голос)",
     }
 
     @coach_group.command(
@@ -164,16 +169,38 @@ class CoachCog(commands.Cog, name="coach"):
     @whitelist_required(Role.PLAYER)
     async def coach_voice(self, interaction: discord.Interaction, mode: str) -> None:
         await self.bot.player_settings.set_voice_mode(str(interaction.user.id), mode)
-
-        voice_configured = bool(self.bot.settings.discord_voice_channel_id)
-        note = (
-            ""
-            if voice_configured
-            else "\n⚠️ Voice-канал на сервере пока не настроен — режим сохранён и заработает после настройки."
-        )
         embed = discord.Embed(
             title="🎙 Режим голосовых подсказок обновлён",
-            description=f"Твой режим: **{self._VOICE_MODE_LABELS.get(mode, mode)}**{note}",
+            description=(
+                f"Твой режим: **{self._VOICE_MODE_LABELS.get(mode, mode)}**\n"
+                "Голос читается локально на твоей машине (мост), Discord voice-канал не нужен."
+            ),
+            color=discord.Color.blurple(),
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    # ── Phase 4.15: боевой текст в opt-in ────────────────────────────────
+
+    @coach_group.command(
+        name="text",
+        description="Боевой текст в DM: off = только голос в бою (default), on = ещё и текст",
+    )
+    @app_commands.describe(mode="Присылать ли текстовые подсказки во время боя")
+    @app_commands.choices(
+        mode=[
+            app_commands.Choice(name="off — только голос в бою (default)", value="off"),
+            app_commands.Choice(name="on — ещё и текст в бою", value="on"),
+        ]
+    )
+    @whitelist_required(Role.PLAYER)
+    async def coach_text(self, interaction: discord.Interaction, mode: str) -> None:
+        await self.bot.player_settings.set_combat_text(str(interaction.user.id), mode)
+        embed = discord.Embed(
+            title="📝 Боевой текст обновлён",
+            description=(
+                f"Твой режим: **{self._COMBAT_TEXT_LABELS.get(mode, mode)}**\n"
+                "Разбор на воротах и постматч приходят всегда — их читают."
+            ),
             color=discord.Color.blurple(),
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)

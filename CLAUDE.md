@@ -115,9 +115,8 @@ ARENA_COACH_FERNET_KEY=...
 BRIDGE_BEARER_TOKEN=...
 DATABASE_URL=sqlite+aiosqlite:////var/lib/arena-coach/coach.db
 KB_PATH=/opt/arena-coach/kb
-# Phase 4.5 (опционально) — голосовые подсказки. 0/отсутствует = выкл.
-# Задать ID Discord voice-канала команды, чтобы включить TTS-подсказки:
-# DISCORD_VOICE_CHANNEL_ID=123456789012345678
+# DISCORD_VOICE_CHANNEL_ID больше НЕ нужен: Discord-голос снят в Phase 4.15,
+# голос читается локально у игрока (мост, Phase 4.6). Строку можно удалить.
 ```
 
 ---
@@ -240,18 +239,14 @@ whisper-to-self невозможен. Решение — bridge парсит com
 `--no-update` / `BRIDGE_AUTO_UPDATE=0`. `bridge/arena_bridge/updater.py`,
 тесты: `tests/test_bridge_updater.py` (21).
 
-### ✅ Phase 4.5 — Голосовые подсказки (2026-07-24)
-Бот в Discord voice + TTS (edge-tts, RU-голос). `bot/voice.py`:
-- `VoiceManager` (singleton/guild): очередь коротких фраз, троттлинг 8с, TTL 15с,
-  дедуп 10с, LRU-кэш TTS 256, в пустой канал не заходит, отключается по простою.
-- Короткая RU-фраза строится ОТДЕЛЬНО (`orchestrator/voice_phrases.py`, ≤8 слов,
-  сленг «айсблок/бабл/клок»), не режется из текстового hint.
-- Канал api→bot: POST `/speak` на 127.0.0.1 (voice живёт в bot-процессе,
-  pipeline — в api). Bearer = `BRIDGE_BEARER_TOKEN`.
-- Per-player `/coach voice on|off|only` → SQLite `player_settings` (миграция 0002).
-- **Включается только если `DISCORD_VOICE_CHANNEL_ID` задан в api.env** (default 0 =
-  выкл, деплой ничего не меняет). Нужен `ffmpeg` (ставит `vps-deploy.sh`) + PyNaCl.
-- Тесты: `tests/test_voice.py` (30). Docs: `docs/phase-4.5-voice.md`.
+### ❌ Phase 4.5 — Голосовые подсказки в Discord voice (2026-07-24, СНЯТО в 4.15)
+Был бот в Discord voice + edge-tts (`bot/voice.py`, хоп api→bot по `/speak`, per-player
+`/coach voice`). **Вытеснен Phase 4.6** (локальный голос у игрока) и всё время стоял
+выключенным по умолчанию (`DISCORD_VOICE_CHANNEL_ID=0`). Удалён в Phase 4.15 целиком:
+`bot/voice.py`, `tests/test_voice.py`, `_send_voice_hint`, настройки `voice_*`,
+зависимости `edge-tts`/`PyNaCl`, установка `ffmpeg` в `vps-deploy.sh`.
+`/coach voice on|off|only` **остался** — теперь он управляет локальным голосом.
+Историческое описание: `docs/phase-4.5-voice.md`.
 
 ### ✅ Phase 4.6 — Локальный персональный голос (2026-07-24, bridge 0.6.0)
 Каждый игрок слышит ТОЛЬКО свои подсказки локально, через системный TTS на своей
@@ -440,6 +435,29 @@ whisper-to-self невозможен. Решение — bridge парсит com
   Побочно чинит «кривоватый перевод»: slang для 46 слагов отдаёт `en_name`.
 - Тесты: `test_enemy_state`(21) + `test_state_advice`(19) + `test_translit`(9) +
   `test_pipeline_4_14`(11); **524 passed**, 9 skipped; ruff/format/mypy(73) чисто; validate-kb 80.
+
+### ✅ Phase 4.15 — Упрощение: Discord-голос снят, боевой DM в opt-in (2026-07-30)
+Драйвер — «мб реально дискорд бот и апи избыточны». Первый, самый дешёвый шаг: убрать то,
+что уже не несёт ценности. Детали — `docs/phase-4.15-simplify.md`. Есть миграция **0005**.
+- **Discord-voice (4.5) удалён целиком**: `bot/voice.py`, `tests/test_voice.py`,
+  `pipeline._send_voice_hint` (хоп api→bot по `/speak`), настройки `voice_*` в `Settings`,
+  зависимости `edge-tts`/`PyNaCl`, установка `ffmpeg` в `vps-deploy.sh`. Он был вытеснен
+  4.6 и стоял выключенным по умолчанию — в проде не работал ни дня.
+  `/coach voice on|off|only` ОСТАЛСЯ и управляет локальным голосом.
+  Сдвиг: `voice_mode="only"` теперь опирается на факт постановки фразы в очередь, а не на
+  подтверждение от Discord-voice.
+- **Боевой DM в opt-in**: `player_settings.combat_text` (миграция 0005, default `off`).
+  Разбор на воротах и постматч приходят ВСЕГДА; боевые реплики — только голосом.
+  Вернуть текст: `/coach text on`. **Предохранитель:** если голос выключен или фразы нет,
+  боевой DM уходит как раньше (тест `test_without_voice_text_survives`) — иначе игрок
+  остался бы вообще без подсказки.
+- **НЕ убрано:** сам Discord-бот (`/matchup` вне боя, постматч, вайтлист, `/coach stats` —
+  готовый UI за нулевую работу) и API (ключ Anthropic игрокам отдавать нельзя + обновления KB).
+- **Разобрано, но не сделано** (см. док): перенос `orchestrator/` в мост. Довод не в чистоте
+  — Phase C (пиксель-полоска аддона, 5 раз/с) по HTTPS не имеет смысла. Цена: гейтинг
+  доступа станет невозможен. Порядок из аудита не меняется: сначала A2/A3 и A4.
+- Тесты: `test_phase_4_15`(10); **510 passed**, 9 skipped (было 524 при 30 тестах снятой
+  подсистемы); ruff/format/mypy(73) чисто; alembic 0001→0005 up/down/up OK.
 
 ### ⏳ Phase 5 — CV/OCR (не начата)
 Драйвер: килл-таргет с номером арена-фрейма («арена 1») — единственный надёжный realtime-путь

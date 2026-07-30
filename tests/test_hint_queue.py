@@ -217,6 +217,11 @@ class _FakePlayerSettings:
     async def get_voice_mode(self, discord_id: str) -> str:
         return self.mode
 
+    async def get_combat_text(self, discord_id: str) -> str:
+        # Тесты ниже написаны до Phase 4.15 и проверяют боевой ТЕКСТ, поэтому
+        # здесь он включён явно. Прод-дефолт ("off") покрыт test_phase_4_15.py.
+        return "on"
+
 
 def _ctx(kb_dir: Path, mode: str) -> pipeline.PipelineContext:
     index = KBIndex()
@@ -227,7 +232,7 @@ def _ctx(kb_dir: Path, mode: str) -> pipeline.PipelineContext:
         access_service=_FakeAccess(),  # type: ignore[arg-type]
         kb_retriever=KBRetriever(index),
         anthropic_client=SimpleNamespace(),  # type: ignore[arg-type]
-        settings=Settings(discord_bot_token="t", discord_voice_channel_id=0),
+        settings=Settings(discord_bot_token="t"),
         player_settings=_FakePlayerSettings(mode),  # type: ignore[arg-type]
     )
 
@@ -254,18 +259,14 @@ def _start_envelope() -> dict[str, Any]:
 
 @pytest.fixture
 def _no_delivery(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Глушим внешнюю доставку (DM/Discord-voice/LLM) — тестируем только очередь."""
+    """Глушим внешнюю доставку (DM/LLM) — тестируем только очередь голоса."""
 
     async def _dm(bot_token: str, discord_id: str, content: str) -> bool:
         return True
 
-    async def _voice(settings: Settings, text: str) -> bool:
-        return False  # Discord voice-канал не настроен (channel_id=0)
-
     # LLM в горячем пути больше нет (Phase 4.7): матчап в KB → детерминированный
     # путь без модели, ключ пуст → llm_enabled=False, фон не запускается.
     monkeypatch.setattr(pipeline, "_send_discord_dm", _dm)
-    monkeypatch.setattr(pipeline, "_send_voice_hint", _voice)
 
 
 class TestPipelineQueuesLocalHint:

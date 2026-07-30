@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import discord
 from discord.ext import commands
@@ -22,14 +21,10 @@ from arena_coach.access.player_settings import PlayerSettingsService
 from arena_coach.access.service import AccessService
 from arena_coach.access.usage import UsageService
 from arena_coach.bot.checks import access_denied_embed
-from arena_coach.bot.voice import EdgeTTSEngine, VoiceManager, start_voice_http
 from arena_coach.kb.indexer import KBIndex
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.shared.settings import Settings
 from arena_coach.shared.settings import settings as _default_settings
-
-if TYPE_CHECKING:
-    from aiohttp import web
 
 logger = logging.getLogger(__name__)
 
@@ -56,9 +51,6 @@ class ArenaCoachBot(commands.Bot):
         self._session_factory: async_sessionmaker[AsyncSession]  # type: ignore[assignment]
         self.player_settings: PlayerSettingsService  # type: ignore[assignment]
         self.usage_service: UsageService  # type: ignore[assignment]
-        # Phase 4.5 — None, если голос не настроен (DISCORD_VOICE_CHANNEL_ID=0)
-        self.voice_manager: VoiceManager | None = None
-        self._voice_http: web.AppRunner | None = None
 
     # ── setup_hook ────────────────────────────────────────────────────────
 
@@ -118,42 +110,9 @@ class ArenaCoachBot(commands.Bot):
         synced = await self.tree.sync()
         logger.info("Synced %d commands globally (DM-enabled; /access guild-only)", len(synced))
 
-        # 6. Voice (Phase 4.5) — только если канал настроен в api.env.
-        #    HTTP-приёмник слушает localhost: pipeline из api-процесса POST'ит
-        #    короткие фразы, мы озвучиваем их в voice-канале.
-        if self.settings.discord_voice_channel_id:
-            self.voice_manager = VoiceManager(
-                bot=self,
-                channel_id=self.settings.discord_voice_channel_id,
-                engine=EdgeTTSEngine(self.settings.voice_tts_voice),
-            )
-            self.voice_manager.start()
-            try:
-                self._voice_http = await start_voice_http(
-                    self.voice_manager,
-                    host=self.settings.voice_http_host,
-                    port=self.settings.voice_http_port,
-                    bearer_token=self.settings.bridge_bearer_token,
-                )
-            except OSError as exc:
-                logger.error("Voice HTTP-приёмник не поднялся (%s) — голос отключён", exc)
-                await self.voice_manager.stop()
-                self.voice_manager = None
-            logger.info(
-                "Voice-подсказки: %s (канал %s)",
-                "ВКЛ" if self.voice_manager else "ОШИБКА",
-                self.settings.discord_voice_channel_id,
-            )
-        else:
-            logger.info("Voice-подсказки: выключены (DISCORD_VOICE_CHANNEL_ID не задан)")
-
-    async def close(self) -> None:
-        """Аккуратно гасим voice-подсистему перед закрытием gateway."""
-        if self.voice_manager is not None:
-            await self.voice_manager.stop()
-        if self._voice_http is not None:
-            await self._voice_http.cleanup()
-        await super().close()
+        # Discord-voice (Phase 4.5) СНЯТ в 4.15: его вытеснил локальный голос
+        # (Phase 4.6) — тот же текст читается на машине игрока, приватно и без
+        # сетевого хопа api→bot→voice-канал. См. docs/phase-4.15-simplify.md.
 
     # ── on_ready ──────────────────────────────────────────────────────────
 

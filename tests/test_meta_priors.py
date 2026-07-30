@@ -58,7 +58,7 @@ def _ctx(kb_dir: Path) -> Any:
         access_service=_FakeAccess(),  # type: ignore[arg-type]
         kb_retriever=KBRetriever(index),
         anthropic_client=SimpleNamespace(),
-        settings=Settings(discord_bot_token="t", discord_voice_channel_id=0, anthropic_api_key=""),
+        settings=Settings(discord_bot_token="t", anthropic_api_key=""),
     )
 
 
@@ -89,11 +89,7 @@ def dms(monkeypatch: pytest.MonkeyPatch) -> list[str]:
         sent.append(content)
         return True
 
-    async def _voice(settings: Settings, text: str) -> bool:
-        return False
-
     monkeypatch.setattr(pipeline, "_send_discord_dm", _dm)
-    monkeypatch.setattr(pipeline, "_send_voice_hint", _voice)
     return sent
 
 

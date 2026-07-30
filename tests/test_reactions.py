@@ -192,6 +192,11 @@ class _FakePlayerSettings:
     async def get_voice_mode(self, discord_id: str) -> str:
         return "on"
 
+    async def get_combat_text(self, discord_id: str) -> str:
+        # Тесты ниже написаны до Phase 4.15 и проверяют боевой ТЕКСТ, поэтому
+        # здесь он включён явно. Прод-дефолт ("off") покрыт test_phase_4_15.py.
+        return "on"
+
 
 def _ctx(kb_dir: Path, throttle: pipeline.HintThrottle | None = None) -> pipeline.PipelineContext:
     index = KBIndex()
@@ -201,7 +206,7 @@ def _ctx(kb_dir: Path, throttle: pipeline.HintThrottle | None = None) -> pipelin
         access_service=_FakeAccess(),  # type: ignore[arg-type]
         kb_retriever=KBRetriever(index),
         anthropic_client=SimpleNamespace(),  # type: ignore[arg-type]
-        settings=Settings(discord_bot_token="t", discord_voice_channel_id=0, kb_path=kb_dir),
+        settings=Settings(discord_bot_token="t", kb_path=kb_dir),
         player_settings=_FakePlayerSettings(),  # type: ignore[arg-type]
     )
 
@@ -228,11 +233,7 @@ def _no_delivery(monkeypatch: pytest.MonkeyPatch) -> None:
     async def _dm(bot_token: str, discord_id: str, content: str) -> bool:
         return True
 
-    async def _voice(settings: Settings, text: str) -> bool:
-        return False
-
     monkeypatch.setattr(pipeline, "_send_discord_dm", _dm)
-    monkeypatch.setattr(pipeline, "_send_voice_hint", _voice)
 
 
 class TestPipelineRefinement:

@@ -20,6 +20,7 @@ from arena_coach.kb.indexer import KBIndex
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.orchestrator import pipeline
 from arena_coach.orchestrator.enemy_state import EnemyTracker
+from arena_coach.orchestrator.hint_queue import HintQueue
 from arena_coach.shared.settings import Settings
 
 DOUBLE_ROGUE = [
@@ -37,18 +38,56 @@ class _FakeAccess:
         return SimpleNamespace(discord_id="111")
 
 
-def _ctx(kb_dir: Path, clock: list[float]) -> pipeline.PipelineContext:
+class _FakeSettingsSvc:
+    """player_settings без БД: голос вкл, боевой текст задаётся тестом."""
+
+    def __init__(self, combat_text: str = "on", voice_mode: str = "on") -> None:
+        self._combat_text = combat_text
+        self._voice_mode = voice_mode
+
+    async def get_voice_mode(self, discord_id: str) -> str:
+        return self._voice_mode
+
+    async def get_combat_text(self, discord_id: str) -> str:
+        return self._combat_text
+
+
+class _SpyQueue(HintQueue):
+    """Очередь, которая запоминает всё положенное — единственный канал голоса.
+
+    С Phase 4.15 хопа api→bot (`_send_voice_hint`) больше нет: фразы забирает мост
+    через `GET /v1/hints`, поэтому «что услышал игрок» = что легло в очередь.
+    """
+
+    def __init__(self, spoken: list[str]) -> None:
+        super().__init__()
+        self.spoken = spoken
+
+    def push(self, player_name: str, phrase: str, ttl_s: float | None = None) -> None:
+        self.spoken.append(phrase)
+        super().push(player_name, phrase, ttl_s=ttl_s)
+
+
+def _ctx(
+    kb_dir: Path,
+    clock: list[float],
+    spoken: list[str] | None = None,
+    combat_text: str = "on",
+) -> pipeline.PipelineContext:
     index = KBIndex()
     index.load(kb_dir)
     return pipeline.PipelineContext(
         access_service=_FakeAccess(),  # type: ignore[arg-type]
         kb_retriever=KBRetriever(index),
         anthropic_client=SimpleNamespace(),
-        settings=Settings(discord_bot_token="t", discord_voice_channel_id=0, anthropic_api_key=""),
+        settings=Settings(discord_bot_token="t", anthropic_api_key=""),
         # Троттлинг в тестах не должен глотать вторую подсказку: интервалы обнулены,
         # проверяем содержание, а бюджет речи покрыт в test_reactions.
         hint_throttle=pipeline.HintThrottle(gap_s=0.0, high_gap_s=0.0, default_repeat_s=0.0),
         enemy_tracker=EnemyTracker(clock=lambda: clock[0]),
+        hint_queue=_SpyQueue(spoken if spoken is not None else []),
+        # Боевой DM с 4.15 в opt-in; большинству тестов ниже нужен именно текст.
+        player_settings=_FakeSettingsSvc(combat_text),  # type: ignore[arg-type]
     )
 
 
@@ -92,7 +131,7 @@ def _trinket(source: str) -> dict[str, Any]:
 
 @pytest.fixture
 def sink(monkeypatch: pytest.MonkeyPatch) -> tuple[list[str], list[str]]:
-    """(DM-тексты, озвученные фразы) — сеть и Discord замоканы."""
+    """(DM-тексты, озвученные фразы). Список фраз передаётся в `_ctx(..., spoken=)`."""
     dms: list[str] = []
     spoken: list[str] = []
 
@@ -100,12 +139,7 @@ def sink(monkeypatch: pytest.MonkeyPatch) -> tuple[list[str], list[str]]:
         dms.append(content)
         return True
 
-    async def _voice(settings: Settings, text: str) -> bool:
-        spoken.append(text)
-        return False
-
     monkeypatch.setattr(pipeline, "_send_discord_dm", _dm)
-    monkeypatch.setattr(pipeline, "_send_voice_hint", _voice)
     return dms, spoken
 
 
@@ -127,7 +161,7 @@ class TestDuplicateClasses:
     ) -> None:
         _, spoken = sink
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}))
         # Оба рога раскрылись кастами — только так бэкенд узнаёт ники.
         await pipeline.process_event(
@@ -150,7 +184,7 @@ class TestDuplicateClasses:
         """Ник в голосе — только когда он решает: иначе он лишь удлиняет фразу."""
         _, spoken = sink
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
         await pipeline.process_event(
             ctx, _env(ROGUE_MAGE, _ability("Cekraj", 1856, "vanish", "Vanish"))
@@ -169,7 +203,7 @@ class TestDuplicateClasses:
         """Первый тринкет — самый ранний момент, когда дубль вообще разрешим."""
         dms, _ = sink
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}))
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Cekraj", 1856, "vanish", "Vanish"))
@@ -192,7 +226,7 @@ class TestDuplicateClasses:
         """Дедуп ARENA_START по слагу не должен глотать уточнение цели."""
         dms, spoken = sink
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}))
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Cekraj", 1856, "vanish", "Vanish"))
@@ -222,7 +256,7 @@ class TestOpenWindowInFight:
         """То, чего игрок видеть не может: у врага не осталось ни тринкета, ни дефа."""
         dms, _ = sink
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Frosty")))
         clock[0] += 5.0
@@ -241,7 +275,7 @@ class TestOpenWindowInFight:
     ) -> None:
         dms, _ = sink
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Frosty")))
         clock[0] += 5.0
@@ -260,7 +294,7 @@ class TestOpenWindowInFight:
     ) -> None:
         dms, _ = sink
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
         await pipeline.process_event(
             ctx, _env(ROGUE_MAGE, _ability("Cekraj", 1856, "vanish", "Vanish"))
@@ -276,7 +310,7 @@ class TestOpenWindowInFight:
     ) -> None:
         """Подавленная реплика не должна стирать знание: иначе бот «забудет» тринкет."""
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         # Жёсткий троттлинг: реплики не пройдут, учёт обязан идти всё равно.
         ctx.hint_throttle = pipeline.HintThrottle(gap_s=999.0, high_gap_s=999.0)
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
@@ -291,7 +325,7 @@ class TestOpenWindowInFight:
         self, kb_dir: Path, sink: tuple[list[str], list[str]]
     ) -> None:
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_START"}))
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Frosty")))
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, {"type": "ARENA_END"}))
@@ -305,7 +339,7 @@ class TestVoiceTranslit:
         """Ник в голосе обязан быть кириллицей — иначе RU-синтезатор читает кашу."""
         _, spoken = sink
         clock = [0.0]
-        ctx = _ctx(kb_dir, clock)
+        ctx = _ctx(kb_dir, clock, sink[1])
         await pipeline.process_event(ctx, _env(DOUBLE_ROGUE, {"type": "ARENA_START"}))
         await pipeline.process_event(
             ctx, _env(DOUBLE_ROGUE, _ability("Cekraj", 1856, "vanish", "Vanish"))

@@ -106,11 +106,7 @@ async def test_l2_survives_process_restart(
         dms.append(content)
         return True
 
-    async def _voice(settings: Settings, text: str) -> bool:
-        return False
-
     monkeypatch.setattr(pipeline, "_send_discord_dm", _dm)
-    monkeypatch.setattr(pipeline, "_send_voice_hint", _voice)
 
     engine = create_async_engine(f"sqlite+aiosqlite:///{tmp_path}/coach.db", echo=False)
     async with engine.begin() as conn:
@@ -126,9 +122,7 @@ async def test_l2_survives_process_restart(
             access_service=_FakeAccess(),  # type: ignore[arg-type]
             kb_retriever=KBRetriever(index),
             anthropic_client=client,
-            settings=Settings(
-                discord_bot_token="t", discord_voice_channel_id=0, anthropic_api_key="sk-test"
-            ),
+            settings=Settings(discord_bot_token="t", anthropic_api_key="sk-test"),
             advice_store=shared_store,
         )
 

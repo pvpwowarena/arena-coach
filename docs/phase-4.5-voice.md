@@ -1,3 +1,7 @@
+> ⚠️ **ИСТОРИЧЕСКИЙ ДОКУМЕНТ.** Discord-voice снят в Phase 4.15 (`docs/phase-4.15-simplify.md`): его вытеснил локальный голос из Phase 4.6, а сам он
+> всё время стоял выключенным по умолчанию. Код (`bot/voice.py`, `_send_voice_hint`,
+> настройки `voice_*`, `edge-tts`/`PyNaCl`/`ffmpeg`) удалён. Оставлено для истории решений.
+
 # Phase 4.5 — Voice hints в Discord voice channel
 
 **Статус (2026-05-15):** `[PLANNED, NOT STARTED]` — после Phase 4 (text-hints в DM). Документ актуален как план будущей фичи. Не блокирует основную поставку.

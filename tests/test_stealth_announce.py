@@ -44,7 +44,7 @@ def _ctx(kb_dir: Path, *, key: str = "sk-test") -> Any:
         access_service=_FakeAccess(),  # type: ignore[arg-type]
         kb_retriever=KBRetriever(index),
         anthropic_client=SimpleNamespace(messages=_FakeMessages()),
-        settings=Settings(discord_bot_token="t", discord_voice_channel_id=0, anthropic_api_key=key),
+        settings=Settings(discord_bot_token="t", anthropic_api_key=key),
     )
 
 
@@ -77,12 +77,7 @@ def sent(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[str]]:
         out["dm"].append(content)
         return True
 
-    async def _voice(settings: Settings, text: str) -> bool:
-        out["voice"].append(text)
-        return False
-
     monkeypatch.setattr(pipeline, "_send_discord_dm", _dm)
-    monkeypatch.setattr(pipeline, "_send_voice_hint", _voice)
     return out
 
 
@@ -105,7 +100,10 @@ class TestStealthAnnounce:
     ) -> None:
         ctx = _ctx(kb_dir)
         await pipeline.process_event(ctx, _env([]))
-        assert sent["voice"] == ["Арена. Никого не видно — стелс опенер. Кучкуйтесь."]
+        # С Phase 4.15 хопа api→bot нет: голос = очередь, которую поллит мост.
+        assert ctx.hint_queue.pop_fresh("Arenacoach") == [
+            "Арена. Никого не видно — стелс опенер. Кучкуйтесь."
+        ]
 
     async def test_reemit_empty_is_deduped(self, kb_dir: Path, sent: dict[str, list[str]]) -> None:
         ctx = _ctx(kb_dir)

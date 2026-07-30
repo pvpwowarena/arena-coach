@@ -88,17 +88,20 @@ class WhitelistEntry(Base):
 
 
 class PlayerSettings(Base):
-    """Per-player настройки коуча (Phase 4.5).
+    """Per-player настройки коуча (Phase 4.5, расширены в 4.15).
 
     voice_mode: 'on' (текст + голос, default) | 'off' (только текст) |
-    'only' (только голос, без text-spam). Таблица общая для api- и
-    bot-процессов (оба смотрят в один coach.db).
+    'only' (только голос, без text-spam).
+    combat_text: 'off' (default, Phase 4.15 — боевой DM не шлём: игрок его в бою
+    не читает) | 'on'. Разбор на воротах и постматч приходят всегда.
+    Таблица общая для api- и bot-процессов (оба смотрят в один coach.db).
     """
 
     __tablename__ = "player_settings"
 
     discord_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     voice_mode: Mapped[str] = mapped_column(String(8), nullable=False, default="on")
+    combat_text: Mapped[str] = mapped_column(String(8), nullable=False, default="off")
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     def __repr__(self) -> str:
