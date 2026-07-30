@@ -1,5 +1,5 @@
 {
-  "_comment": "Каталог realtime-способностей (Phase 4.12). Решает БЭКЕНД: мост форвардит все касты врагов (id + slug имени), а что важно — определяется здесь. Добавление класса/спелла = правка этого файла + деплой, без релиза моста. ids заполнены только там, где они подтверждены кодом моста (TRACKED_SPELLS); для остальных резолв идёт по английскому имени из combat-лога — id не выдумываем. Поле cast_alert:true = реагируем на НАЧАЛО каста (SPELL_CAST_START): пока хилер кастует, кик ещё возможен — это единственный сигнал до факта.",
+  "_comment": "Каталог realtime-способностей (Phase 4.12). Решает БЭКЕНД: мост форвардит все касты врагов (id + slug имени), а что важно — определяется здесь. Добавление класса/спелла = правка этого файла + деплой, без релиза моста. ids заполнены только там, где они подтверждены кодом моста (TRACKED_SPELLS); для остальных резолв идёт по английскому имени из combat-лога — id не выдумываем. Поле cast_alert:true = реагируем на НАЧАЛО каста (SPELL_CAST_START): пока хилер кастует, кик ещё возможен — это единственный сигнал до факта. Поле cooldown_s (Phase 4.14) — длина кулдауна в секундах, ПЕРЕНЕСЕНА из sourced-слоя abilities.json скриптом tools/derive_cooldowns.py; вручную не править и не додумывать. Где в abilities.json кулдауна нет — поля нет, и бэкенд говорит про такую способность только «потрачено», без обратного отсчёта (тот же принцип, что GLOSSARY_GAPS в reactions).",
   "_categories": [
     "burst",
     "cast_cc",
@@ -28,7 +28,8 @@
       ],
       "names": [
         "Barkskin"
-      ]
+      ],
+      "cooldown_s": 60
     },
     "blessing_of_freedom": {
       "category": "freedom",
@@ -38,7 +39,8 @@
       ],
       "names": [
         "Blessing of Freedom"
-      ]
+      ],
+      "cooldown_s": 25
     },
     "blind": {
       "category": "incapacitate",
@@ -48,7 +50,8 @@
       ],
       "names": [
         "Blind"
-      ]
+      ],
+      "cooldown_s": 60
     },
     "challenging_shout": {
       "category": "taunt",
@@ -78,7 +81,8 @@
       ],
       "names": [
         "Cloak of Shadows"
-      ]
+      ],
+      "cooldown_s": 90
     },
     "counterspell": {
       "category": "interrupt",
@@ -88,7 +92,8 @@
       ],
       "names": [
         "Counterspell"
-      ]
+      ],
+      "cooldown_s": 24
     },
     "cyclone": {
       "category": "incapacitate",
@@ -110,7 +115,8 @@
       ],
       "names": [
         "Death Coil"
-      ]
+      ],
+      "cooldown_s": 120
     },
     "divine_shield": {
       "category": "immunity",
@@ -130,7 +136,8 @@
       ],
       "names": [
         "Evasion"
-      ]
+      ],
+      "cooldown_s": 300
     },
     "fear": {
       "category": "fear",
@@ -152,7 +159,8 @@
       ],
       "names": [
         "Frost Nova"
-      ]
+      ],
+      "cooldown_s": 25
     },
     "hammer_of_justice": {
       "category": "stun",
@@ -162,7 +170,8 @@
       ],
       "names": [
         "Hammer of Justice"
-      ]
+      ],
+      "cooldown_s": 40
     },
     "ice_block": {
       "category": "immunity",
@@ -172,7 +181,8 @@
       ],
       "names": [
         "Ice Block"
-      ]
+      ],
+      "cooldown_s": 300
     },
     "innervate": {
       "category": "mana",
@@ -182,7 +192,8 @@
       ],
       "names": [
         "Innervate"
-      ]
+      ],
+      "cooldown_s": 360
     },
     "intimidating_shout": {
       "category": "fear",
@@ -212,7 +223,8 @@
       ],
       "names": [
         "Pain Suppression"
-      ]
+      ],
+      "cooldown_s": 180
     },
     "polymorph": {
       "category": "incapacitate",
@@ -244,7 +256,8 @@
       ],
       "names": [
         "Preparation"
-      ]
+      ],
+      "cooldown_s": 600
     },
     "psychic_scream": {
       "category": "fear",
@@ -294,7 +307,8 @@
       ],
       "names": [
         "Vanish"
-      ]
+      ],
+      "cooldown_s": 180
     },
     "scatter_shot": {
       "category": "incapacitate",
@@ -302,7 +316,8 @@
       "ids": [],
       "names": [
         "Scatter Shot"
-      ]
+      ],
+      "cooldown_s": 30
     },
     "freezing_trap": {
       "category": "incapacitate",
@@ -416,7 +431,8 @@
       "ids": [],
       "names": [
         "Nature's Swiftness"
-      ]
+      ],
+      "cooldown_s": 180
     },
     "grounding_totem": {
       "category": "dispel",
@@ -425,7 +441,8 @@
       "names": [
         "Grounding Totem",
         "Grounding Totem Effect"
-      ]
+      ],
+      "cooldown_s": 15
     },
     "tremor_totem": {
       "category": "dispel",
@@ -489,7 +506,8 @@
       "ids": [],
       "names": [
         "Shadowstep"
-      ]
+      ],
+      "cooldown_s": 30
     },
     "cold_blood": {
       "category": "burst",
@@ -529,7 +547,8 @@
       "ids": [],
       "names": [
         "Icy Veins"
-      ]
+      ],
+      "cooldown_s": 180
     },
     "evocation": {
       "category": "mana",
@@ -593,7 +612,8 @@
       "ids": [],
       "names": [
         "Nature's Grasp"
-      ]
+      ],
+      "cooldown_s": 60
     },
     "feral_charge": {
       "category": "stun",
@@ -653,7 +673,8 @@
         "Howl of Terror"
       ],
       "cast_alert": true,
-      "cast_category": "cast_cc"
+      "cast_category": "cast_cc",
+      "cooldown_s": 40
     },
     "spell_lock": {
       "category": "silence",
@@ -661,7 +682,8 @@
       "ids": [],
       "names": [
         "Spell Lock"
-      ]
+      ],
+      "cooldown_s": 24
     },
     "seduction": {
       "category": "incapacitate",

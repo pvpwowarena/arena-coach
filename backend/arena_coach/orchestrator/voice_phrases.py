@@ -51,6 +51,16 @@ def _class_ru(wow_class: str) -> str:
     return _CLASS_RU.get(wow_class.upper(), wow_class.lower())
 
 
+def class_ru(wow_class: str) -> str:
+    """'ROGUE' → 'рога'. Публичная обёртка для `state_advice` (Phase 4.14)."""
+    return _class_ru(wow_class)
+
+
+def spell_ru(spell_key: str) -> str:
+    """'ice_block' → 'айсблок'; неизвестный ключ — как есть, без подчёркиваний."""
+    return _SPELL_RU.get(spell_key, spell_key.replace("_", " "))
+
+
 def _target_ru(target: str) -> str:
     """'mage' → 'маг'; спек-слаг 'resto-druid' → 'дру' (по последнему слову)."""
     low = target.lower().strip()
@@ -60,12 +70,41 @@ def _target_ru(target: str) -> str:
     return _TARGET_RU.get(tail, low)
 
 
+#: Как игроки называют дубли: «дабл рога», «трипл маг» (Phase 4.14).
+_MULTIPLIER_RU: dict[int, str] = {2: "дабл", 3: "трипл"}
+
+
+def _enemy_names(enemy_classes: list[str]) -> list[str]:
+    """Классы врагов → как их произносить, со схлопыванием дублей.
+
+    «рога и рога» звучало как сбой синтезатора и, главное, ничего не сообщало:
+    игрок и так видит двоих. «Дабл рога» — то, как этот состав называют сами
+    игроки, и это сразу задаёт режим боя.
+    """
+    counts: dict[str, int] = {}
+    order: list[str] = []
+    for cls in enemy_classes:
+        if not cls:
+            continue
+        name = _class_ru(cls)
+        if name not in counts:
+            order.append(name)
+        counts[name] = counts.get(name, 0) + 1
+    out: list[str] = []
+    for name in order:
+        n = counts[name]
+        prefix = _MULTIPLIER_RU.get(n)
+        out.append(f"{prefix} {name}" if prefix else name)
+    return out
+
+
 def arena_start_phrase(enemy_classes: list[str], kill_target: str | None) -> str:
     """'Арена. Против вар и дру. Килл таргет — дру.'
 
     3v3 — через запятую («вар, прист и рога»), чтобы фраза оставалась короткой.
+    Дубли схлопываются в «дабл рога» (Phase 4.14).
     """
-    names = [_class_ru(c) for c in enemy_classes if c]
+    names = _enemy_names(enemy_classes)
     enemies = ", ".join(names[:-1]) + f" и {names[-1]}" if len(names) > 1 else "".join(names)
     parts = ["Арена."]
     if enemies:

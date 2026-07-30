@@ -52,6 +52,14 @@ def slugify(name: str) -> str:
     return _SLUG_RE.sub("_", name.strip().lower()).strip("_")
 
 
+def _as_float(value: Any) -> float:
+    """Мягкий разбор числа из данных: мусор и None → 0.0 (кулдаун неизвестен)."""
+    try:
+        return max(0.0, float(value))
+    except (TypeError, ValueError):
+        return 0.0
+
+
 @dataclass(frozen=True)
 class SpellInfo:
     """Разрешённая способность: канонический ключ + категория + класс."""
@@ -63,6 +71,10 @@ class SpellInfo:
     cast_alert: bool = False
     #: Категория для фазы каста (если отличается от основной).
     cast_category: str = ""
+    #: Длина кулдауна в секундах; 0 = в sourced-слое не подтверждён (Phase 4.14).
+    #: Значения переносит `tools/derive_cooldowns.py` из `abilities.json` — вручную
+    #: их не выдумываем, иначе бот начнёт врать про окна.
+    cooldown_s: float = 0.0
 
 
 class SpellCatalog:
@@ -80,6 +92,7 @@ class SpellCatalog:
                 wow_class=str(raw.get("class", "")).upper(),
                 cast_alert=bool(raw.get("cast_alert", False)),
                 cast_category=str(raw.get("cast_category", "")),
+                cooldown_s=_as_float(raw.get("cooldown_s")),
             )
             self._by_key[key] = info
             for name in raw.get("names", []) or []:

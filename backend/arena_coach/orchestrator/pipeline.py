@@ -41,9 +41,11 @@ from arena_coach.kb.pronunciation import Pronouncer
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.kb.schema import KBDoc, Section
 from arena_coach.kb.slang import SlangRenderer
-from arena_coach.kb.spells import SpellCatalog
+from arena_coach.kb.spells import SpellCatalog, SpellInfo
+from arena_coach.kb.translit import latin_to_cyrillic
 from arena_coach.orchestrator import advice as advice_mod
 from arena_coach.orchestrator.advice import AdviceCache, TokenUsage, comp_signature
+from arena_coach.orchestrator.enemy_state import EnemyTracker
 from arena_coach.orchestrator.hint_queue import HintQueue
 from arena_coach.orchestrator.killpriority import heuristic_kill_target
 from arena_coach.orchestrator.meta_comps import guess_line, likely_comps, stealth_comps
@@ -64,6 +66,14 @@ from arena_coach.orchestrator.reactions import (
     cast_reaction,
     category_reaction,
     trinket_reaction,
+)
+from arena_coach.orchestrator.state_advice import (
+    StateHint,
+    kill_target_dm,
+    kill_target_voice,
+    ready_again_hint,
+    trinket_voice,
+    window_hint,
 )
 from arena_coach.orchestrator.threats import threat_lines, threat_voice
 from arena_coach.orchestrator.voice_phrases import (
@@ -356,6 +366,8 @@ class PipelineContext:
     hint_throttle: HintThrottle = field(default_factory=HintThrottle)
     match_recorder: MatchRecorder = field(default_factory=MatchRecorder)
     hint_queue: HintQueue = field(default_factory=HintQueue)
+    # Phase 4.14: реестр кулдаунов врага + карта «ник → класс» (разрешение дублей).
+    enemy_tracker: EnemyTracker = field(default_factory=EnemyTracker)
     player_settings: PlayerSettingsService | None = None
     # Phase 4.7: учёт токенов (None без БД) + кэш LLM-разборов + фоновые задачи.
     usage_service: UsageService | None = None
@@ -445,6 +457,9 @@ async def _deliver(
     if voice_mode != "off" and voice_text:
         # Ударения правим только в голосе: в DM человек читает нормальный текст.
         spoken = ctx.pronouncer.apply(voice_text)
+        # Латиница в русской фразе (ники врагов, `en_name` из slang для 46 слагов)
+        # русским голосом читается как каша — транслитерируем ТОЛЬКО для TTS.
+        spoken = latin_to_cyrillic(spoken)
         ctx.hint_queue.push(player_name, spoken, ttl_s=voice_ttl_s)
         voice_sent = await _send_voice_hint(ctx.settings, spoken)
     if voice_mode == "only" and voice_sent:
@@ -458,6 +473,48 @@ def _voice_ttl(reaction: Reaction | None) -> float:
     if reaction is not None and reaction.priority == HIGH:
         return VOICE_TTL_HIGH_S
     return VOICE_TTL_NORMAL_S
+
+
+async def _emit_state_hints(
+    ctx: PipelineContext,
+    discord_id: str,
+    player_name: str,
+    voice_mode: str,
+) -> bool:
+    """Подсказки по СОСТОЯНИЮ врага (Phase 4.14) — идут раньше обычной реакции.
+
+    Порядок не косметика: «у него ни тринкета, ни дефа — дожимайте» ценнее любой
+    реплики про только что случившийся спелл, а бюджет речи общий. Поэтому сначала
+    состояние, и только потом — реакция на событие (её может законно съесть
+    интервал: значит, игрок услышал более важное).
+
+    Возвращает True, если что-то отправили.
+    """
+    hints: list[StateHint] = []
+    window = ctx.enemy_tracker.poll_open_window(player_name)
+    if window is not None:
+        hints.append(window_hint(window))
+    for back in ctx.enemy_tracker.poll_ready_again(player_name):
+        hint = ready_again_hint(back)
+        if hint is not None:
+            hints.append(hint)
+
+    sent = False
+    for hint in hints:
+        if not ctx.hint_throttle.allow(
+            discord_id,
+            "STATE",
+            hint.throttle_key,
+            priority=hint.priority,
+            repeat_s=hint.repeat_s,
+        ):
+            continue
+        ttl = VOICE_TTL_HIGH_S if hint.priority == HIGH else VOICE_TTL_NORMAL_S
+        status = await _deliver(
+            ctx, discord_id, player_name, hint.dm[:2000], hint.voice, voice_mode, ttl
+        )
+        sent = sent or status == "sent"
+    return sent
 
 
 async def _emit_arena(
@@ -551,6 +608,32 @@ async def _build_postmatch(ctx: PipelineContext, record: MatchRecord, doc: KBDoc
 # ── ARENA_START ───────────────────────────────────────────────────────────────
 
 
+def _resolve_duplicate_target(
+    ctx: PipelineContext, player_name: str, kill_target: str | None
+) -> tuple[str | None, str | None]:
+    """Разрешение дубля класса килл-таргета (Phase 4.14).
+
+    Фидбэк 30.07: «когда противник с двумя одинаковыми классами — непонятно, как
+    действовать». Ростер в `ARENA_START` несёт только классы, но карта «ник → класс»
+    собирается из кастов (`EnemyTracker`), поэтому к повторному анонсу — а он летит
+    ровно тогда, когда состав доуточнился, — имена обычно уже известны.
+
+    Возвращает (голос, строка DM); `(None, None)` — дубля нет или ники ещё не
+    раскрылись, тогда работает обычная class-level фраза.
+    """
+    if not kill_target:
+        return None, None
+    wow_class = kill_target.rsplit("-", 1)[-1].upper()
+    candidates = ctx.enemy_tracker.names_of_class(player_name, wow_class)
+    if len(candidates) < 2:
+        return None, None
+    exposed = ctx.enemy_tracker.without_trinket(player_name, wow_class)
+    return (
+        kill_target_voice(wow_class, candidates, exposed),
+        kill_target_dm(wow_class, candidates, exposed),
+    )
+
+
 async def _handle_arena_start(
     ctx: PipelineContext,
     discord_id: str,
@@ -587,12 +670,22 @@ async def _handle_arena_start(
         voice_text = _arena_voice(
             ctx, player_name, session_id, enemy_classes, doc.kill_target.primary, threat_v
         )
+        # Дубль класса килл-таргета: «бей рогу» не указывает ни на кого. Если ники
+        # уже раскрылись кастами — называем цель или критерий выбора (Phase 4.14).
+        dup_voice, dup_dm = _resolve_duplicate_target(ctx, player_name, doc.kill_target.primary)
+        if dup_dm:
+            dm_lines.insert(2, dup_dm)
+        if dup_voice:
+            voice_text = dup_voice
         return await _emit_arena(
             ctx,
             discord_id,
             player_name,
             session_id,
-            f"kb:{doc.slug}",
+            # Разрешение дубля входит в сигнатуру: «две роги» → «бей Shadow» — это
+            # НОВАЯ информация, и повторный анонс тут не спам, а весь смысл. Без
+            # этого дедуп по одному слагу гасил бы уточнение цели (Phase 4.14).
+            f"kb:{doc.slug}|{dup_voice or ''}",
             "\n".join(dm_lines)[:2000],
             voice_text,
             voice_mode,
@@ -836,12 +929,26 @@ async def _handle_trinket(
     dm_lines = [f"💎 **{source} тринкетнул!**", reaction.dm]
     if doc is not None:
         dm_lines[0] += f" | {doc.composition} vs {doc.vs}"
+    # Дубль класса (две роги, два вара): без ника «тринкет ушёл» не говорит, у кого
+    # именно, — а решение боя строится ровно на этом. Ник добавляем только здесь,
+    # в остальных случаях он лишь удлиняет фразу (Phase 4.14).
+    #
+    # Это ещё и САМЫЙ ранний момент, когда дубль вообще разрешим: до первого
+    # тринкета оба одинаковых врага равнозначны. Поэтому разбор цели идёт здесь, а
+    # не только в повторном ARENA_START (его легко может съесть дедуп по составу).
+    duplicated = ctx.enemy_tracker.needs_name(player_name, source)
+    voice = trinket_voice(source, duplicated) or reaction.voice
+    if duplicated:
+        dm_lines.append(
+            f"🎯 Дубль класса — теперь цель однозначна: бей **{source}**, "
+            "контроль на нём держится полную длительность."
+        )
     return await _deliver(
         ctx,
         discord_id,
         player_name,
         "\n".join(dm_lines)[:2000],
-        reaction.voice,
+        voice,
         voice_mode,
         _voice_ttl(reaction),
     )
@@ -867,6 +974,11 @@ async def _handle_ability(
     else:  # в _ABILITY_HINT_KEYS попадают только ключи из таблицы — страховка
         dm_lines.append("Учитывай этот КД врага в следующем размене.")
     voice = reaction.voice if reaction is not None else f"{name} у врага."
+    # Дубль класса → без ника непонятно, от кого прилетело и кого это касается.
+    # Таблица реакций остаётся безымянной (её тест это проверяет) — ник
+    # приклеивается здесь и только когда он действительно решает (Phase 4.14).
+    if ctx.enemy_tracker.needs_name(player_name, source):
+        voice = f"{source}: {voice}"
     ttl = _voice_ttl(reaction)
     return await _deliver(
         ctx, discord_id, player_name, "\n".join(dm_lines)[:2000], voice, voice_mode, ttl
@@ -908,6 +1020,7 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     throttle_subject = raw_key
     hint_reaction: Reaction | None = None
     cast_phase = str(event.get("cast_phase", ""))
+    info: SpellInfo | None = None
     if event_type == "ABILITY":
         info = ctx.spells.resolve(spell_id, raw_key, spell_name)
         spell_key = info.key or raw_key
@@ -928,7 +1041,10 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
     elif event_type == "TRINKET":
         hint_reaction = trinket_reaction()
 
-    # ── 0b. Постматч-копилка (до хинт-фильтров) ─────────────────────────
+    # ── 0b. Постматч-копилка + реестр состояния врага (до хинт-фильтров) ─
+    # Обе копилки пишутся ДО троттлинга: подавленная реплика всё равно должна
+    # попадать в учёт, иначе бот «забудет», что тринкет уже потрачен.
+    source_name = str(event.get("source_name", ""))
     if event_type == "ARENA_START":
         ctx.match_recorder.start(
             player_name,
@@ -938,13 +1054,30 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
             enemies=[{str(k): str(v) for k, v in e.items() if v is not None} for e in enemies_raw],
             our_comp_hint=str(match_info.get("our_comp_hint") or "") or None,
         )
-    elif event_type in ("TRINKET", "ABILITY") and hint_reaction is not None:
-        # Пишем только то, что каталог опознал: мост форвардит все касты, и без
-        # фильтра постматч-таймлайн превратился бы в дамп боевого лога.
-        ctx.match_recorder.note(
-            player_name, ts, event_type, str(event.get("source_name", "враг")), spell_key
+        ctx.enemy_tracker.start(player_name, session_id)
+    elif event_type == "TRINKET":
+        # Кулдаун тринкета в sourced-слое (`abilities.json`) не подтверждён →
+        # фиксируем сам факт без обратного отсчёта. Появится источник — впиши
+        # `cooldown_s` для pvp_trinket, и бот начнёт называть остаток.
+        ctx.enemy_tracker.note_trinket(player_name, source_name)
+        ctx.match_recorder.note(player_name, ts, event_type, source_name or "враг", spell_key)
+    elif event_type == "ABILITY" and cast_phase != "start":
+        # Состоявшийся каст — единственная надёжная точка «кулдаун ушёл»
+        # (начало каста ещё можно прервать, и тогда КД не тратится).
+        ctx.enemy_tracker.note(
+            player_name,
+            source_name,
+            spell_key,
+            wow_class=info.wow_class if info else "",
+            cooldown_s=(info.cooldown_s or None) if info else None,
+            category=info.category if info else "",
         )
+        if hint_reaction is not None:
+            # В постматч пишем только то, что каталог опознал: мост форвардит все
+            # касты, иначе таймлайн превратился бы в дамп боевого лога.
+            ctx.match_recorder.note(player_name, ts, event_type, source_name or "враг", spell_key)
     elif event_type == "ARENA_END":
+        ctx.enemy_tracker.end(player_name)
         return await _finish_match(ctx, player_name)
 
     # ── 1. Фильтр важных событий ────────────────────────────────────────
@@ -962,7 +1095,31 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
         return "no_player"
     discord_id = entry.discord_id
 
-    # ── 3. Троттлинг in-fight (Phase 4.11: приоритеты + бюджет речи) ────
+    # ── 3. Состав врагов: классы + спеки ────────────────────────────────
+    enemy_classes = [str(e.get("wow_class", "")).upper() for e in enemies_raw if e.get("wow_class")]
+    enemy_specs: list[str | None] = [
+        (str(e["spec"]).lower() if e.get("spec") else None)
+        for e in enemies_raw
+        if e.get("wow_class")
+    ]
+    our_comp_hint: str | None = match_info.get("our_comp_hint") or None
+    player_class: str | None = str(match_info.get("player_class") or "") or None
+
+    # ── 4. Режим голоса ─────────────────────────────────────────────────
+    voice_mode = DEFAULT_VOICE_MODE
+    if ctx.player_settings is not None:
+        voice_mode = await ctx.player_settings.get_voice_mode(discord_id)
+
+    # ── 5. Подсказки по состоянию врага (Phase 4.14) ─────────────────────
+    # Идут ПЕРЕД троттлингом события: «у него ни тринкета, ни дефа» ценнее
+    # реплики про только что случившийся спелл, а бюджет речи один на двоих.
+    # Если после этого реакцию на событие съест интервал — так и надо: игрок
+    # услышал более важное. На воротах состояния ещё нет, поэтому только in-fight.
+    state_sent = False
+    if event_type in ("TRINKET", "ABILITY"):
+        state_sent = await _emit_state_hints(ctx, discord_id, player_name, voice_mode)
+
+    # ── 6. Троттлинг in-fight (Phase 4.11: приоритеты + бюджет речи) ────
     throttle_key = (
         throttle_subject if event_type == "ABILITY" else str(event.get("source_name", ""))
     )
@@ -976,24 +1133,10 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
         log.debug(
             "Подсказка %s/%s для %s подавлена троттлингом", event_type, throttle_key, discord_id
         )
-        return "throttled"
+        # Состояние уже ушло игроку — это не «подавлено», а «сказано важнее».
+        return "sent" if state_sent else "throttled"
 
-    # ── 4. Состав врагов: классы + спеки ────────────────────────────────
-    enemy_classes = [str(e.get("wow_class", "")).upper() for e in enemies_raw if e.get("wow_class")]
-    enemy_specs: list[str | None] = [
-        (str(e["spec"]).lower() if e.get("spec") else None)
-        for e in enemies_raw
-        if e.get("wow_class")
-    ]
-    our_comp_hint: str | None = match_info.get("our_comp_hint") or None
-    player_class: str | None = str(match_info.get("player_class") or "") or None
-
-    # ── 5. Режим голоса ─────────────────────────────────────────────────
-    voice_mode = DEFAULT_VOICE_MODE
-    if ctx.player_settings is not None:
-        voice_mode = await ctx.player_settings.get_voice_mode(discord_id)
-
-    # ── 6. Диспетч ──────────────────────────────────────────────────────
+    # ── 7. Диспетч ──────────────────────────────────────────────────────
     if event_type == "ARENA_START":
         return await _handle_arena_start(
             ctx,
