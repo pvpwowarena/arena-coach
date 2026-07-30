@@ -119,13 +119,32 @@ end
 function V:ResetMatch()
     lastPlayed = {}
     self.openerPlayed = false
+    self.lastTargetClass = nil
+end
+
+local function OffCooldown(key, cd)
+    local t = lastPlayed[key]
+    return (t == nil) or (Now() - t) >= cd
 end
 
 --- Анонс килл-таргета на воротах — самая ценная фраза и самая ранняя.
 --- Оверлей уже знает цель из UnitClass в момент открытия ворот.
+---
+--- Смена КЛАССА цели пробивает анти-спам (Phase 4.20.1). Живой промах 30.07: враг
+--- вышел из стелса через 16с после ворот, цель сменилась с вара на рогу — а голос
+--- молчал, потому что ключ `target` держал 30 секунд, и матч закончился раньше.
+--- «Бей вара!» при цели-роге хуже молчания: игрок бьёт не туда с полной уверенностью.
+--- Флудить это не даёт: класс меняется редко, плюс пол в 5 секунд на сам разворот.
 function V:AnnounceTarget(class)
     local clip = class and TARGET_CLIP[class]
     if not clip then return false end
+    if class ~= self.lastTargetClass then
+        if self.lastTargetClass ~= nil and OffCooldown("targetswap", 5.0) then
+            lastPlayed["target"] = nil
+            lastPlayed["targetswap"] = Now()
+        end
+        self.lastTargetClass = class
+    end
     return self:Say(clip, "target")
 end
 

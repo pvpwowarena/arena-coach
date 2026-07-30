@@ -95,9 +95,10 @@ def _scenario(party: dict[str, str], enemies: list[dict[str, object]], bracket: 
         lines.append(f'S.party["{unit}"] = {{ class = "{cls}" }}')
     for i, e in enumerate(enemies, start=1):
         hp = e.get("hp", 100)
+        dead = "true" if e.get("dead") else "false"
         lines.append(
             f'S.units["arena{i}"] = {{ class = "{e["class"]}", '
-            f'name = "Enemy{i}", guid = "GUID-arena{i}", hp = {hp} }}'
+            f'name = "Enemy{i}", guid = "GUID-arena{i}", hp = {hp}, dead = {dead} }}'
         )
     lines.append(f'ArenaCoach.currentSession = {{ bracket = "{bracket}" }}')
     return "\n".join(lines)
@@ -344,3 +345,73 @@ class TestGeneratedVoice:
             cwd=REPO,
         )
         assert proc.returncode == 0, proc.stdout + proc.stderr
+
+
+@needs_lua
+class TestDeadEnemyIsNotATarget:
+    """Phase 4.20.1 — живой промах 30.07: приста убили, а аддон звал бить труп.
+
+    Механизм был в скоринге: цель выбирается по HP, «меньше — лучше», а у мёртвого
+    он нулевой, поэтому труп всегда выигрывал выбор. Плюс класс мертвеца оставался
+    в ключе матчапа, то есть после первой смерти KB искалась по несуществующему
+    сетапу.
+    """
+
+    def test_dead_target_is_skipped(self) -> None:
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "ROGUE"},
+                [{"class": "PRIEST", "hp": 0, "dead": True}, {"class": "WARRIOR", "hp": 80}],
+                "2v2",
+            )
+            + "\nO:StartMatch()",
+            _EMIT,
+        )
+        assert res["target"] == "arena2", "цель должна быть на живом враге"
+
+    def test_all_enemies_dead_clears_the_target(self) -> None:
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "ROGUE"},
+                [{"class": "PRIEST", "hp": 0, "dead": True}],
+                "2v2",
+            )
+            + "\nO:StartMatch()",
+            _EMIT,
+        )
+        assert res["target"] is None
+        assert res["source"] == "враги мертвы"
+
+    def test_voice_announces_the_new_target_after_a_kill(self) -> None:
+        """Молчать после смены цели нельзя: «Бей жреца!» при живом варе уводит игрока."""
+        setup = _scenario(
+            {"player": "ROGUE", "party1": "ROGUE"},
+            [{"class": "PRIEST"}, {"class": "WARRIOR"}],
+            "2v2",
+        )
+        res = _run(
+            setup
+            + "\nO:StartMatch()\nO:Recompute()"
+            + '\nS.units["arena1"].dead = true'
+            + "\nO:Recompute()",
+            _EMIT_VOICE,
+        )
+        clips = str(res["clips"]).split(",")
+        assert clips[0] == "target_priest"
+        assert "target_warrior" in clips, clips
+
+    def test_same_class_is_not_reannounced(self) -> None:
+        """Смена юнита внутри одного класса — не новость, голос молчит."""
+        setup = _scenario(
+            {"player": "ROGUE", "party1": "ROGUE"},
+            [{"class": "ROGUE", "hp": 90}, {"class": "ROGUE", "hp": 80}],
+            "2v2",
+        )
+        res = _run(
+            setup
+            + "\nO:StartMatch()\nO:Recompute()"
+            + '\nS.units["arena2"].dead = true'
+            + "\nO:Recompute()",
+            _EMIT_VOICE,
+        )
+        assert str(res["clips"]).split(",").count("target_rogue") == 1

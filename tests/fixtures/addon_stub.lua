@@ -80,9 +80,16 @@ function _G.UnitGUID(unit)
 end
 function _G.UnitHealth(unit)
     local u = unitInfo(unit)
+    if u and u.dead then return 0 end
     return u and (u.hp or 100) or 0
 end
 function _G.UnitHealthMax(unit) return 100 end
+-- Труп остаётся валидным юнитом: UnitExists = true, HP = 0. Именно на этом аддон
+-- держал череп на убитом присте, поэтому в заглушке смерть моделируется явно.
+function _G.UnitIsDeadOrGhost(unit)
+    local u = unitInfo(unit)
+    return (u and u.dead) and true or false
+end
 function _G.UnitDebuff() return nil end
 function _G.UnitBuff() return nil end
 

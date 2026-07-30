@@ -121,13 +121,23 @@ local function HeuristicTarget(enemyList)
     return best
 end
 
+--- Жив ли враг. Труп остаётся валидным юнитом (`UnitExists` = true, HP = 0), и без
+--- этой проверки он ВЫИГРЫВАЛ выбор цели: скор считается по HP, «меньше — лучше»,
+--- а у мёртвого он нулевой. Живой промах 30.07: приста убили, а аддон продолжал
+--- звать «Бей жреца!» и держал череп на трупе.
+local function IsAlive(unit)
+    if not unit or not UnitExists(unit) then return false end
+    if UnitIsDeadOrGhost and UnitIsDeadOrGhost(unit) then return false end
+    return UnitHealth(unit) > 0
+end
+
 -- Из класса цели выбираем КОНКРЕТНОГО врага. При дублях класса (две роги)
 -- class-level решение неразрешимо — а аддон видит то, чего не видит сервер:
 -- кто уже потратил тринкет и у кого меньше HP. Это и есть признак выбора.
 local function PickUnit(targetClass)
     local best, bestScore
     for _, u in ipairs(O.units) do
-        if u.class == targetClass then
+        if u.class == targetClass and IsAlive(u.unit) then
             local hp = 1
             if UnitExists(u.unit) and UnitHealthMax(u.unit) > 0 then
                 hp = UnitHealth(u.unit) / UnitHealthMax(u.unit)
@@ -152,12 +162,25 @@ function O:IsEnemyGUID(guid)
 end
 
 function O:Recompute()
+    -- В расчёт идут только ЖИВЫЕ враги. Труп не только не может быть целью — он ещё
+    -- и портит ключ матчапа: после смерти приста «rogue+priest» превращается в
+    -- «rogue», и искать в KB надо уже другой сетап, а не прежний.
     local enemyList = {}
     for _, u in ipairs(self.units) do
-        if u.class and u.class ~= "UNKNOWN" then table.insert(enemyList, u.class) end
+        if u.class and u.class ~= "UNKNOWN" and IsAlive(u.unit) then
+            table.insert(enemyList, u.class)
+        end
     end
     if #enemyList == 0 then
-        self.targetUnit, self.source, self.targetSure = nil, "враги не видны", true
+        -- Различаем «ещё не видны» (стелс-опенер) и «уже мертвы»: на панели это
+        -- разные состояния, и второе означает, что бой по сути выигран.
+        local reason = "враги не видны"
+        for _, u in ipairs(self.units) do
+            if u.class and u.class ~= "UNKNOWN" then reason = "враги мертвы" end
+        end
+        self.targetUnit, self.source, self.targetSure = nil, reason, true
+        self.markedGUID = nil
+        self:Refresh()
         return
     end
 

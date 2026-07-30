@@ -2,7 +2,7 @@
 ## Title: ArenaCoach
 ## Notes: Arena tracker — records enemy CDs, trinkets, CC to SavedVariables for post-game analysis
 ## Author: ArenaCoachDev
-## Version: 0.5.0
+## Version: 0.5.1
 ## IconTexture: Interface\AddOns\ArenaCoach\icon
 ## SavedVariables: ArenaCoachDB
 
