@@ -90,11 +90,17 @@ local function OurClasses()
     return out
 end
 
+--- Ключ матчапа. Один и тот же для `KillTargets.lua` и `Openers.lua`: оба
+--- скомпилированы из KB одним ключом, и собрать его аддон может сам из UnitClass
+--- в момент ворот — без кастов, лога и сети.
+local function MatchupKey(bracket, ourList, enemyList)
+    return bracket .. "|" .. SortedClasses(ourList) .. "|" .. SortedClasses(enemyList)
+end
+
 -- KB-таблица: точный матчап (наш состав vs их) → класс цели.
-local function LookupKB(bracket, ourList, enemyList)
+local function LookupKB(key)
     local kb = AC.KB_KILL_TARGETS
-    if not kb then return nil end
-    local key = bracket .. "|" .. SortedClasses(ourList) .. "|" .. SortedClasses(enemyList)
+    if not kb or not key then return nil end
     local hit = kb[key]
     if not hit then return nil end
     return hit.t, hit.sure, "KB"
@@ -156,7 +162,8 @@ function O:Recompute()
     end
 
     local bracket = (AC.currentSession and AC.currentSession.bracket) or "2v2"
-    local class, sure, source = LookupKB(bracket, OurClasses(), enemyList)
+    local key = MatchupKey(bracket, OurClasses(), enemyList)
+    local class, sure, source = LookupKB(key)
     if not class then
         class, sure, source = HeuristicTarget(enemyList), false, "эвристика"
     end
@@ -168,9 +175,10 @@ function O:Recompute()
     self:ApplyMark(pick)
     self:Refresh()
 
-    -- Голос произносит цель ОДИН раз за матч (анти-спам в Voice:Say). Это самая
-    -- ранняя полезная фраза: оверлей знает класс уже на воротах, без единого каста.
-    if pick and AC.Voice then AC.Voice:AnnounceTarget(pick.class) end
+    -- Голос: сперва пробуем тактический колаут матчапа («Сап приста, бей мага!
+    -- Чип, кидни»), и только если такого ключа нет — короткое «Бей мага!».
+    -- Оба варианта знают цель уже на воротах, без единого каста и без сети.
+    if pick and AC.Voice then AC.Voice:AnnounceOpener(key, pick.class) end
 
     -- «Тринкета нет» — отдельный сигнал: окно на добив открывается именно тут.
     if pick and pick.trinketUsed and AC.Voice then AC.Voice:Say("notrinket") end

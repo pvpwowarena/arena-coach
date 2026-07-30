@@ -2,13 +2,14 @@
 ## Title: ArenaCoach
 ## Notes: Arena tracker — records enemy CDs, trinkets, CC to SavedVariables for post-game analysis
 ## Author: ArenaCoachDev
-## Version: 0.4.0
+## Version: 0.5.0
 ## IconTexture: Interface\AddOns\ArenaCoach\icon
 ## SavedVariables: ArenaCoachDB
 
 Core.lua
 Tracker.lua
 KillTargets.lua
+Openers.lua
 Overlay.lua
 Voice.lua
 UI.lua

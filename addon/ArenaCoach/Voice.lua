@@ -40,6 +40,7 @@ local COOLDOWN = {
     immune    = 5.0,
     notrinket = 15.0,
     target    = 30.0,   -- общий ключ для всех target_* : один анонс на матч
+    opener    = 60.0,   -- тактический колаут: строго один раз за матч
 }
 local DEFAULT_CD = 3.0
 
@@ -117,6 +118,7 @@ end
 
 function V:ResetMatch()
     lastPlayed = {}
+    self.openerPlayed = false
 end
 
 --- Анонс килл-таргета на воротах — самая ценная фраза и самая ранняя.
@@ -125,6 +127,37 @@ function V:AnnounceTarget(class)
     local clip = class and TARGET_CLIP[class]
     if not clip then return false end
     return self:Say(clip, "target")
+end
+
+--- Тактический колаут матчапа на воротах (Phase 4.20).
+---
+--- Почему это отдельный вход, а не «ещё один target_*»: клип содержит ЦЕЛЬ И ПЛАН
+--- («Сап приста, бей мага! Чип, кидни»), то есть вытесняет одиночное «Бей мага!».
+--- Читать то же самое в DM во время боя невозможно, а состав врага до ворот в 2.4.3
+--- не узнать (arena1 в prep-фазе пуст) — значит колаут обязан звучать ровно на
+--- воротах, и на него есть 8-10 секунд, пока команды сходятся.
+---
+--- Состав может дорисоваться позже (враг вышел из стелса). Поэтому разрешаем ОДНО
+--- уточнение: если сначала прозвучало короткое «Бей X!», а потом ключ матчапа
+--- совпал — колаут всё равно играем, он несёт больше. Обратно (колаут → короткое)
+--- не откатываемся никогда.
+function V:AnnounceOpener(key, class)
+    local op = key and AC.KB_OPENERS and AC.KB_OPENERS[key]
+    if not op or not op.c then
+        return self:AnnounceTarget(class)
+    end
+    if self.openerPlayed then return false end
+    if not self.enabled then return false end
+    self.openerPlayed = true
+    -- Цель уже произнесена внутри колаута — гасим анти-спам target'а, чтобы
+    -- «Бей мага!» не прозвучало вторым эхом.
+    lastPlayed["target"] = Now()
+    if op.t and AC.Print then
+        -- Текстом — для того, кто играет без звука, и чтобы фразу можно было
+        -- перечитать: колаут звучит один раз и переспросить его нельзя.
+        AC.Print("|cff40ff40Тактика:|r " .. op.t)
+    end
+    return self:Say(op.c, "opener")
 end
 
 -- ── Вход из CLEU (зовётся из Tracker до всех фильтров) ──────────────────────
@@ -168,8 +201,14 @@ end
 function V:Test()
     AC.Print("Проверка звука: должно прозвучать «Кик хил!»")
     lastPlayed = {}
+    self.openerPlayed = false
     if not PlayClip("kick") then
         AC.Print("|cffff4040Клип не проигрался|r — проверь папку "
             .. "Interface/AddOns/ArenaCoach/sfx/ (должны лежать .ogg).")
     end
+    local n = 0
+    if AC.KB_OPENERS then
+        for _ in pairs(AC.KB_OPENERS) do n = n + 1 end
+    end
+    AC.Print("Тактических колаутов загружено: " .. n)
 end

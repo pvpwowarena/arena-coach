@@ -29,7 +29,10 @@ ADDON = REPO / "addon" / "ArenaCoach"
 STUB = Path(__file__).resolve().parent / "fixtures" / "addon_stub.lua"
 
 #: Порядок загрузки — как в ArenaCoach.toc.
-FILES = ("Core.lua", "Tracker.lua", "KillTargets.lua", "Overlay.lua", "Voice.lua", "UI.lua")
+FILES = (
+    "Core.lua", "Tracker.lua", "KillTargets.lua", "Openers.lua",
+    "Overlay.lua", "Voice.lua", "UI.lua",
+)
 
 
 def _run(scenario_lua: str, probe_lua: str) -> dict[str, object]:
@@ -227,7 +230,13 @@ class TestGeneratedTable:
 class TestVoiceClips:
     """Phase 4.19: голос аддона — решение и звук локально, без моста и сети."""
 
-    def test_target_announced_once_per_match(self) -> None:
+    def test_known_matchup_plays_tactical_callout_once(self) -> None:
+        """Phase 4.20: у известного матчапа звучит колаут, а не одиночное «Бей X!».
+
+        Колаут содержит ту же цель И план, поэтому короткий клип он вытесняет —
+        иначе игрок услышал бы цель дважды подряд. Ровно один раз за матч:
+        `Recompute` зовётся на каждое изменение ростера.
+        """
         res = _run(
             _scenario(
                 {"player": "ROGUE", "party1": "WARLOCK"},
@@ -237,8 +246,50 @@ class TestVoiceClips:
             + "\nO:StartMatch()\nO:Recompute()\nO:Recompute()",
             _EMIT_VOICE,
         )
-        # Килл-таргет — друид: клип «Бей друида!», и ровно один раз за матч.
-        assert res["clips"] == "target_druid"
+        assert res["clips"] == "op_2v2_rogue-warlock_druid-rogue"
+
+    def test_unknown_matchup_falls_back_to_short_target_clip(self) -> None:
+        """Нет ключа в Openers.lua → поведение 4.19, а не молчание."""
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "SHAMAN"},
+                [{"class": "SHAMAN"}, {"class": "SHAMAN"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()\nO:Recompute()",
+            _EMIT_VOICE,
+        )
+        assert res["clips"] == "target_shaman"
+
+    def test_late_reveal_upgrades_short_clip_to_callout(self) -> None:
+        """Стелс-опенер: сперва виден один враг, состав дорисовывается позже.
+
+        Тогда короткое «Бей рогу!» уже прозвучало, но колаут несёт больше — его
+        разрешено сказать вторым. Обратный откат (колаут → короткое) запрещён.
+        """
+        res = _run(
+            _scenario({"player": "ROGUE", "party1": "WARLOCK"}, [{"class": "ROGUE"}], "2v2")
+            + "\nO:StartMatch()\nO:Recompute()"
+            + '\nS.units["arena2"] = { class = "DRUID", name = "E2", guid = "G2", hp = 100 }'
+            + "\nO:ScanRoster()",
+            _EMIT_VOICE,
+        )
+        clips = str(res["clips"]).split(",")
+        assert clips[0] == "target_rogue"
+        assert "op_2v2_rogue-warlock_druid-rogue" in clips
+
+    def test_callout_is_never_repeated_after_roster_churn(self) -> None:
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "WARLOCK"},
+                [{"class": "DRUID"}, {"class": "ROGUE"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()\nO:Recompute()\nO:ScanRoster()\nO:Recompute()",
+            _EMIT_VOICE,
+        )
+        clips = [c for c in str(res["clips"]).split(",") if c.startswith("op_")]
+        assert len(clips) == 1, clips
 
     def test_healer_cast_start_triggers_kick(self) -> None:
         res = _run(

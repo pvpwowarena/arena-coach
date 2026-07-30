@@ -1,0 +1,944 @@
+{
+  "_comment": "СГЕНЕРИРОВАНО tools/gen_addon_openers.py. clip — файл в sfx/ без .ogg, text — что произносится, say — текст после Pronouncer (что уходит в TTS).",
+  "syllables_per_sec": 2.8,
+  "clips": {
+    "2v2|druid+rogue|druid+hunter": {
+      "clip": "op_2v2_druid-rogue_druid-hunter",
+      "text": "Бей ханта! Степ, чип, кидни. Циклон — фейкай.",
+      "say": "Бей ханта! Степ, чип, кидни. Циклон — фейкай.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-hunter-resto-druid"
+      ]
+    },
+    "2v2|druid+rogue|druid+rogue": {
+      "clip": "op_2v2_druid-rogue_druid-rogue",
+      "text": "Сап рогу, бей друида! Чип, кидни. Блайнд — тринка.",
+      "say": "Сап ро́гу, бей друида! Чип, кидни. Блайнд — тринка.",
+      "syllables": 13,
+      "seconds": 4.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-rogue-resto-druid"
+      ]
+    },
+    "2v2|druid+rogue|druid+warlock": {
+      "clip": "op_2v2_druid-rogue_druid-warlock",
+      "text": "Бей друида! Чип, кидни. Кик хил. Девор — фейкай.",
+      "say": "Бей друида! Чип, кидни. Кик хил. Девор — фейкай.",
+      "syllables": 13,
+      "seconds": 4.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-warlock-resto-druid"
+      ]
+    },
+    "2v2|druid+rogue|druid+warrior": {
+      "clip": "op_2v2_druid-rogue_druid-warrior",
+      "text": "Сап вара, бей друида! Чип, хема, гадж, кидни.",
+      "say": "Сап вара, бей друида! Чип, хема, гадж, кидни.",
+      "syllables": 13,
+      "seconds": 4.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-warrior-resto-druid"
+      ]
+    },
+    "2v2|druid+rogue|mage+priest": {
+      "clip": "op_2v2_druid-rogue_mage-priest",
+      "text": "Сап приста, бей мага! Чип, кидни. Кик овцу. Бёрн — в лос.",
+      "say": "Сап приста, бей мага! Чип, кидни. Кик овцу. Бёрн — в эл-о-э́с.",
+      "syllables": 14,
+      "seconds": 5.0,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-mage-priest"
+      ]
+    },
+    "2v2|druid+rogue|mage+rogue": {
+      "clip": "op_2v2_druid-rogue_mage-rogue",
+      "text": "Сап рогу, бей мага! Чип, кидни. Кик овцу. Блайнд — тринка.",
+      "say": "Сап ро́гу, бей мага! Чип, кидни. Кик овцу. Блайнд — тринка.",
+      "syllables": 15,
+      "seconds": 5.4,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-rogue-mage"
+      ]
+    },
+    "2v2|druid+rogue|paladin+shaman": {
+      "clip": "op_2v2_druid-rogue_paladin-shaman",
+      "text": "Сап палу, бей шама! Чип, кидни. Кик хил. Крылья — тринка.",
+      "say": "Сап палу, бей шама! Чип, кидни. Кик хил. Крылья — тринка.",
+      "syllables": 15,
+      "seconds": 5.4,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-ret-paladin-resto-shaman"
+      ]
+    },
+    "2v2|druid+rogue|paladin+warrior": {
+      "clip": "op_2v2_druid-rogue_paladin-warrior",
+      "text": "Сап палу, бей вара! Чип, кидни. Бабл — не сливай.",
+      "say": "Сап палу, бей вара! Чип, кидни. Бабл — не сливай.",
+      "syllables": 13,
+      "seconds": 4.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-warrior-holy-paladin"
+      ]
+    },
+    "2v2|druid+rogue|priest+rogue": {
+      "clip": "op_2v2_druid-rogue_priest-rogue",
+      "text": "Сап приста, бей рогу! Чип, кидни. Жди саппресс.",
+      "say": "Сап приста, бей ро́гу! Чип, кидни. Жди саппресс.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-rogue-priest"
+      ]
+    },
+    "2v2|druid+rogue|priest+warlock": {
+      "clip": "op_2v2_druid-rogue_priest-warlock",
+      "text": "Сап приста, бей лока! Чип, кидни. Жди саппресс.",
+      "say": "Сап приста, бей лока! Чип, кидни. Жди саппресс.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-warlock-priest"
+      ]
+    },
+    "2v2|druid+rogue|rogue+rogue": {
+      "clip": "op_2v2_druid-rogue_rogue-rogue",
+      "text": "Бей рогу! Чип, кидни. Блайнд — тринка.",
+      "say": "Бей ро́гу! Чип, кидни. Блайнд — тринка.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-rogue-rogue"
+      ]
+    },
+    "2v2|druid+rogue|shaman+warrior": {
+      "clip": "op_2v2_druid-rogue_shaman-warrior",
+      "text": "Сап вара, бей шама! Чип, кидни. Кик хил.",
+      "say": "Сап вара, бей шама! Чип, кидни. Кик хил.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rd-vs-warrior-resto-shaman"
+      ]
+    },
+    "2v2|mage+rogue|druid+hunter": {
+      "clip": "op_2v2_mage-rogue_druid-hunter",
+      "text": "Бей ханта! Гадж, кидни.",
+      "say": "Бей ханта! Гадж, кидни.",
+      "syllables": 6,
+      "seconds": 2.1,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-hunter-rdruid"
+      ]
+    },
+    "2v2|mage+rogue|druid+rogue": {
+      "clip": "op_2v2_mage-rogue_druid-rogue",
+      "text": "Сап друида, бей рогу! Премед, чип, кидни.",
+      "say": "Сап друида, бей ро́гу! Премед, чип, кидни.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-rogue-rdruid"
+      ]
+    },
+    "2v2|mage+rogue|druid+warlock": {
+      "clip": "op_2v2_mage-rogue_druid-warlock",
+      "text": "Бей друида! Премед, чип, шив, кидни.",
+      "say": "Бей друида! Премед, чип, шив, кидни.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warlock-rdruid"
+      ]
+    },
+    "2v2|mage+rogue|druid+warrior": {
+      "clip": "op_2v2_mage-rogue_druid-warrior",
+      "text": "Бей друида! Ваниш, премед, гарота, эвис.",
+      "say": "Бей друида! Ваниш, премед, гарота, эвис.",
+      "syllables": 13,
+      "seconds": 4.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warrior-rdruid"
+      ]
+    },
+    "2v2|mage+rogue|mage+paladin": {
+      "clip": "op_2v2_mage-rogue_mage-paladin",
+      "text": "Бей мага! Премед, чип, хема, кидни. Бабл — не сливай.",
+      "say": "Бей мага! Премед, чип, хема, кидни. Бабл — не сливай.",
+      "syllables": 14,
+      "seconds": 5.0,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-mage-hpala"
+      ]
+    },
+    "2v2|mage+rogue|mage+priest": {
+      "clip": "op_2v2_mage-rogue_mage-priest",
+      "text": "Сап мага, бей приста! Премед, чип, кидни. Блок — не сливай.",
+      "say": "Сап мага, бей приста! Премед, чип, кидни. Блок — не сливай.",
+      "syllables": 15,
+      "seconds": 5.4,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-mage-priest"
+      ]
+    },
+    "2v2|mage+rogue|mage+rogue": {
+      "clip": "op_2v2_mage-rogue_mage-rogue",
+      "text": "Сап мага, бей рогу! Степ, премед, чип, хема.",
+      "say": "Сап мага, бей ро́гу! Степ, премед, чип, хема.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-rogue-mage"
+      ]
+    },
+    "2v2|mage+rogue|mage+warrior": {
+      "clip": "op_2v2_mage-rogue_mage-warrior",
+      "text": "Бей мага! Премед, чип, хема, кидни.",
+      "say": "Бей мага! Премед, чип, хема, кидни.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warrior-mage"
+      ]
+    },
+    "2v2|mage+rogue|paladin+rogue": {
+      "clip": "op_2v2_mage-rogue_paladin-rogue",
+      "text": "Бей рогу! Чип, кидни. Бабл — не сливай.",
+      "say": "Бей ро́гу! Чип, кидни. Бабл — не сливай.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-rogue-hpala"
+      ]
+    },
+    "2v2|mage+rogue|paladin+shaman": {
+      "clip": "op_2v2_mage-rogue_paladin-shaman",
+      "text": "Овца шама, бей палу! Премед, чип, хема, кидни.",
+      "say": "Овца шама, бей палу! Премед, чип, хема, кидни.",
+      "syllables": 14,
+      "seconds": 5.0,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-retpala-rsham"
+      ]
+    },
+    "2v2|mage+rogue|paladin+warlock": {
+      "clip": "op_2v2_mage-rogue_paladin-warlock",
+      "text": "Бей лока! Кс хил палы, шаттер-бёрст. Не сливай в бабл.",
+      "say": "Бей лока! ко́нтру хил палы, шаттер-бёрст. Не сливай в бабл.",
+      "syllables": 13,
+      "seconds": 4.6,
+      "sure": true,
+      "manual": true,
+      "kb": [
+        "rm-vs-warlock-hpala"
+      ]
+    },
+    "2v2|mage+rogue|paladin+warrior": {
+      "clip": "op_2v2_mage-rogue_paladin-warrior",
+      "text": "Бей вара! Бабл — не сливай.",
+      "say": "Бей вара! Бабл — не сливай.",
+      "syllables": 7,
+      "seconds": 2.5,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warrior-hpala"
+      ]
+    },
+    "2v2|mage+rogue|priest+rogue": {
+      "clip": "op_2v2_mage-rogue_priest-rogue",
+      "text": "Бей рогу! Премед, чип, хема, кидни.",
+      "say": "Бей ро́гу! Премед, чип, хема, кидни.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": false,
+      "manual": false,
+      "kb": [
+        "rm-vs-rogue-priest",
+        "rm-vs-rogue-spriest"
+      ]
+    },
+    "2v2|mage+rogue|priest+warlock": {
+      "clip": "op_2v2_mage-rogue_priest-warlock",
+      "text": "Бей приста! Премед, чип, кидни.",
+      "say": "Бей приста! Премед, чип, кидни.",
+      "syllables": 8,
+      "seconds": 2.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warlock-priest"
+      ]
+    },
+    "2v2|mage+rogue|rogue+rogue": {
+      "clip": "op_2v2_mage-rogue_rogue-rogue",
+      "text": "Бей рогу! Премед, чип, кидни.",
+      "say": "Бей ро́гу! Премед, чип, кидни.",
+      "syllables": 8,
+      "seconds": 2.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-rogue-rogue"
+      ]
+    },
+    "2v2|mage+rogue|rogue+warlock": {
+      "clip": "op_2v2_mage-rogue_rogue-warlock",
+      "text": "Сап рогу, бей лока! Премед, чип, кидни. Блайнд — тринка.",
+      "say": "Сап ро́гу, бей лока! Премед, чип, кидни. Блайнд — тринка.",
+      "syllables": 14,
+      "seconds": 5.0,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warlock-rogue"
+      ]
+    },
+    "2v2|mage+rogue|rogue+warrior": {
+      "clip": "op_2v2_mage-rogue_rogue-warrior",
+      "text": "Бей рогу! Премед, чип, хема, кидни.",
+      "say": "Бей ро́гу! Премед, чип, хема, кидни.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warrior-rogue"
+      ]
+    },
+    "2v2|mage+rogue|shaman+warlock": {
+      "clip": "op_2v2_mage-rogue_shaman-warlock",
+      "text": "Сап шама, бей лока! Чип, кидни.",
+      "say": "Сап шама, бей лока! Чип, кидни.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warlock-rsham"
+      ]
+    },
+    "2v2|mage+rogue|shaman+warrior": {
+      "clip": "op_2v2_mage-rogue_shaman-warrior",
+      "text": "Бей шама! Премед, чип, хема, гадж.",
+      "say": "Бей шама! Премед, чип, хема, гадж.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warrior-rsham"
+      ]
+    },
+    "2v2|priest+rogue|druid+hunter": {
+      "clip": "op_2v2_priest-rogue_druid-hunter",
+      "text": "Бей друида! Премед, чип, хема, кидни.",
+      "say": "Бей друида! Премед, чип, хема, кидни.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-hunter-rdruid"
+      ]
+    },
+    "2v2|priest+rogue|druid+mage": {
+      "clip": "op_2v2_priest-rogue_druid-mage",
+      "text": "Бей мага! Циклон — фейкай.",
+      "say": "Бей мага! Циклон — фейкай.",
+      "syllables": 7,
+      "seconds": 2.5,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-mage-rdruid"
+      ]
+    },
+    "2v2|priest+rogue|druid+rogue": {
+      "clip": "op_2v2_priest-rogue_druid-rogue",
+      "text": "Сап друида, бей рогу! Степ, премед, чип.",
+      "say": "Сап друида, бей ро́гу! Степ, премед, чип.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-rogue-rdruid"
+      ]
+    },
+    "2v2|priest+rogue|druid+warlock": {
+      "clip": "op_2v2_priest-rogue_druid-warlock",
+      "text": "Бей друида! Чип, хема, гадж, кидни. Фир — в лос.",
+      "say": "Бей друида! Чип, хема, гадж, кидни. Фир — в эл-о-э́с.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-warlock-rdruid"
+      ]
+    },
+    "2v2|priest+rogue|druid+warrior": {
+      "clip": "op_2v2_priest-rogue_druid-warrior",
+      "text": "Бей друида! Чип, хема, гадж, кидни.",
+      "say": "Бей друида! Чип, хема, гадж, кидни.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-warrior-rdruid"
+      ]
+    },
+    "2v2|priest+rogue|hunter+paladin": {
+      "clip": "op_2v2_priest-rogue_hunter-paladin",
+      "text": "Бей ханта! Гарота, чип, кидни. Вайпер — в лос.",
+      "say": "Бей ханта! Гарота, чип, кидни. Вайпер — в эл-о-э́с.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": true,
+      "kb": [
+        "rp-vs-hunter-hpala"
+      ]
+    },
+    "2v2|priest+rogue|mage+paladin": {
+      "clip": "op_2v2_priest-rogue_mage-paladin",
+      "text": "Бей мага! Чип, кидни. Бабл — не сливай.",
+      "say": "Бей мага! Чип, кидни. Бабл — не сливай.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-mage-hpala"
+      ]
+    },
+    "2v2|priest+rogue|mage+priest": {
+      "clip": "op_2v2_priest-rogue_mage-priest",
+      "text": "Бей мага! Премед, чип, кидни. Бёрн — в лос.",
+      "say": "Бей мага! Премед, чип, кидни. Бёрн — в эл-о-э́с.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-mage-priest"
+      ]
+    },
+    "2v2|priest+rogue|mage+rogue": {
+      "clip": "op_2v2_priest-rogue_mage-rogue",
+      "text": "Бей рогу! Премед, чип, хема.",
+      "say": "Бей ро́гу! Премед, чип, хема.",
+      "syllables": 8,
+      "seconds": 2.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-rogue-mage"
+      ]
+    },
+    "2v2|priest+rogue|mage+warrior": {
+      "clip": "op_2v2_priest-rogue_mage-warrior",
+      "text": "Сап вара, бей мага! Чип, кидни.",
+      "say": "Сап вара, бей мага! Чип, кидни.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-warrior-mage"
+      ]
+    },
+    "2v2|priest+rogue|paladin+rogue": {
+      "clip": "op_2v2_priest-rogue_paladin-rogue",
+      "text": "Сап рогу, бей палу! Блайнд — тринка.",
+      "say": "Сап ро́гу, бей палу! Блайнд — тринка.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-rogue-hpala"
+      ]
+    },
+    "2v2|priest+rogue|paladin+shaman": {
+      "clip": "op_2v2_priest-rogue_paladin-shaman",
+      "text": "Бей палу! Бёрн ману, вунды на рета.",
+      "say": "Бей палу! Бёрн ману, вунды на рета.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": true,
+      "kb": [
+        "rp-vs-retpala-rsham"
+      ]
+    },
+    "2v2|priest+rogue|paladin+warlock": {
+      "clip": "op_2v2_priest-rogue_paladin-warlock",
+      "text": "Сап палу, бей лока! Бёрн палу в оом.",
+      "say": "Сап палу, бей лока! Бёрн палу в оом.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": true,
+      "kb": [
+        "rp-vs-warlock-hpala"
+      ]
+    },
+    "2v2|priest+rogue|paladin+warrior": {
+      "clip": "op_2v2_priest-rogue_paladin-warrior",
+      "text": "Бей вара! Бабл — не сливай.",
+      "say": "Бей вара! Бабл — не сливай.",
+      "syllables": 7,
+      "seconds": 2.5,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-warrior-hpala"
+      ]
+    },
+    "2v2|priest+rogue|priest+rogue": {
+      "clip": "op_2v2_priest-rogue_priest-rogue",
+      "text": "Бей рогу! Гадж, кидни.",
+      "say": "Бей ро́гу! Гадж, кидни.",
+      "syllables": 6,
+      "seconds": 2.1,
+      "sure": false,
+      "manual": false,
+      "kb": [
+        "rp-vs-rogue-priest",
+        "rp-vs-rogue-spriest"
+      ]
+    },
+    "2v2|priest+rogue|priest+warlock": {
+      "clip": "op_2v2_priest-rogue_priest-warlock",
+      "text": "Сап приста, бей лока! Чип, гадж, кидни. Держи вунды.",
+      "say": "Сап приста, бей лока! Чип, гадж, кидни. Держи вунды.",
+      "syllables": 14,
+      "seconds": 5.0,
+      "sure": true,
+      "manual": true,
+      "kb": [
+        "rp-vs-warlock-priest"
+      ]
+    },
+    "2v2|priest+rogue|rogue+rogue": {
+      "clip": "op_2v2_priest-rogue_rogue-rogue",
+      "text": "Бей рогу! Блайнд — тринка.",
+      "say": "Бей ро́гу! Блайнд — тринка.",
+      "syllables": 6,
+      "seconds": 2.1,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-rogue-rogue"
+      ]
+    },
+    "2v2|priest+rogue|rogue+warlock": {
+      "clip": "op_2v2_priest-rogue_rogue-warlock",
+      "text": "Сап рогу, бей лока! Чип, гадж. Блайнд — тринка.",
+      "say": "Сап ро́гу, бей лока! Чип, гадж. Блайнд — тринка.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-warlock-rogue"
+      ]
+    },
+    "2v2|priest+rogue|rogue+warrior": {
+      "clip": "op_2v2_priest-rogue_rogue-warrior",
+      "text": "Бей рогу! Премед, чип, хема, кидни.",
+      "say": "Бей ро́гу! Премед, чип, хема, кидни.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-warrior-rogue"
+      ]
+    },
+    "2v2|priest+rogue|shaman+warlock": {
+      "clip": "op_2v2_priest-rogue_shaman-warlock",
+      "text": "Сап шама, бей лока! Чип, хема, кидни.",
+      "say": "Сап шама, бей лока! Чип, хема, кидни.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-warlock-rsham"
+      ]
+    },
+    "2v2|priest+rogue|shaman+warrior": {
+      "clip": "op_2v2_priest-rogue_shaman-warrior",
+      "text": "Бей вара! Чип, кидни.",
+      "say": "Бей вара! Чип, кидни.",
+      "syllables": 6,
+      "seconds": 2.1,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rp-vs-warrior-rsham"
+      ]
+    },
+    "2v2|rogue+warlock|druid+hunter": {
+      "clip": "op_2v2_rogue-warlock_druid-hunter",
+      "text": "Бей ханта! Чип, кидни. Циклон — фейкай.",
+      "say": "Бей ханта! Чип, кидни. Циклон — фейкай.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-hunter-resto-druid"
+      ]
+    },
+    "2v2|rogue+warlock|druid+rogue": {
+      "clip": "op_2v2_rogue-warlock_druid-rogue",
+      "text": "Сап рогу, бей друида! Чип, кидни. Блайнд — тринка.",
+      "say": "Сап ро́гу, бей друида! Чип, кидни. Блайнд — тринка.",
+      "syllables": 13,
+      "seconds": 4.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-rogue-resto-druid"
+      ]
+    },
+    "2v2|rogue+warlock|druid+warlock": {
+      "clip": "op_2v2_rogue-warlock_druid-warlock",
+      "text": "Бей друида! Чип, кидни. Девор — фейкай.",
+      "say": "Бей друида! Чип, кидни. Девор — фейкай.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-warlock-resto-druid"
+      ]
+    },
+    "2v2|rogue+warlock|druid+warrior": {
+      "clip": "op_2v2_rogue-warlock_druid-warrior",
+      "text": "Бей друида! Чип, кидни.",
+      "say": "Бей друида! Чип, кидни.",
+      "syllables": 7,
+      "seconds": 2.5,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-warrior-resto-druid"
+      ]
+    },
+    "2v2|rogue+warlock|mage+priest": {
+      "clip": "op_2v2_rogue-warlock_mage-priest",
+      "text": "Бей мага! Чип, кидни. Жди саппресс.",
+      "say": "Бей мага! Чип, кидни. Жди саппресс.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-mage-priest"
+      ]
+    },
+    "2v2|rogue+warlock|mage+rogue": {
+      "clip": "op_2v2_rogue-warlock_mage-rogue",
+      "text": "Сап рогу, бей мага! Премед, чип, кидни. Блайнд — тринка.",
+      "say": "Сап ро́гу, бей мага! Премед, чип, кидни. Блайнд — тринка.",
+      "syllables": 14,
+      "seconds": 5.0,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-rogue-mage"
+      ]
+    },
+    "2v2|rogue+warlock|paladin+shaman": {
+      "clip": "op_2v2_rogue-warlock_paladin-shaman",
+      "text": "Бей шама! Чип, кидни. Бабл — не сливай.",
+      "say": "Бей шама! Чип, кидни. Бабл — не сливай.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-ret-paladin-resto-shaman"
+      ]
+    },
+    "2v2|rogue+warlock|paladin+warrior": {
+      "clip": "op_2v2_rogue-warlock_paladin-warrior",
+      "text": "Бей вара! Премед, чип, кидни. Бабл — не сливай.",
+      "say": "Бей вара! Премед, чип, кидни. Бабл — не сливай.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-warrior-holy-paladin"
+      ]
+    },
+    "2v2|rogue+warlock|priest+rogue": {
+      "clip": "op_2v2_rogue-warlock_priest-rogue",
+      "text": "Сап рогу, бей приста! Чип, кидни. Блайнд — тринка.",
+      "say": "Сап ро́гу, бей приста! Чип, кидни. Блайнд — тринка.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-rogue-priest"
+      ]
+    },
+    "2v2|rogue+warlock|priest+warlock": {
+      "clip": "op_2v2_rogue-warlock_priest-warlock",
+      "text": "Сап приста, бей лока! Чип, кидни. Бёрн — в лос.",
+      "say": "Сап приста, бей лока! Чип, кидни. Бёрн — в эл-о-э́с.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-warlock-priest"
+      ]
+    },
+    "2v2|rogue+warlock|rogue+rogue": {
+      "clip": "op_2v2_rogue-warlock_rogue-rogue",
+      "text": "Бей рогу! Чип, кидни. Блайнд — тринка.",
+      "say": "Бей ро́гу! Чип, кидни. Блайнд — тринка.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-rogue-rogue"
+      ]
+    },
+    "2v2|rogue+warlock|shaman+warrior": {
+      "clip": "op_2v2_rogue-warlock_shaman-warrior",
+      "text": "Бей шама! Чип, кидни.",
+      "say": "Бей шама! Чип, кидни.",
+      "syllables": 6,
+      "seconds": 2.1,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rl-vs-warrior-resto-shaman"
+      ]
+    },
+    "3v3|druid+rogue+rogue|druid+rogue+warlock": {
+      "clip": "op_3v3_druid-rogue-rogue_druid-rogue-warlock",
+      "text": "Сап рогу, бей друида! Чип, кидни. Фир — в лос.",
+      "say": "Сап ро́гу, бей друида! Чип, кидни. Фир — в эл-о-э́с.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rrd-vs-rogue-warlock-druid"
+      ]
+    },
+    "3v3|druid+rogue+rogue|druid+warlock+warrior": {
+      "clip": "op_3v3_druid-rogue-rogue_druid-warlock-warrior",
+      "text": "Бей лока! Чип, кидни. Циклон — фейкай.",
+      "say": "Бей лока! Чип, кидни. Циклон — фейкай.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rrd-vs-warrior-warlock-druid"
+      ]
+    },
+    "3v3|druid+rogue+rogue|mage+priest+rogue": {
+      "clip": "op_3v3_druid-rogue-rogue_mage-priest-rogue",
+      "text": "Сап приста, бей мага! Бёрн — в лос.",
+      "say": "Сап приста, бей мага! Бёрн — в эл-о-э́с.",
+      "syllables": 8,
+      "seconds": 2.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rrd-vs-rogue-mage-priest"
+      ]
+    },
+    "3v3|druid+rogue+rogue|mage+priest+warlock": {
+      "clip": "op_3v3_druid-rogue-rogue_mage-priest-warlock",
+      "text": "Бей мага! Чип, кидни. Бёрн — в лос.",
+      "say": "Бей мага! Чип, кидни. Бёрн — в эл-о-э́с.",
+      "syllables": 8,
+      "seconds": 2.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rrd-vs-mage-warlock-priest"
+      ]
+    },
+    "3v3|druid+rogue+rogue|priest+rogue+warlock": {
+      "clip": "op_3v3_druid-rogue-rogue_priest-rogue-warlock",
+      "text": "Сап рогу, бей приста! Чип, кидни. Фир — в лос.",
+      "say": "Сап ро́гу, бей приста! Чип, кидни. Фир — в эл-о-э́с.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rrd-vs-rogue-warlock-priest"
+      ]
+    },
+    "3v3|mage+priest+rogue|druid+hunter+priest": {
+      "clip": "op_3v3_mage-priest-rogue_druid-hunter-priest",
+      "text": "Сап друида, бей ханта! Чип, кидни. Бёрн — в лос.",
+      "say": "Сап друида, бей ханта! Чип, кидни. Бёрн — в эл-о-э́с.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-hunter-priest-druid"
+      ]
+    },
+    "3v3|mage+priest+rogue|druid+rogue+warlock": {
+      "clip": "op_3v3_mage-priest-rogue_druid-rogue-warlock",
+      "text": "Сап друида, бей лока! Чип, кидни. Циклон — фейкай.",
+      "say": "Сап друида, бей лока! Чип, кидни. Циклон — фейкай.",
+      "syllables": 14,
+      "seconds": 5.0,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-rogue-warlock-druid"
+      ]
+    },
+    "3v3|mage+priest+rogue|druid+warlock+warrior": {
+      "clip": "op_3v3_mage-priest-rogue_druid-warlock-warrior",
+      "text": "Сап друида, бей лока! Циклон — фейкай.",
+      "say": "Сап друида, бей лока! Циклон — фейкай.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-warrior-warlock-druid"
+      ]
+    },
+    "3v3|mage+priest+rogue|mage+priest+rogue": {
+      "clip": "op_3v3_mage-priest-rogue_mage-priest-rogue",
+      "text": "Бей мага! Премед, чип, кидни. Жди саппресс.",
+      "say": "Бей мага! Премед, чип, кидни. Жди саппресс.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-rogue-mage-priest"
+      ]
+    },
+    "3v3|mage+priest+rogue|mage+priest+shaman": {
+      "clip": "op_3v3_mage-priest-rogue_mage-priest-shaman",
+      "text": "Бей мага! Чип, кидни. Бёрн — в лос.",
+      "say": "Бей мага! Чип, кидни. Бёрн — в эл-о-э́с.",
+      "syllables": 8,
+      "seconds": 2.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-mage-priest-resto-shaman"
+      ]
+    },
+    "3v3|mage+priest+rogue|mage+priest+warlock": {
+      "clip": "op_3v3_mage-priest-rogue_mage-priest-warlock",
+      "text": "Бей мага! Премед, чип, кидни. Жди саппресс.",
+      "say": "Бей мага! Премед, чип, кидни. Жди саппресс.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-mage-warlock-priest"
+      ]
+    },
+    "3v3|mage+priest+rogue|mage+priest+warrior": {
+      "clip": "op_3v3_mage-priest-rogue_mage-priest-warrior",
+      "text": "Бей мага! Чип, кидни. Бёрн — в лос.",
+      "say": "Бей мага! Чип, кидни. Бёрн — в эл-о-э́с.",
+      "syllables": 8,
+      "seconds": 2.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-warrior-mage-priest"
+      ]
+    },
+    "3v3|mage+priest+rogue|priest+rogue+warlock": {
+      "clip": "op_3v3_mage-priest-rogue_priest-rogue-warlock",
+      "text": "Бей лока! Премед, чип, кидни. Бёрн — в лос.",
+      "say": "Бей лока! Премед, чип, кидни. Бёрн — в эл-о-э́с.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-rogue-warlock-priest"
+      ]
+    },
+    "3v3|mage+priest+rogue|priest+shaman+warlock": {
+      "clip": "op_3v3_mage-priest-rogue_priest-shaman-warlock",
+      "text": "Сап шама, бей приста! Чип, кидни. Фир — в лос.",
+      "say": "Сап шама, бей приста! Чип, кидни. Фир — в эл-о-э́с.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rmp-vs-shadow-priest-warlock-resto-shaman"
+      ]
+    }
+  }
+}
