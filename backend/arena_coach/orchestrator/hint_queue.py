@@ -42,6 +42,7 @@ class LocalHint:
 
     phrase: str
     created_at: float  # монотонные секунды (self._clock())
+    ttl_s: float = DEFAULT_TTL_S  # своё окно годности (Phase 4.11)
 
 
 class HintQueue:
@@ -71,11 +72,22 @@ class HintQueue:
         """Число игроков с непустой очередью (для тестов/диагностики)."""
         return len(self._queues)
 
-    def push(self, player_name: str, phrase: str, now: float | None = None) -> None:
+    def push(
+        self,
+        player_name: str,
+        phrase: str,
+        now: float | None = None,
+        ttl_s: float | None = None,
+    ) -> None:
         """Положить фразу в очередь игрока. Пустые имя/фраза игнорируются.
 
         Идентичность игрока — по имени персонажа (как в POST /v1/events и в
         whitelist-lookup): ключ приводится к lower().
+
+        `ttl_s` (Phase 4.11) — своё окно годности фразы. Речь синтезируется
+        последовательно и блокирующе, поэтому очередь может простоять несколько
+        секунд: реакция на CC протухает быстро («тринкеть под кидни» через 8с —
+        вредный совет), а стартовый разбор живёт дольше.
         """
         if not player_name or not phrase.strip():
             return
@@ -91,7 +103,13 @@ class HintQueue:
                 log.debug("HintQueue: вытеснен наименее активный игрок %s (кап)", evicted)
             dq = deque(maxlen=self._max_per_player)
             self._queues[key] = dq
-        dq.append(LocalHint(phrase=phrase, created_at=t))
+        dq.append(
+            LocalHint(
+                phrase=phrase,
+                created_at=t,
+                ttl_s=self._ttl_s if ttl_s is None else ttl_s,
+            )
+        )
         self._queues.move_to_end(key)  # игрок только что активен — в конец
 
     def pop_fresh(self, player_name: str, now: float | None = None) -> list[str]:
@@ -107,7 +125,7 @@ class HintQueue:
         dq = self._queues.pop(key, None)  # полностью изымаем — эндпоинт «вычищает»
         if not dq:
             return []
-        return [hint.phrase for hint in dq if t - hint.created_at <= self._ttl_s]
+        return [hint.phrase for hint in dq if t - hint.created_at <= hint.ttl_s]
 
     def _purge_stale(self, now: float) -> None:
         """Удалить игроков, у которых все фразы протухли (офлайн-мост не дренирует).
@@ -118,7 +136,7 @@ class HintQueue:
         stale = [
             key
             for key, dq in self._queues.items()
-            if not dq or all(now - hint.created_at > self._ttl_s for hint in dq)
+            if not dq or all(now - hint.created_at > hint.ttl_s for hint in dq)
         ]
         for key in stale:
             del self._queues[key]

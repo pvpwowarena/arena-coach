@@ -1,32 +1,36 @@
-"""Тесты Phase 4.10: реакции вместо анонса + анти-зацикливание.
+"""Тесты Phase 4.10/4.11: реакции вместо анонса + поток подсказок в бою.
 
-Живой тест 2026-07-30 дал три претензии — «зациклило», «ничего полезного»,
-«кривоватый перевод». Здесь закрываем первые две:
+Две итерации живого теста 2026-07-30:
+  • «зациклило, ничего полезного, кривоватый перевод» → реакции вместо анонса;
+  • «нет подсказок по ходу боя, старт + 1-2 реплики за матч» → покрытие всех
+    трекаемых мостом спеллов и троттлинг с приоритетами вместо «раз в 20 секунд».
 
-  • таблица реакций покрывает ВСЕ трекаемые спеллы, реплики короткие и
-    императивные (голос читается за секунду, без имён игроков);
-  • HintThrottle режет дубли тринкета (мост поднимает по два события на один
-    спелл) и мелкие КД сразу после стартового разбора;
-  • повторный ARENA_START в рамках сессии звучит дельтой («Плюс рога»), а не
-    полной стартовой фразой.
+Что проверяем: таблица отвечает на КАЖДЫЙ спелл из TRACKED_SPELLS моста (тест
+ловит расхождение автоматически), реплики короткие и без ников, CC пробивает
+общий интервал, минутный бюджет ограничивает скороговорку, дубли тринкета
+режутся, повторный ARENA_START звучит дельтой.
 
 Без сети и Discord: доставка глушится, проверяется очередь локального голоса.
 """
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
 
+from arena_bridge.combat_tail import TRACKED_SPELLS
 from arena_coach.kb.indexer import KBIndex
 from arena_coach.kb.retriever import KBRetriever
 from arena_coach.orchestrator import pipeline
 from arena_coach.orchestrator.reactions import (
     ABILITY_REACTIONS,
+    AWAITING_BRIDGE,
     GLOSSARY_GAPS,
+    HIGH,
     ability_reaction,
     trinket_reaction,
 )
@@ -49,8 +53,32 @@ class TestReactionTable:
             words = reaction.voice.split()
             assert len(words) <= 9, f"{key}: слишком длинная реплика ({len(words)} слов)"
             assert reaction.voice.endswith((".", "!")), key
-            assert " у " not in reaction.voice, f"{key}: голос не должен называть ник"
+            assert not re.search(r"\bу [A-ZА-ЯЁ]", reaction.voice), (
+                f"{key}: голос не должен называть ник"
+            )
             assert reaction.dm and reaction.dm != reaction.voice, key
+
+    def test_every_tracked_spell_answered(self) -> None:
+        """Мост трекает 27 спеллов — на каждый должна быть реакция.
+
+        Именно это расхождение дало «нет подсказок по ходу боя»: вся CC-механика
+        (сап, кидни, овца, нова, страх, циклон, подж) доезжала до бэкенда и
+        отбрасывалась как skipped, потому что реакции были только на дефы.
+        """
+        tracked = set(TRACKED_SPELLS.values())
+        missing = tracked - set(ABILITY_REACTIONS)
+        assert not missing, f"мост шлёт, а ответить нечем: {sorted(missing)}"
+        # обратное расхождение допускается только осознанно
+        extra = set(ABILITY_REACTIONS) - tracked
+        assert extra <= AWAITING_BRIDGE, (
+            f"реакция без события моста: {sorted(extra - AWAITING_BRIDGE)}"
+        )
+
+    def test_cc_reactions_are_high_priority_and_short_window(self) -> None:
+        """CC — это моменты решения: пробивают интервал и повторяются чаще КД."""
+        for key in ("kidney_shot", "cyclone", "polymorph", "fear"):
+            assert ABILITY_REACTIONS[key].priority == HIGH, key
+            assert ABILITY_REACTIONS[key].repeat_s <= 20.0, key
 
     def test_trinket_reaction_says_what_to_do(self) -> None:
         reaction = trinket_reaction()
@@ -71,33 +99,52 @@ class TestReactionTable:
 class TestHintThrottle:
     def test_duplicate_trinket_event_suppressed(self) -> None:
         """Мост поднимает TRINKET дважды (cast_success + aura_applied) — второй режем."""
-        th = pipeline.HintThrottle(trinket_window_s=45.0)
-        assert th.allow("111", "TRINKET", "Cekraj", now=100.0)
-        assert not th.allow("111", "TRINKET", "Cekraj", now=100.2)
-        # другой враг тринкетнул — это отдельное важное событие
-        assert th.allow("111", "TRINKET", "Frosty", now=100.3)
+        th = pipeline.HintThrottle()
+        # приоритет как в pipeline: у тринкета реакция high
+        kw = {"priority": HIGH, "repeat_s": 45.0}
+        assert th.allow("111", "TRINKET", "Cekraj", now=100.0, **kw)
+        assert not th.allow("111", "TRINKET", "Cekraj", now=100.2, **kw)
+        # другой враг тринкетнул — отдельное важное событие
+        assert th.allow("111", "TRINKET", "Frosty", now=103.0, **kw)
         # тот же враг за окном (тринкет на 2 мин КД) — снова пропускаем
-        assert th.allow("111", "TRINKET", "Cekraj", now=150.0)
+        assert th.allow("111", "TRINKET", "Cekraj", now=150.0, **kw)
 
     def test_trinket_source_case_insensitive(self) -> None:
-        th = pipeline.HintThrottle()
+        th = pipeline.HintThrottle(default_repeat_s=45.0)
         assert th.allow("111", "TRINKET", "Cekraj", now=1.0)
-        assert not th.allow("111", "TRINKET", "cekraj", now=2.0)
+        assert not th.allow("111", "TRINKET", "cekraj", now=20.0)
 
-    def test_ability_quiet_window_after_any_hint(self) -> None:
-        """Сразу после стартового разбора мелкий КД не лезет в уши."""
-        th = pipeline.HintThrottle(quiet_after_hint_s=5.0)
-        assert th.allow("111", "ARENA_START", "", now=10.0)
-        assert not th.allow("111", "ABILITY", "vanish", now=12.0)
-        assert th.allow("111", "ABILITY", "vanish", now=16.0)
+    def test_high_priority_breaks_through_gap(self) -> None:
+        """Тринкет и стан под добивание не ждут общего интервала."""
+        th = pipeline.HintThrottle(gap_s=5.0, high_gap_s=2.5)
+        assert th.allow("111", "ABILITY", "barkskin", now=100.0)
+        assert not th.allow("111", "ABILITY", "counterspell", now=103.0)  # normal < 5с
+        assert th.allow("111", "ABILITY", "kidney_shot", now=103.0, priority="high")
 
-    def test_ability_min_interval_and_repeat_window(self) -> None:
-        th = pipeline.HintThrottle(min_interval_s=20.0, repeat_window_s=60.0)
-        assert th.allow("111", "ABILITY", "vanish", now=100.0)
-        assert not th.allow("111", "ABILITY", "blind", now=110.0)  # общий интервал
-        assert th.allow("111", "ABILITY", "blind", now=125.0)
-        assert not th.allow("111", "ABILITY", "vanish", now=150.0)  # тот же ключ в окне
-        assert th.allow("111", "ABILITY", "vanish", now=165.0)
+    def test_cc_flows_unlike_before(self) -> None:
+        """Регресс на «старт + 1-2 реплики»: разные CC подряд должны проходить."""
+        th = pipeline.HintThrottle(gap_s=5.0, high_gap_s=2.5)
+        allowed = 0
+        for i, key in enumerate(["sap", "cheap_shot", "kidney_shot", "polymorph", "cyclone"]):
+            if th.allow("111", "ABILITY", key, now=100.0 + i * 3.0, priority="high"):
+                allowed += 1
+        assert allowed >= 4
+
+    def test_same_key_repeat_window(self) -> None:
+        th = pipeline.HintThrottle(gap_s=1.0)
+        assert th.allow("111", "ABILITY", "kidney_shot", now=100.0, repeat_s=20.0)
+        assert not th.allow("111", "ABILITY", "kidney_shot", now=115.0, repeat_s=20.0)
+        assert th.allow("111", "ABILITY", "kidney_shot", now=121.0, repeat_s=20.0)
+
+    def test_minute_budget_caps_burst(self) -> None:
+        """Потолок реплик в минуту — чтобы мясорубка 3v3 не стала скороговоркой."""
+        th = pipeline.HintThrottle(gap_s=0.0, high_gap_s=0.0, default_repeat_s=0.0, max_per_min=5)
+        allowed = sum(
+            1 for i in range(12) if th.allow("111", "ABILITY", f"k{i}", now=100.0 + i * 2.0)
+        )
+        assert allowed == 5
+        # через минуту бюджет восстанавливается
+        assert th.allow("111", "ABILITY", "k0", now=200.0)
 
     def test_arena_start_not_throttled(self) -> None:
         """Доуточнение состава важнее анти-спама — его режет дельта, не троттл."""
@@ -111,9 +158,9 @@ class TestHintThrottle:
         assert th.allow("222", "ABILITY", "vanish", now=1.0)
 
     def test_legacy_allow_ability_wrapper(self) -> None:
-        th = pipeline.HintThrottle(min_interval_s=20.0)
+        th = pipeline.HintThrottle(gap_s=5.0)
         assert th.allow_ability("111", "vanish", now=1.0)
-        assert not th.allow_ability("111", "blind", now=5.0)
+        assert not th.allow_ability("111", "blind", now=3.0)
 
 
 # ── Дельта-анонс состава ─────────────────────────────────────────────────────
@@ -215,9 +262,9 @@ class TestPipelineRefinement:
     async def test_ability_reaction_queued_not_announcement(
         self, kb_dir: Path, _no_delivery: None
     ) -> None:
-        # Троттл здесь не проверяем (у него свои тесты) — окно тишины выключено,
-        # иначе ABILITY через доли реальной секунды после старта будет подавлен.
-        ctx = _ctx(kb_dir, pipeline.HintThrottle(min_interval_s=0.0, quiet_after_hint_s=0.0))
+        # Троттл здесь не проверяем (у него свои тесты) — паузы выключены, иначе
+        # ABILITY через доли реальной секунды после старта будет подавлен.
+        ctx = _ctx(kb_dir, pipeline.HintThrottle(gap_s=0.0, high_gap_s=0.0, default_repeat_s=0.0))
         start = _envelope(
             [
                 {"wow_class": "ROGUE", "race": "UNKNOWN"},

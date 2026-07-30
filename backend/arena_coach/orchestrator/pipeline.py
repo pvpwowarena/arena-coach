@@ -27,6 +27,7 @@ import hashlib
 import logging
 import re
 import time
+from collections import deque
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -54,6 +55,9 @@ from arena_coach.orchestrator.postmatch import (
 )
 from arena_coach.orchestrator.reactions import (
     ABILITY_REACTIONS,
+    HIGH,
+    NORMAL,
+    Reaction,
     ability_reaction,
     trinket_reaction,
 )
@@ -81,43 +85,53 @@ _SECTION_PRIORITY: dict[str, list[str]] = {
     "ARENA_END": ["Common mistakes"],
 }
 
+# Сколько фраза остаётся осмысленной в очереди локального голоса (Phase 4.11).
+# Мост синтезирует речь последовательно и блокирующе, поэтому очередь реально
+# простаивает: «тринкеть под кидни» через 8 секунд — уже вредный совет, а
+# стартовый разбор на воротах терпит.
+VOICE_TTL_HIGH_S = 10.0
+VOICE_TTL_NORMAL_S = 7.0
+VOICE_TTL_OPENER_S = 20.0
+
 _ABILITY_REF_RE = re.compile(r"\[\[ability:([a-z0-9-]+)\]\]")
 _PROVENANCE_RE = re.compile(r"^_Провенанс:.*?_\s*$", flags=re.MULTILINE | re.DOTALL)
 
 
 class HintThrottle:
-    """Анти-спам in-fight подсказок (Phase 4.10 — уже не только ABILITY).
+    """Анти-спам in-fight подсказок с приоритетами (Phase 4.11).
 
-    Живой тест 2026-07-30 показал главную проблему realtime-слоя: реплики
-    сыпались как заевшая пластинка. Раньше троттлился только ABILITY, а TRINKET
-    вообще ничем не ограничивался — при этом мост поднимает по два события на один
-    спелл (`SPELL_CAST_SUCCESS` + `SPELL_AURA_APPLIED`, см. combat_tail), так что
-    дубль тринкета проходил насквозь.
+    Две итерации живого теста задали рамку:
+      • 4.10 — «зациклило»: троттлинг был только на ABILITY, дубли TRINKET
+        (мост поднимает 2 события на спелл: `SPELL_CAST_SUCCESS` +
+        `SPELL_AURA_APPLIED`) проходили насквозь;
+      • 4.11 — «старт + 1-2 реплики за матч»: интервал 20с между ABILITY плюс 5с
+        тишины после любой подсказки убивали поток CC, который и есть бой.
 
-    Правила (per discord_id):
-      • ABILITY: не чаще одного в `min_interval_s`; тот же spell_key — не чаще
-        `repeat_window_s`; плюс `quiet_after_hint_s` тишины после ЛЮБОЙ подсказки
-        (в том числе после стартового разбора — он важнее мелких КД);
-      • TRINKET: тот же источник — не чаще `trinket_window_s` (PvP-тринкет и так
-        на 2 мин КД, так что окно режет только дубли одного события);
-      • ARENA_START: не троттлится — он и так дедуплицируется по сигнатуре состава,
-        а второй раз звучит короткой дельтой (`arena_delta_phrase`).
+    Поэтому здесь не «один хинт в 20 секунд», а бюджет речи:
+      • тот же ключ не повторяем `repeat_s` (задаёт сама реакция: CC — 20с,
+        тяжёлые КД — 60с, тринкет — 45с);
+      • между репликами — `gap_s`, но `high`-приоритет пробивает его до `high_gap_s`
+        (тринкет, стан под добивание, овца на хилере — решается сейчас);
+      • не больше `max_per_min` реплик в минуту на игрока — потолок, чтобы
+        мясорубка 3v3 не превратилась в скороговорку;
+      • ARENA_START не троттлится: он дедуплицируется по сигнатуре состава выше,
+        а повтор звучит короткой дельтой (`arena_delta_phrase`).
     """
 
     def __init__(
         self,
-        min_interval_s: float = 20.0,
-        repeat_window_s: float = 60.0,
-        trinket_window_s: float = 45.0,
-        quiet_after_hint_s: float = 5.0,
+        gap_s: float = 5.0,
+        high_gap_s: float = 2.5,
+        default_repeat_s: float = 25.0,
+        max_per_min: int = 12,
     ) -> None:
-        self._min_interval_s = min_interval_s
-        self._repeat_window_s = repeat_window_s
-        self._trinket_window_s = trinket_window_s
-        self._quiet_after_hint_s = quiet_after_hint_s
-        self._last_dm_at: dict[str, float] = {}  # последний ABILITY
-        self._last_any_at: dict[str, float] = {}  # последняя подсказка любого типа
+        self._gap_s = gap_s
+        self._high_gap_s = high_gap_s
+        self._default_repeat_s = default_repeat_s
+        self._max_per_min = max_per_min
+        self._last_any_at: dict[str, float] = {}
         self._last_key_at: dict[tuple[str, str], float] = {}
+        self._recent: dict[str, deque[float]] = {}
 
     def allow(
         self,
@@ -125,40 +139,55 @@ class HintThrottle:
         event_type: str,
         key: str = "",
         now: float | None = None,
+        priority: str = NORMAL,
+        repeat_s: float | None = None,
     ) -> bool:
         """Пропускать ли подсказку. Побочный эффект: отмечает время выдачи."""
         t = time.monotonic() if now is None else now
 
-        if event_type == "ABILITY":
+        if event_type != "ARENA_START":
+            k = (discord_id, f"{event_type}:{key.lower()}")
+            last_key = self._last_key_at.get(k)
+            window = self._default_repeat_s if repeat_s is None else repeat_s
+            if last_key is not None and t - last_key < window:
+                return False
+
             last_any = self._last_any_at.get(discord_id)
-            if last_any is not None and t - last_any < self._quiet_after_hint_s:
+            gap = self._high_gap_s if priority == HIGH else self._gap_s
+            if last_any is not None and t - last_any < gap:
                 return False
-            last = self._last_dm_at.get(discord_id)
-            if last is not None and t - last < self._min_interval_s:
-                return False
-            k = (discord_id, f"ABILITY:{key}")
-            last_key = self._last_key_at.get(k)
-            if last_key is not None and t - last_key < self._repeat_window_s:
-                return False
-            self._last_dm_at[discord_id] = t
-            self._last_key_at[k] = t
-        elif event_type == "TRINKET":
-            k = (discord_id, f"TRINKET:{key.lower()}")
-            last_key = self._last_key_at.get(k)
-            if last_key is not None and t - last_key < self._trinket_window_s:
+
+            if not self._within_minute_budget(discord_id, t):
                 return False
             self._last_key_at[k] = t
 
-        self._last_any_at[discord_id] = t
+        self._mark(discord_id, t)
         return True
 
     def allow_ability(self, discord_id: str, spell_key: str, now: float | None = None) -> bool:
-        """Совместимость: то же, что `allow(..., "ABILITY", spell_key)`."""
+        """Совместимость со старыми вызовами/тестами."""
         return self.allow(discord_id, "ABILITY", spell_key, now)
 
     def note_delivered(self, discord_id: str, now: float | None = None) -> None:
-        """Отметить, что игроку ушла подсказка (для окна тишины перед ABILITY)."""
-        self._last_any_at[discord_id] = time.monotonic() if now is None else now
+        """Отметить, что игроку ушла подсказка (влияет на интервал и бюджет)."""
+        self._mark(discord_id, time.monotonic() if now is None else now)
+
+    # ── внутреннее ────────────────────────────────────────────────────────────
+
+    def _within_minute_budget(self, discord_id: str, t: float) -> bool:
+        recent = self._recent.get(discord_id)
+        if recent is None:
+            return True
+        while recent and t - recent[0] > 60.0:
+            recent.popleft()
+        return len(recent) < self._max_per_min
+
+    def _mark(self, discord_id: str, t: float) -> None:
+        self._last_any_at[discord_id] = t
+        recent = self._recent.setdefault(discord_id, deque())
+        while recent and t - recent[0] > 60.0:
+            recent.popleft()
+        recent.append(t)
 
 
 # ── Discord DM via REST ──────────────────────────────────────────────────────
@@ -300,8 +329,13 @@ def _arena_voice(
                 fresh.append(cls)
         return arena_delta_phrase(fresh, kill_target)
 
-    voice = arena_start_phrase(list(current), kill_target)
-    return f"{voice} {threat_v}" if threat_v else voice
+    # Угрозы (`threat_v`) в голос больше НЕ идут (Phase 4.11): стартовая фраза с
+    # ними — это ~14 слов, около пяти секунд речи, а поллер моста синтезирует
+    # блокирующе. Ровно в эти пять секунд летят сап/чип/нова — их реакции
+    # простаивали в очереди и протухали по TTL. Предупреждения остались в DM на
+    # воротах, где их и читают; в бою на те же угрозы есть отдельные реакции.
+    _ = threat_v
+    return arena_start_phrase(list(current), kill_target)
 
 
 # ── Main pipeline ────────────────────────────────────────────────────────────
@@ -378,16 +412,28 @@ async def _deliver(
     dm_text: str,
     voice_text: str | None,
     voice_mode: str,
+    voice_ttl_s: float = VOICE_TTL_NORMAL_S,
 ) -> str:
-    """Общая доставка: локальный голос (очередь + best-effort Discord-voice) + текст."""
+    """Общая доставка: локальный голос (очередь + best-effort Discord-voice) + текст.
+
+    `voice_ttl_s` — сколько фраза имеет смысл. Мост синтезирует речь блокирующе,
+    очередь может простоять: советы по CC протухают быстро, стартовый разбор — нет.
+    """
     voice_sent = False
     if voice_mode != "off" and voice_text:
-        ctx.hint_queue.push(player_name, voice_text)
+        ctx.hint_queue.push(player_name, voice_text, ttl_s=voice_ttl_s)
         voice_sent = await _send_voice_hint(ctx.settings, voice_text)
     if voice_mode == "only" and voice_sent:
         return "sent"
     ok = await _send_discord_dm(ctx.settings.discord_bot_token, discord_id, dm_text)
     return "sent" if ok or voice_sent else "error"
+
+
+def _voice_ttl(reaction: Reaction | None) -> float:
+    """Окно годности фразы в очереди голоса — по приоритету реакции."""
+    if reaction is not None and reaction.priority == HIGH:
+        return VOICE_TTL_HIGH_S
+    return VOICE_TTL_NORMAL_S
 
 
 async def _emit_arena(
@@ -406,7 +452,9 @@ async def _emit_arena(
         log.debug("ARENA_START %s не изменился (%s) — не дублируем", sig_key, sig)
         return "skipped"
     ctx._last_arena_sig[sig_key] = sig
-    return await _deliver(ctx, discord_id, player_name, dm_text, voice_text, voice_mode)
+    return await _deliver(
+        ctx, discord_id, player_name, dm_text, voice_text, voice_mode, VOICE_TTL_OPENER_S
+    )
 
 
 # ── Постматч (Phase 4.3 + LLM 4.7) ───────────────────────────────────────────
@@ -729,14 +777,19 @@ async def _handle_trinket(
     doc: KBDoc | None,
 ) -> str:
     reaction = trinket_reaction()
+    # В бою длинный план из KB не читается («огромный текст в бою читать не очень
+    # удобно», живой тест 30.07) — оставляем две строки, разбор ждёт в /matchup.
     dm_lines = [f"💎 **{source} тринкетнул!**", reaction.dm]
     if doc is not None:
         dm_lines[0] += f" | {doc.composition} vs {doc.vs}"
-        sec = _find_section(doc, _SECTION_PRIORITY["TRINKET"])
-        if sec is not None:
-            dm_lines.append(_clean(sec.body_md, 500, ctx.slang))
     return await _deliver(
-        ctx, discord_id, player_name, "\n".join(dm_lines)[:2000], reaction.voice, voice_mode
+        ctx,
+        discord_id,
+        player_name,
+        "\n".join(dm_lines)[:2000],
+        reaction.voice,
+        voice_mode,
+        _voice_ttl(reaction),
     )
 
 
@@ -761,8 +814,9 @@ async def _handle_ability(
     else:  # в _ABILITY_HINT_KEYS попадают только ключи из таблицы — страховка
         dm_lines.append("Учитывай этот КД врага в следующем размене.")
     voice = reaction.voice if reaction is not None else f"{name} у врага."
+    ttl = _voice_ttl(reaction)
     return await _deliver(
-        ctx, discord_id, player_name, "\n".join(dm_lines)[:2000], voice, voice_mode
+        ctx, discord_id, player_name, "\n".join(dm_lines)[:2000], voice, voice_mode, ttl
     )
 
 
@@ -815,9 +869,20 @@ async def process_event(ctx: PipelineContext, envelope: dict[str, Any]) -> str:
         return "no_player"
     discord_id = entry.discord_id
 
-    # ── 3. Троттлинг in-fight (Phase 4.10: все типы, не только ABILITY) ──
+    # ── 3. Троттлинг in-fight (Phase 4.11: приоритеты + бюджет речи) ────
     throttle_key = spell_key if event_type == "ABILITY" else str(event.get("source_name", ""))
-    if not ctx.hint_throttle.allow(discord_id, event_type, throttle_key):
+    hint_reaction: Reaction | None = None
+    if event_type == "ABILITY":
+        hint_reaction = ability_reaction(spell_key)
+    elif event_type == "TRINKET":
+        hint_reaction = trinket_reaction()
+    if not ctx.hint_throttle.allow(
+        discord_id,
+        event_type,
+        throttle_key,
+        priority=hint_reaction.priority if hint_reaction else NORMAL,
+        repeat_s=hint_reaction.repeat_s if hint_reaction else None,
+    ):
         log.debug(
             "Подсказка %s/%s для %s подавлена троттлингом", event_type, throttle_key, discord_id
         )

@@ -240,6 +240,8 @@ def _voice_ctx(kb_dir: Path, mode: str, voice_on: bool = True) -> pipeline.Pipel
     index = KBIndex()
     index.load(kb_dir)
     return pipeline.PipelineContext(
+        # троттл без пауз: эти тесты про очередь/режимы, анти-спам проверяется в test_reactions
+        hint_throttle=pipeline.HintThrottle(gap_s=0.0, high_gap_s=0.0, default_repeat_s=0.0),
         access_service=_FakeAccess(),  # type: ignore[arg-type]
         kb_retriever=KBRetriever(index),
         anthropic_client=SimpleNamespace(),  # type: ignore[arg-type]

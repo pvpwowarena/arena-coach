@@ -214,6 +214,9 @@ def _ctx(kb_dir: Path, known: dict[str, str]) -> pipeline.PipelineContext:
     index = KBIndex()
     index.load(kb_dir)
     return pipeline.PipelineContext(
+        # события в тесте идут в одну реальную секунду — анти-спам Phase 4.11
+        # съел бы их; троттлинг проверяется отдельно в test_reactions.
+        hint_throttle=pipeline.HintThrottle(gap_s=0.0, high_gap_s=0.0, default_repeat_s=0.0),
         access_service=_FakeAccess(known),  # type: ignore[arg-type]
         kb_retriever=KBRetriever(index),
         anthropic_client=SimpleNamespace(),  # type: ignore[arg-type]
@@ -276,7 +279,8 @@ class TestArenaEndPipeline:
 
         r1 = await pipeline.process_event(ctx, _envelope({"type": "ARENA_START", "bracket": "2v2"}))
         assert r1 in ("sent", "no_matchup")
-        # CC-каст: в реалтайме skipped, но записан в таймлайн
+        # CC-каст: с Phase 4.11 на кидни есть реакция (раньше был skipped),
+        # и он же попадает в таймлайн постматча
         r2 = await pipeline.process_event(
             ctx,
             _envelope(
@@ -289,7 +293,7 @@ class TestArenaEndPipeline:
                 ts="2026-07-24T12:00:30Z",
             ),
         )
-        assert r2 == "skipped"
+        assert r2 == "sent"
         r3 = await pipeline.process_event(
             ctx,
             _envelope(
@@ -312,7 +316,7 @@ class TestArenaEndPipeline:
         assert len(sent_dms) == dm_count_before_end + 1
         report = sent_dms[-1][1]
         assert "Разбор боя" in report
-        assert "kidney shot ×1" in report  # CC попал в разбор, хоть и был skipped
+        assert "kidney shot ×1" in report  # CC попал в разбор
         assert "Frostee 1:10" in report
 
     async def test_end_without_match_skipped(

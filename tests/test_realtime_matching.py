@@ -158,14 +158,15 @@ class TestHintThrottle:
         t = HintThrottle()
         assert t.allow_ability("u1", "evasion", now=100.0)
 
-    def test_min_interval_blocks(self) -> None:
-        t = HintThrottle(min_interval_s=20.0)
+    def test_gap_between_hints(self) -> None:
+        """Phase 4.11: общий интервал между репликами — секунды, а не 20с."""
+        t = HintThrottle(gap_s=5.0)
         assert t.allow_ability("u1", "evasion", now=100.0)
-        assert not t.allow_ability("u1", "ice_block", now=110.0)  # < 20с
-        assert t.allow_ability("u1", "ice_block", now=121.0)  # > 20с
+        assert not t.allow_ability("u1", "ice_block", now=102.0)  # < 5с
+        assert t.allow_ability("u1", "ice_block", now=106.0)  # > 5с
 
     def test_repeat_key_blocked_longer(self) -> None:
-        t = HintThrottle(min_interval_s=20.0, repeat_window_s=60.0)
+        t = HintThrottle(gap_s=5.0, default_repeat_s=60.0)
         assert t.allow_ability("u1", "evasion", now=100.0)
         assert not t.allow_ability("u1", "evasion", now=125.0)  # тот же ключ, < 60с
         assert t.allow_ability("u1", "evasion", now=161.0)  # > 60с

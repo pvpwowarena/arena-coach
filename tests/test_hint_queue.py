@@ -74,6 +74,20 @@ class TestHintQueue:
         q.push("Alice", "чуть-позже", now=100.0)
         assert q.pop_fresh("Alice", now=110.01) == []  # >TTL — дропнута
 
+    def test_per_hint_ttl_overrides_default(self) -> None:
+        """Phase 4.11: у CC-реакции своё короткое окно, у опенера — длинное."""
+        q = HintQueue(ttl_s=10.0)
+        q.push("Alice", "кидни — тринкет", now=100.0, ttl_s=5.0)
+        q.push("Alice", "опенер", now=100.0, ttl_s=20.0)
+        # на 107с CC-совет уже вреден, стартовый разбор ещё актуален
+        assert q.pop_fresh("Alice", now=107.0) == ["опенер"]
+
+    def test_per_hint_ttl_purges_player(self) -> None:
+        q = HintQueue(ttl_s=10.0)
+        q.push("Ghost", "быстрая", now=100.0, ttl_s=3.0)
+        q.push("Live", "сейчас", now=200.0)
+        assert len(q) == 1
+
     def test_per_player_cap(self) -> None:
         q = HintQueue(max_per_player=3)
         for i in range(5):
@@ -208,6 +222,8 @@ def _ctx(kb_dir: Path, mode: str) -> pipeline.PipelineContext:
     index = KBIndex()
     index.load(kb_dir)
     return pipeline.PipelineContext(
+        # троттл без пауз: эти тесты про очередь/режимы, анти-спам проверяется в test_reactions
+        hint_throttle=pipeline.HintThrottle(gap_s=0.0, high_gap_s=0.0, default_repeat_s=0.0),
         access_service=_FakeAccess(),  # type: ignore[arg-type]
         kb_retriever=KBRetriever(index),
         anthropic_client=SimpleNamespace(),  # type: ignore[arg-type]
