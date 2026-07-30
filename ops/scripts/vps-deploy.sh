@@ -24,22 +24,17 @@ echo "==> DB migrations (alembic direct — CLI has no 'db upgrade'; idempotent)
 # /opt/arena-coach/backend/coach.db, выходил с кодом 0, фолбэк не срабатывал — и
 # боевая БД в /var/lib оставалась без миграции. Вся диагностика ушла в /dev/null,
 # а прод получил 500 на каждый /v1/events (no such column: combat_text).
-# Теперь: env грузим ВСЕГДА и заранее, вывод НЕ глушим, а относительный путь к БД
+# Теперь: URL читаем ВСЕГДА и заранее, вывод НЕ глушим, а относительный путь к БД
 # считаем ошибкой конфигурации, а не поводом молча мигрировать не туда.
+#
+# api.env НЕ исполняем (`. api.env`): это systemd EnvironmentFile, а не shell-скрипт —
+# значение с `(`, `#` или пробелом валит sourcing синтаксической ошибкой. Под `set -e`
+# это убивало бы деплой, а с `2>/dev/null` (как было) тихо оставляло URL пустым — то
+# есть ровно та ловушка, из которой инцидент и вырос. Берём одну строку скриптом,
+# покрытым тестом (`tests/test_deploy_db_url.py`); секреты в окружение не попадают.
 API_ENV=/etc/arena-coach/api.env
-if [ ! -r "$API_ENV" ]; then
-  echo "ERROR: $API_ENV не читается — без него DATABASE_URL неизвестен" >&2
-  exit 1
-fi
-set -a
-# shellcheck disable=SC1091
-. "$API_ENV"
-set +a
-
-if [ -z "${DATABASE_URL:-}" ]; then
-  echo "ERROR: DATABASE_URL не задан в $API_ENV — миграция ушла бы в файл рядом с кодом" >&2
-  exit 1
-fi
+DATABASE_URL="$("$REPO/ops/scripts/read-db-url.sh" "$API_ENV")"
+export DATABASE_URL
 case "$DATABASE_URL" in
   sqlite*:////*) : ;;                 # sqlite с АБСОЛЮТНЫМ путём — то, что нужно
   sqlite*)                            # sqlite:///./coach.db и подобное — ловушка

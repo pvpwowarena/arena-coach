@@ -195,7 +195,7 @@ class TestDuplicateClasses:
         await pipeline.process_event(ctx, _env(ROGUE_MAGE, _trinket("Cekraj")))
         # Ваниш + тринкет открыли окно — про него бот говорит первым (это ценнее),
         # а реплика на сам тринкет остаётся безымянной таблично.
-        assert spoken[-1] == "Тринкет ушёл — вешай контроль и дожимай."
+        assert spoken[-1] == "Тринкета нет — вешай контроль."
 
     async def test_trinket_resolves_the_duplicate_immediately(
         self, kb_dir: Path, sink: tuple[list[str], list[str]]

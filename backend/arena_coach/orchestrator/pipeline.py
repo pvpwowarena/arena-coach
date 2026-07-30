@@ -471,10 +471,17 @@ async def _deliver(
 
 
 def _voice_ttl(reaction: Reaction | None) -> float:
-    """Окно годности фразы в очереди голоса — по приоритету реакции."""
-    if reaction is not None and reaction.priority == HIGH:
-        return VOICE_TTL_HIGH_S
-    return VOICE_TTL_NORMAL_S
+    """Окно годности фразы в очереди голоса.
+
+    Приоритет задаёт общее правило, но реакция может назвать своё окно
+    (`voice_ttl_s`) — так делают предупреждения о касте: окно решения там равно
+    длительности каста, и просроченный «кик!» вреден (Phase 4.17).
+    """
+    if reaction is None:
+        return VOICE_TTL_NORMAL_S
+    if reaction.voice_ttl_s is not None:
+        return reaction.voice_ttl_s
+    return VOICE_TTL_HIGH_S if reaction.priority == HIGH else VOICE_TTL_NORMAL_S
 
 
 async def _emit_state_hints(
