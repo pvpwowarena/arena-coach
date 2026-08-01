@@ -67,8 +67,11 @@ AC.TRACKED_SPELLS = {
 }
 
 -- Arena unit-ы
-local ARENA_UNITS = { "arena1", "arena2", "arena3" }
-local PLAYER_UNITS = { "player", "party1", "party2" }
+-- 5v5-фикс (Phase 4.21.3): arena4/5 и party3/4 существуют только в 5v5, но
+-- UnitExists по несуществующим юнитам просто false — в 2v2/3v3 ничего не меняется.
+-- До фикса тринкеты/касты арены4-5 не трекались вообще (память: overlay-5v5-blind-spot).
+local ARENA_UNITS = { "arena1", "arena2", "arena3", "arena4", "arena5" }
+local PLAYER_UNITS = { "player", "party1", "party2", "party3", "party4" }
 
 -- ── Вспомогательные функции ──────────────────────────────────────────────────
 
@@ -285,6 +288,7 @@ local function DetectBracket(session)
         end
     end
     local count = #(session.enemies or {})
+    if count >= 4 then return "5v5" end
     if count >= 3 then return "3v3" end
     return "2v2"  -- 0-2 видимых врага: часть может быть в стелсе
 end

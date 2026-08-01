@@ -22,8 +22,10 @@ local AC = ArenaCoach
 AC.Overlay = AC.Overlay or {}
 local O = AC.Overlay
 
-local ARENA_UNITS = { "arena1", "arena2", "arena3" }
-local PARTY_UNITS = { "player", "party1", "party2" }
+-- 5v5-фикс (Phase 4.21.3): без arena4/5 панель и череп не видели двух врагов
+-- в 5v5, а дизамбигуация дублей выбирала цель из усечённого списка.
+local ARENA_UNITS = { "arena1", "arena2", "arena3", "arena4", "arena5" }
+local PARTY_UNITS = { "player", "party1", "party2", "party3", "party4" }
 
 -- Короткие имена классов для панели (то же, чем говорит команда).
 local CLASS_SHORT = {
@@ -233,7 +235,7 @@ end
 local ROW_H = 18
 local frame = CreateFrame("Frame", "ArenaCoachOverlayFrame", UIParent)
 frame:SetWidth(190)
-frame:SetHeight(ROW_H * 3 + 24)
+frame:SetHeight(ROW_H * 5 + 24)
 frame:SetPoint("RIGHT", UIParent, "RIGHT", -40, 60)
 frame:SetMovable(true)
 frame:EnableMouse(true)
@@ -257,7 +259,7 @@ title:SetPoint("TOPLEFT", frame, "TOPLEFT", 6, -4)
 title:SetText("|cff00ccffArenaCoach|r")
 
 local rows = {}
-for i = 1, 3 do
+for i = 1, 5 do
     local row = CreateFrame("Frame", nil, frame)
     row:SetWidth(178)
     row:SetHeight(ROW_H)
@@ -283,7 +285,9 @@ function O:Refresh()
         return
     end
     frame:Show()
-    for i = 1, 3 do
+    -- Высота по факту: в 2v2 панель не должна висеть пустыми строками.
+    frame:SetHeight(ROW_H * math.max(#self.units, 1) + 24)
+    for i = 1, 5 do
         local u, row = self.units[i], rows[i]
         if not u then
             row:Hide()

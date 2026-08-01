@@ -421,3 +421,62 @@ class TestDeadEnemyIsNotATarget:
             _EMIT_VOICE,
         )
         assert str(res["clips"]).split(",").count("target_rogue") == 1
+
+
+@needs_lua
+class TestFiveVFive:
+    """Phase 4.21.3 — дыра overlay-5v5-blind-spot: ARENA_UNITS/PARTY_UNITS были
+    захардкожены на arena1-3 / player+party1-2, и в 5v5 арена4/5 не существовали
+    для панели, черепа, дизамбигуации дублей и трекинга тринкетов."""
+
+    _PARTY5 = {
+        "player": "ROGUE", "party1": "ROGUE", "party2": "DRUID",
+        "party3": "MAGE", "party4": "PRIEST",
+    }
+
+    def test_all_five_enemies_visible(self) -> None:
+        res = _run(
+            _scenario(
+                self._PARTY5,
+                [{"class": "WARRIOR"}, {"class": "PALADIN"}, {"class": "HUNTER"},
+                 {"class": "MAGE"}, {"class": "WARLOCK"}],
+                "5v5",
+            )
+            + "\nO:StartMatch()",
+            _EMIT,
+        )
+        assert res["units"] == 5
+        # KB 5v5 не покрывает → честная эвристика, а не молчание.
+        assert res["source"] == "эвристика"
+        assert res["target"] == "arena5"  # warlock — верх эвристики
+
+    def test_duplicate_resolution_reaches_arena5(self) -> None:
+        """Дубль класса на арене4/5: тринкет арены5 должен перетянуть цель."""
+        setup = (
+            _scenario(
+                self._PARTY5,
+                [{"class": "WARRIOR"}, {"class": "PALADIN"}, {"class": "PRIEST"},
+                 {"class": "MAGE", "hp": 90}, {"class": "MAGE", "hp": 90}],
+                "5v5",
+            )
+            + "\nO:StartMatch()"
+        )
+        before = _run(setup, _EMIT)
+        assert before["target"] == "arena4"  # при равенстве — первый маг
+
+        after = _run(setup + '\nO:NoteTrinket("GUID-arena5")', _EMIT)
+        assert after["target"] == "arena5"
+
+    def test_two_v_two_still_shows_two(self) -> None:
+        """Регрессия: расширение списков не должно плодить фантомные юниты."""
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "WARLOCK"},
+                [{"class": "DRUID"}, {"class": "ROGUE"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()",
+            _EMIT,
+        )
+        assert res["units"] == 2
+        assert res["source"] == "KB"
