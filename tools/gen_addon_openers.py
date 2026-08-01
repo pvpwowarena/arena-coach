@@ -153,7 +153,7 @@ _DANGERS: list[tuple[str, str, str]] = [
     ("hunter", r"Deterrence", "В детер не бей."),
     ("mage", r"ability:nova", "Не кучкуйся."),
     ("priest", r"ability:mana-burn", "Бёрн — в лос."),
-    ("priest", r"ability:pain-suppression", "Жди саппресс."),
+    ("priest", r"ability:pain-suppression", "Жди пэ-эс."),
     ("priest", r"ability:psychic-scream", "Скрим — не кучно."),
     ("shaman", r"ability:grounding-totem", "Сбей гроунд."),
     ("warlock", r"ability:devour-magic", "Девор — фейкай."),
@@ -161,9 +161,11 @@ _DANGERS: list[tuple[str, str, str]] = [
     ("paladin", r"Wings|Avenging Wrath", "Крылья — тринка."),
     ("paladin", r"Divine Shield|бабл", "Бабл — не сливай."),
     ("mage", r"Ice Block|ability:ice-block", "Блок — не сливай."),
-    ("druid", r"ability:cyclone", "Циклон — фейкай."),
+    #: Без тире осознанно: тире у RHVoice = долгая пауза, и колаут RD vs Hunter/RDruid
+    #: (5.3с) вылезал за 30%-допуск слоговой модели (tests/test_addon_openers.py).
+    ("druid", r"ability:cyclone", "Циклон за столб."),
     ("rogue", r"ability:blind", "Блайнд — тринка."),
-    ("warrior", r"Retaliation|ретка", "В ретку не бей."),
+    ("warrior", r"Retaliation|ретка", "Ретка вара — не бей."),
 ]
 
 #: Что в цепочке — контроль (сетап) или урон (добив). Цепочка `нова → овца`

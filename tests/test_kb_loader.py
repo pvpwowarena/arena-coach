@@ -117,7 +117,15 @@ class TestValidateDirectory:
         # Barkskin/NS/Roots toolkit) + Icy Veins 2v2 rankings (per-matchup тир-строки);
         # execution синтезирован (synthesized-execution/new-comp-rd; off-meta-comp для
         # double-rogue и Ret/RSham, которых нет в явном тир-листе).
-        assert ok == 80, f"Ожидалось 80 валидных draft'ов, получено {ok}"
+        # +12 (2026-08-01): rr-vs-* — новый состав Rogue/Rogue 2v2 (RR, состав Влада;
+        # первый живой бой 4.20 показал, что RR не покрыт ничем). Тот же набор врагов,
+        # что у rd-vs-*. Каркас — OwnedCore Double Rogue Guide (TBC 2.x: «CC someone
+        # and blow up his partner», Sap/Blind делят DR, vanish-sap ресеты, wound+crippling)
+        # + Icy Veins 2v2 rankings (per-enemy строки) + Icy Veins Subtlety guide
+        # (premed-опенер, блиды против плейта, блинк-бэйт, яды). Своя логика состава
+        # БЕЗ хилера — не копия RD; execution синтезирован
+        # (off-meta-comp/synthesized-execution/needs-top-source/new-comp-rr).
+        assert ok == 92, f"Ожидалось 92 валидных draft'а, получено {ok}"
 
     def test_all_drafts_have_resolved_abilities(
         self, drafts_dir: Path, glossary_path: Path

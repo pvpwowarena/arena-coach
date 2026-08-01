@@ -4,8 +4,8 @@
   "clips": {
     "2v2|druid+rogue|druid+hunter": {
       "clip": "op_2v2_druid-rogue_druid-hunter",
-      "text": "Бей ханта! Степ, чип, кидни. Циклон — фейкай.",
-      "say": "Бей ханта! Степ, чип, кидни. Циклон — фейкай.",
+      "text": "Бей ханта! Степ, чип, кидни. Циклон за столб.",
+      "say": "Бей ханта! Степ, чип, кидни. Циклон за столб.",
       "syllables": 11,
       "seconds": 3.9,
       "sure": true,
@@ -100,8 +100,8 @@
     },
     "2v2|druid+rogue|priest+rogue": {
       "clip": "op_2v2_druid-rogue_priest-rogue",
-      "text": "Сап приста, бей рогу! Чип, кидни. Жди саппресс.",
-      "say": "Сап приста, бей ро́гу! Чип, кидни. Жди саппресс.",
+      "text": "Сап приста, бей рогу! Чип, кидни. Жди пэ-эс.",
+      "say": "Сап приста, бей ро́гу! Чип, кидни. Жди пэ-эс.",
       "syllables": 12,
       "seconds": 4.3,
       "sure": true,
@@ -112,8 +112,8 @@
     },
     "2v2|druid+rogue|priest+warlock": {
       "clip": "op_2v2_druid-rogue_priest-warlock",
-      "text": "Сап приста, бей лока! Чип, кидни. Жди саппресс.",
-      "say": "Сап приста, бей лока! Чип, кидни. Жди саппресс.",
+      "text": "Сап приста, бей лока! Чип, кидни. Жди пэ-эс.",
+      "say": "Сап приста, бей лока! Чип, кидни. Жди пэ-эс.",
       "syllables": 12,
       "seconds": 4.3,
       "sure": true,
@@ -389,8 +389,8 @@
     },
     "2v2|priest+rogue|druid+mage": {
       "clip": "op_2v2_priest-rogue_druid-mage",
-      "text": "Бей мага! Циклон — фейкай.",
-      "say": "Бей мага! Циклон — фейкай.",
+      "text": "Бей мага! Циклон за столб.",
+      "say": "Бей мага! Циклон за столб.",
       "syllables": 7,
       "seconds": 2.5,
       "sure": true,
@@ -628,10 +628,154 @@
         "rp-vs-warrior-rsham"
       ]
     },
+    "2v2|rogue+rogue|druid+hunter": {
+      "clip": "op_2v2_rogue-rogue_druid-hunter",
+      "text": "Сап друида, бей ханта! Чип, кидни. Циклон за столб.",
+      "say": "Сап друида, бей ханта! Чип, кидни. Циклон за столб.",
+      "syllables": 14,
+      "seconds": 5.0,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-hunter-resto-druid"
+      ]
+    },
+    "2v2|rogue+rogue|druid+rogue": {
+      "clip": "op_2v2_rogue-rogue_druid-rogue",
+      "text": "Бей друида! Чип, кидни. Блайнд — тринка.",
+      "say": "Бей друида! Чип, кидни. Блайнд — тринка.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-rogue-resto-druid"
+      ]
+    },
+    "2v2|rogue+rogue|druid+warlock": {
+      "clip": "op_2v2_rogue-rogue_druid-warlock",
+      "text": "Сап лока, бей друида! Чип, кидни. Фир — в лос.",
+      "say": "Сап лока, бей друида! Чип, кидни. Фир — в эл-о-э́с.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-warlock-resto-druid"
+      ]
+    },
+    "2v2|rogue+rogue|druid+warrior": {
+      "clip": "op_2v2_rogue-rogue_druid-warrior",
+      "text": "Сап вара, бей друида! Чип, кидни. Ретка вара — не бей.",
+      "say": "Сап вара, бей друида! Чип, кидни. Ретка вара — не бей.",
+      "syllables": 16,
+      "seconds": 5.7,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-warrior-resto-druid"
+      ]
+    },
+    "2v2|rogue+rogue|mage+priest": {
+      "clip": "op_2v2_rogue-rogue_mage-priest",
+      "text": "Сап приста, бей мага! Чип, кидни. Кик овцу. Жди пэ-эс.",
+      "say": "Сап приста, бей мага! Чип, кидни. Кик овцу. Жди пэ-эс.",
+      "syllables": 15,
+      "seconds": 5.4,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-mage-priest"
+      ]
+    },
+    "2v2|rogue+rogue|mage+rogue": {
+      "clip": "op_2v2_rogue-rogue_mage-rogue",
+      "text": "Бей мага! Чип, кидни. Блайнд — тринка.",
+      "say": "Бей мага! Чип, кидни. Блайнд — тринка.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-rogue-mage"
+      ]
+    },
+    "2v2|rogue+rogue|paladin+shaman": {
+      "clip": "op_2v2_rogue-rogue_paladin-shaman",
+      "text": "Сап палу, бей шама! Чип, кидни. Кик хил. Крылья — тринка.",
+      "say": "Сап палу, бей шама! Чип, кидни. Кик хил. Крылья — тринка.",
+      "syllables": 15,
+      "seconds": 5.4,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-ret-paladin-resto-shaman"
+      ]
+    },
+    "2v2|rogue+rogue|paladin+warrior": {
+      "clip": "op_2v2_rogue-rogue_paladin-warrior",
+      "text": "Сап палу, бей вара! Чип, кидни. Кик хил. Бабл — не сливай.",
+      "say": "Сап палу, бей вара! Чип, кидни. Кик хил. Бабл — не сливай.",
+      "syllables": 15,
+      "seconds": 5.4,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-warrior-holy-paladin"
+      ]
+    },
+    "2v2|rogue+rogue|priest+rogue": {
+      "clip": "op_2v2_rogue-rogue_priest-rogue",
+      "text": "Бей приста! Чип, кидни. Кик хил. Блайнд — тринка.",
+      "say": "Бей приста! Чип, кидни. Кик хил. Блайнд — тринка.",
+      "syllables": 11,
+      "seconds": 3.9,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-rogue-priest"
+      ]
+    },
+    "2v2|rogue+rogue|priest+warlock": {
+      "clip": "op_2v2_rogue-rogue_priest-warlock",
+      "text": "Сап приста, бей лока! Чип, кидни. Жди пэ-эс.",
+      "say": "Сап приста, бей лока! Чип, кидни. Жди пэ-эс.",
+      "syllables": 12,
+      "seconds": 4.3,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-warlock-priest"
+      ]
+    },
+    "2v2|rogue+rogue|rogue+rogue": {
+      "clip": "op_2v2_rogue-rogue_rogue-rogue",
+      "text": "Бей рогу! Чип, кидни. Блайнд — тринка.",
+      "say": "Бей ро́гу! Чип, кидни. Блайнд — тринка.",
+      "syllables": 9,
+      "seconds": 3.2,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-rogue-rogue"
+      ]
+    },
+    "2v2|rogue+rogue|shaman+warrior": {
+      "clip": "op_2v2_rogue-rogue_shaman-warrior",
+      "text": "Сап вара, бей шама! Чип, кидни. Кик хил. Ретка вара — не бей.",
+      "say": "Сап вара, бей шама! Чип, кидни. Кик хил. Ретка вара — не бей.",
+      "syllables": 17,
+      "seconds": 6.1,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rr-vs-warrior-resto-shaman"
+      ]
+    },
     "2v2|rogue+warlock|druid+hunter": {
       "clip": "op_2v2_rogue-warlock_druid-hunter",
-      "text": "Бей ханта! Чип, кидни. Циклон — фейкай.",
-      "say": "Бей ханта! Чип, кидни. Циклон — фейкай.",
+      "text": "Бей ханта! Чип, кидни. Циклон за столб.",
+      "say": "Бей ханта! Чип, кидни. Циклон за столб.",
       "syllables": 10,
       "seconds": 3.6,
       "sure": true,
@@ -678,8 +822,8 @@
     },
     "2v2|rogue+warlock|mage+priest": {
       "clip": "op_2v2_rogue-warlock_mage-priest",
-      "text": "Бей мага! Чип, кидни. Жди саппресс.",
-      "say": "Бей мага! Чип, кидни. Жди саппресс.",
+      "text": "Бей мага! Чип, кидни. Жди пэ-эс.",
+      "say": "Бей мага! Чип, кидни. Жди пэ-эс.",
       "syllables": 9,
       "seconds": 3.2,
       "sure": true,
@@ -786,8 +930,8 @@
     },
     "3v3|druid+rogue+rogue|druid+warlock+warrior": {
       "clip": "op_3v3_druid-rogue-rogue_druid-warlock-warrior",
-      "text": "Бей лока! Чип, кидни. Циклон — фейкай.",
-      "say": "Бей лока! Чип, кидни. Циклон — фейкай.",
+      "text": "Бей лока! Чип, кидни. Циклон за столб.",
+      "say": "Бей лока! Чип, кидни. Циклон за столб.",
       "syllables": 10,
       "seconds": 3.6,
       "sure": true,
@@ -846,8 +990,8 @@
     },
     "3v3|mage+priest+rogue|druid+rogue+warlock": {
       "clip": "op_3v3_mage-priest-rogue_druid-rogue-warlock",
-      "text": "Сап друида, бей лока! Чип, кидни. Циклон — фейкай.",
-      "say": "Сап друида, бей лока! Чип, кидни. Циклон — фейкай.",
+      "text": "Сап друида, бей лока! Чип, кидни. Циклон за столб.",
+      "say": "Сап друида, бей лока! Чип, кидни. Циклон за столб.",
       "syllables": 14,
       "seconds": 5.0,
       "sure": true,
@@ -858,8 +1002,8 @@
     },
     "3v3|mage+priest+rogue|druid+warlock+warrior": {
       "clip": "op_3v3_mage-priest-rogue_druid-warlock-warrior",
-      "text": "Сап друида, бей лока! Циклон — фейкай.",
-      "say": "Сап друида, бей лока! Циклон — фейкай.",
+      "text": "Сап друида, бей лока! Циклон за столб.",
+      "say": "Сап друида, бей лока! Циклон за столб.",
       "syllables": 11,
       "seconds": 3.9,
       "sure": true,
@@ -870,8 +1014,8 @@
     },
     "3v3|mage+priest+rogue|mage+priest+rogue": {
       "clip": "op_3v3_mage-priest-rogue_mage-priest-rogue",
-      "text": "Бей мага! Премед, чип, кидни. Жди саппресс.",
-      "say": "Бей мага! Премед, чип, кидни. Жди саппресс.",
+      "text": "Бей мага! Премед, чип, кидни. Жди пэ-эс.",
+      "say": "Бей мага! Премед, чип, кидни. Жди пэ-эс.",
       "syllables": 11,
       "seconds": 3.9,
       "sure": true,
@@ -894,8 +1038,8 @@
     },
     "3v3|mage+priest+rogue|mage+priest+warlock": {
       "clip": "op_3v3_mage-priest-rogue_mage-priest-warlock",
-      "text": "Бей мага! Премед, чип, кидни. Жди саппресс.",
-      "say": "Бей мага! Премед, чип, кидни. Жди саппресс.",
+      "text": "Бей мага! Премед, чип, кидни. Жди пэ-эс.",
+      "say": "Бей мага! Премед, чип, кидни. Жди пэ-эс.",
       "syllables": 11,
       "seconds": 3.9,
       "sure": true,

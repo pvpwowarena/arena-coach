@@ -401,9 +401,15 @@ class TestDeadEnemyIsNotATarget:
         assert "target_warrior" in clips, clips
 
     def test_same_class_is_not_reannounced(self) -> None:
-        """Смена юнита внутри одного класса — не новость, голос молчит."""
+        """Смена юнита внутри одного класса — не новость, голос молчит.
+
+        Наш состав здесь warrior+warrior, а не rogue+rogue: с Phase 4.21 RR покрыт
+        KB, и на зеркальном ключе вместо короткого «Бей рогу!» играет колаут
+        (`AnnounceOpener` вытесняет `target_rogue`). Тесту же нужен именно фолбэк
+        4.19 — состав, которого в KB нет.
+        """
         setup = _scenario(
-            {"player": "ROGUE", "party1": "ROGUE"},
+            {"player": "WARRIOR", "party1": "WARRIOR"},
             [{"class": "ROGUE", "hp": 90}, {"class": "ROGUE", "hp": 80}],
             "2v2",
         )

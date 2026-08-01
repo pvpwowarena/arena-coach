@@ -27,6 +27,7 @@ OUR_2V2 = [
     ("rogue+priest", "RP"),
     ("rogue+warlock", "RL"),
     ("rogue+resto-druid", "RD"),
+    ("rogue+rogue", "RR"),
 ]
 OUR_3V3 = [("rogue+mage+priest", "RMP"), ("rogue+rogue+resto-druid", "RRD")]
 

@@ -1,60 +1,60 @@
 # Матрица покрытия матчапов (auto-generated)
 
 `python tools/coverage_matrix.py` — перегенерировать. Уровень классов; ✅ sourced draft · 🟡 AI-hypothesis (kb/hypotheses/, непроверено) · ⬜ todo.
-**Итого (класс-уровень):** ✅ 78 sourced · 🟡 4 hypotheses · ⬜ 428 todo (всего ячеек 510).
+**Итого (класс-уровень):** ✅ 90 sourced · 🟡 4 hypotheses · ⬜ 461 todo (всего ячеек 555).
 
-**Спек-варианты (сверх 255):** ✅ 2 · 🟡 0 · ⬜ 2.
+**Спек-варианты (сверх 255):** ✅ 2 · 🟡 0 · ⬜ 3.
 
 
-## 2v2 — 45 вражеских комбинаций × 4 наших
+## 2v2 — 45 вражеских комбинаций × 5 наших
 
-| Enemy \ Our | RM | RP | RL | RD |
-|---|---|---|---|---|
-| warrior+warrior | ⬜ | ⬜ | ⬜ | ⬜ |
-| warrior+paladin | ✅ | ✅ | ✅ | ✅ |
-| warrior+hunter | ⬜ | ⬜ | ⬜ | ⬜ |
-| warrior+rogue | ✅ | ✅ | ⬜ | ⬜ |
-| warrior+priest | ⬜ | ⬜ | ⬜ | ⬜ |
-| warrior+shaman | ✅ | ✅ | ✅ | ✅ |
-| warrior+mage | ✅ | ✅ | ⬜ | ⬜ |
-| warrior+warlock | ⬜ | ⬜ | ⬜ | ⬜ |
-| warrior+druid | ✅ | ✅ | ✅ | ✅ |
-| paladin+paladin | ⬜ | ⬜ | ⬜ | ⬜ |
-| paladin+hunter | 🟡 | ✅ | ⬜ | ⬜ |
-| paladin+rogue | ✅ | ✅ | ⬜ | ⬜ |
-| paladin+priest | ⬜ | ⬜ | ⬜ | ⬜ |
-| paladin+shaman | ✅ | ✅ | ✅ | ✅ |
-| paladin+mage | ✅ | ✅ | ⬜ | ⬜ |
-| paladin+warlock | ✅ | ✅ | ⬜ | ⬜ |
-| paladin+druid | ⬜ | ⬜ | ⬜ | ⬜ |
-| hunter+hunter | ⬜ | ⬜ | ⬜ | ⬜ |
-| hunter+rogue | ⬜ | ⬜ | ⬜ | ⬜ |
-| hunter+priest | ⬜ | ⬜ | ⬜ | ⬜ |
-| hunter+shaman | 🟡 | 🟡 | ⬜ | ⬜ |
-| hunter+mage | ⬜ | ⬜ | ⬜ | ⬜ |
-| hunter+warlock | ⬜ | ⬜ | ⬜ | ⬜ |
-| hunter+druid | ✅ | ✅ | ✅ | ✅ |
-| rogue+rogue | ✅ | ✅ | ✅ | ✅ |
-| rogue+priest | ✅ | ✅ | ✅ | ✅ |
-| rogue+shaman | ⬜ | ⬜ | ⬜ | ⬜ |
-| rogue+mage | ✅ | ✅ | ✅ | ✅ |
-| rogue+warlock | ✅ | ✅ | ⬜ | ⬜ |
-| rogue+druid | ✅ | ✅ | ✅ | ✅ |
-| priest+priest | ⬜ | ⬜ | ⬜ | ⬜ |
-| priest+shaman | ⬜ | ⬜ | ⬜ | ⬜ |
-| priest+mage | ✅ | ✅ | ✅ | ✅ |
-| priest+warlock | ✅ | ✅ | ✅ | ✅ |
-| priest+druid | ⬜ | ⬜ | ⬜ | ⬜ |
-| shaman+shaman | ⬜ | ⬜ | ⬜ | ⬜ |
-| shaman+mage | ⬜ | ⬜ | ⬜ | ⬜ |
-| shaman+warlock | ✅ | ✅ | ⬜ | ⬜ |
-| shaman+druid | ⬜ | ⬜ | ⬜ | ⬜ |
-| mage+mage | ⬜ | ⬜ | ⬜ | ⬜ |
-| mage+warlock | ⬜ | ⬜ | ⬜ | ⬜ |
-| mage+druid | 🟡 | ✅ | ⬜ | ⬜ |
-| warlock+warlock | ⬜ | ⬜ | ⬜ | ⬜ |
-| warlock+druid | ✅ | ✅ | ✅ | ✅ |
-| druid+druid | ⬜ | ⬜ | ⬜ | ⬜ |
+| Enemy \ Our | RM | RP | RL | RD | RR |
+|---|---|---|---|---|---|
+| warrior+warrior | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| warrior+paladin | ✅ | ✅ | ✅ | ✅ | ✅ |
+| warrior+hunter | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| warrior+rogue | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
+| warrior+priest | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| warrior+shaman | ✅ | ✅ | ✅ | ✅ | ✅ |
+| warrior+mage | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
+| warrior+warlock | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| warrior+druid | ✅ | ✅ | ✅ | ✅ | ✅ |
+| paladin+paladin | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| paladin+hunter | 🟡 | ✅ | ⬜ | ⬜ | ⬜ |
+| paladin+rogue | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
+| paladin+priest | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| paladin+shaman | ✅ | ✅ | ✅ | ✅ | ✅ |
+| paladin+mage | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
+| paladin+warlock | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
+| paladin+druid | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| hunter+hunter | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| hunter+rogue | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| hunter+priest | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| hunter+shaman | 🟡 | 🟡 | ⬜ | ⬜ | ⬜ |
+| hunter+mage | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| hunter+warlock | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| hunter+druid | ✅ | ✅ | ✅ | ✅ | ✅ |
+| rogue+rogue | ✅ | ✅ | ✅ | ✅ | ✅ |
+| rogue+priest | ✅ | ✅ | ✅ | ✅ | ✅ |
+| rogue+shaman | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| rogue+mage | ✅ | ✅ | ✅ | ✅ | ✅ |
+| rogue+warlock | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
+| rogue+druid | ✅ | ✅ | ✅ | ✅ | ✅ |
+| priest+priest | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| priest+shaman | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| priest+mage | ✅ | ✅ | ✅ | ✅ | ✅ |
+| priest+warlock | ✅ | ✅ | ✅ | ✅ | ✅ |
+| priest+druid | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| shaman+shaman | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| shaman+mage | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| shaman+warlock | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
+| shaman+druid | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| mage+mage | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| mage+warlock | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| mage+druid | 🟡 | ✅ | ⬜ | ⬜ | ⬜ |
+| warlock+warlock | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| warlock+druid | ✅ | ✅ | ✅ | ✅ | ✅ |
+| druid+druid | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 
 ## 3v3 — 165 вражеских комбинаций × 2 наших
 
@@ -230,6 +230,6 @@
 
 Класс-уровень такой пары может быть уже ✅ — здесь отслеживаются спек-вариации, где тактика реально иная. Считаются отдельно, сверх 255 класс-ячеек.
 
-| Enemy spec \ Our | RM | RP | RL | RD | Примечание |
-|---|---|---|---|---|---|
-| Rogue / Shadow Priest | ✅ | ✅ | ⬜ | ⬜ | Shadow≠Disc: оффенс-прийст (fear/silence/dispel), без хила, immobile |
+| Enemy spec \ Our | RM | RP | RL | RD | RR | Примечание |
+|---|---|---|---|---|---|---|
+| Rogue / Shadow Priest | ✅ | ✅ | ⬜ | ⬜ | ⬜ | Shadow≠Disc: оффенс-прийст (fear/silence/dispel), без хила, immobile |
