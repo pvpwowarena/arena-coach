@@ -22,7 +22,13 @@ sources:
 - type: youtube
   url: "https://www.youtube.com/watch?v=1HzG_7WNYi4"
   title: "2200+ TBC Arena: Paladin Warrior Vs Rogue Mage"
-last_reviewed: '2026-06-22'
+- type: youtube
+  url: "https://www.youtube.com/watch?v=DLEZ7Yi4-jU&t=1660s"
+  title: "Arena Stories — Anniversary TBC Rogue/Mage 2v2 Guide, глава pala/war (27:40–29:40)"
+- type: youtube
+  url: "https://www.youtube.com/watch?v=axI9kxAn1gM&t=160s"
+  title: "Aphane — Master Rogue Mage 2026 Part 1, раздел Matchups (2:40)"
+last_reviewed: '2026-08-01'
 reviewer: null
 confidence: draft
 tags: [needs-top-source, synthesized-execution, opponent-side-source]
@@ -57,3 +63,15 @@ Paladin тринкетит [[ability:sheep]] или [[ability:hammer-of-justice]
 
 - enemy: paladin — bubble (Divine Shield), freedom, cleanse, [[ability:hammer-of-justice]], BoP, trinket; воин — MS, overpower, intercept, disarm, spell-reflect, trinket.
 - ours: [[ability:counterspell]], [[ability:sheep]], [[ability:nova]], [[ability:blind]], [[ability:kidney-shot]], [[ability:vanish]], [[ability:ice-block]], [[ability:icy-veins]], [[ability:evasion]], trinket.
+
+## Alternative opener (Arena Stories)
+
+⚠️ КОНФЛИКТ ИСТОЧНИКОВ (килл-таргет и сложность). Текущий каркас (Wowhead/ownedcore, opponent-side): kill_target=warrior, «paladin почти неубиваем», difficulty=hard. Arena Stories (DLEZ7Yi4-jU 27:40–29:40): «оба таргета виабельны», и во всех трёх примерах ОТКРЫТИЕ НА ПАЛАДИНЕ; Aphane относит pala/warrior к ВЫГОДНЫМ матчапам RM (axI9kxAn1gM 2:51). Оба взгляда зафиксированы, фронтматтер не менялся — решение за ревьюером.
+
+План Arena Stories (DLEZ7Yi4-jU 27:54–29:40):
+
+- [[ability:sap]] паладина → ждём [[ability:sheep]] мага на варриоре (+ spellsteal sacrifice при необходимости) → открытие на паладине: [[ability:cheap-shot]] → полный [[ability:kidney]] → [[ability:evisc]] (DLEZ7Yi4-jU 28:01–28:17).
+- Паладин, тринкетящий cheap shot, — «огромная ошибка» врага: сразу полный kidney → evisc → вынужденный bubble → наш [[ability:vanish]]+sprint, пережидаем DR (DLEZ7Yi4-jU 28:08–28:21).
+- После bubble: оба их тринкета потрачены → ждём stun-DR → [[ability:cheap-shot]] паладина + [[ability:blind]] варриора для чистого сетапа → полный [[ability:kidney]] (DLEZ7Yi4-jU 28:29–28:40).
+- Паладин ушёл за угол от своего варриора — окно для cheap shot (позиционный триггер) (DLEZ7Yi4-jU 29:21–29:29).
+- Варриор «аномально низкий» — легитимный своп на варриора с добивом [[ability:evisc]], оставаясь рядом с паладином для кика (DLEZ7Yi4-jU 29:38–29:46).

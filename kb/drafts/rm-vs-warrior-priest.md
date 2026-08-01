@@ -26,19 +26,19 @@ _«Оба таргета убиваемы, зависит от ситуации�
 
 Идёшь на [[ability:sap]] приста. Частый старт врага: варриор мгновенно делает intervene на приста — тогда командуй магу (он в invisibility и не видит происходящего) отойти назад и ждём, пока intervene кончится: следующая абилка по присту перекинется на варриора, сап в него терять нельзя (DLEZ7Yi4-jU 42:42–43:00).
 
-После отхода intervene: [[ability:sap]] приста → маг пытается [[ability:sheep]] варриора → [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]] по присту полным 5cp. Прийст тринкетит; на fear — свой тринкет + [[ability:evasion]], спамим урон в приста (DLEZ7Yi4-jU 43:00–43:17).
+После отхода intervene: [[ability:sap]] приста → маг пытается [[ability:sheep]] варриора → [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney]] по присту полным 5cp. Прист тринкетит; на fear — свой тринкет + [[ability:evasion]], спамим урон в приста (DLEZ7Yi4-jU 43:00–43:17).
 
 Дальше по гайду правильнее всего — мгновенный [[ability:blind]] на приста сразу после его тринкета (сам автор отмечает, что блайнд в варриора был ошибкой выбора) (DLEZ7Yi4-jU 43:17). Добив: [[ability:vanish]] → [[ability:garrote]] (когда racial приста уже потрачен) → [[ability:kidney]] (DLEZ7Yi4-jU 43:34–43:50).
 
 ## If enemy trinkets
 
-Прийст, тринкетящий сам [[ability:cheap-shot]], — «ужасный ход»: сразу полный [[ability:kidney]] без стана-страховки у него (DLEZ7Yi4-jU 43:58). Варриор тринкетит [[ability:sheep]] — на это отвечаем [[ability:blind]] в варриора, оставаясь на присте (DLEZ7Yi4-jU 43:25–43:34). Помни: sheep на варриоре прийст может dispel'ить (DLEZ7Yi4-jU 44:06).
+Прист, тринкетящий сам [[ability:cheap-shot]], — «ужасный ход»: сразу полный [[ability:kidney]] без стана-страховки у него (DLEZ7Yi4-jU 43:58). Варриор тринкетит [[ability:sheep]] — на это отвечаем [[ability:blind]] в варриора, оставаясь на присте (DLEZ7Yi4-jU 43:25–43:34). Помни: sheep на варриоре прист может dispel'ить (DLEZ7Yi4-jU 44:06).
 
 ## Common mistakes
 
 - Сап/чип в приста под intervene — контроль уйдёт в варриора (DLEZ7Yi4-jU 42:42).
 - Маг остаётся вплотную в момент intervene-старта, не видя его из invisibility (DLEZ7Yi4-jU 42:42).
-- [[ability:garrote]] до того, как прийст потратил racial (Will of the Forsaken снимет silence впустую) (DLEZ7Yi4-jU 43:34).
+- [[ability:garrote]] до того, как прист потратил racial (Will of the Forsaken снимет silence впустую) (DLEZ7Yi4-jU 43:34).
 - Блайнд не в ту цель после тринкета приста (DLEZ7Yi4-jU 43:17).
 
 ## Key cooldowns to track

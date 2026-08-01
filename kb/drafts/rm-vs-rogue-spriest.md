@@ -23,7 +23,10 @@ sources:
   path: WOW TBC ARENA - Rogue  Mage.md
   author: Mirlol (transcribed)
   retrieved: '2026-05-12'
-last_reviewed: '2026-06-23'
+- type: youtube
+  url: "https://www.youtube.com/watch?v=DLEZ7Yi4-jU&t=2052s"
+  title: "Arena Stories — Anniversary TBC Rogue/Mage 2v2 Guide, глава sp/rogue (34:12–35:29)"
+last_reviewed: '2026-08-01'
 reviewer: null
 confidence: draft
 tags: [sourced, synthesized-execution, vs-double-dps]
@@ -33,7 +36,7 @@ tags: [sourced, synthesized-execution, vs-double-dps]
 
 Sourced-каркас (Windz, Warcraft Tavern, «SPR vs Mage/Rogue» + обзорная SPR-страница, секция Counters): **RM — один из главных контр-составов Spriest/Rogue** («your gonna lose often game against rm... this is the best double dps»). Вражеский shadow priest не имеет мобильности (нет blink/sprint), не имеет жёсткого defensive CD уровня ice block/cloak и проигрывает затяжной/мана-бой. Поэтому **kill target — вражеский shadow priest** (рог — fallback).
 
-Исполнение опенера — *synthesized-execution* на стандартной RM-механике (Mirlol RM-гайд, уже в KB): маг и рог садятся на shadow priest. [[ability:sap]] вражеского рога, затем [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney-shot]] по прийсту; маг шатерит в окно kidney ([[ability:nova]] → ice lance/frostbolt). Держи [[ability:counterspell]] на shadow-школу прийста — один lockout закрывает и его Psychic Scream (AoE fear), и mind blast/SW:D в kill-окне (по источнику Psychic Scream и Silence — главные swing-абилки SP).
+Исполнение опенера — *synthesized-execution* на стандартной RM-механике (Mirlol RM-гайд, уже в KB): маг и рог садятся на shadow priest. [[ability:sap]] вражеского рога, затем [[ability:premed]] → [[ability:cheap-shot]] → [[ability:hemo]] → [[ability:kidney-shot]] по присту; маг шатерит в окно kidney ([[ability:nova]] → ice lance/frostbolt). Держи [[ability:counterspell]] на shadow-школу приста — один lockout закрывает и его Psychic Scream (AoE fear), и mind blast/SW:D в kill-окне (по источнику Psychic Scream и Silence — главные swing-абилки SP).
 
 ## Alternative opener
 
@@ -41,12 +44,12 @@ Sourced-каркас (Windz, Warcraft Tavern, «SPR vs Mage/Rogue» + обзор
 
 ## If enemy trinkets
 
-У shadow priest почти нет аутов — на его trinket держи повторный [[ability:kidney-shot]]/[[ability:sheep]] и не давай свободных кастов. Его Psychic Scream (магия школы shadow) рвёт burst: маг может снять фир [[ability:ice-block]], рог — [[ability:cloak-of-shadows]]. Вражеский рог тринкетит kidney → [[ability:vanish]] или [[ability:blind]] и продолжаем давить прийста. Учти: SP в shadowform мягко танчит урон и лечится от своих DoT'ов (passive heal по источнику), поэтому добивать его нужно в чистое burst-окно, а не размазанным уроном.
+У shadow priest почти нет аутов — на его trinket держи повторный [[ability:kidney-shot]]/[[ability:sheep]] и не давай свободных кастов. Его Psychic Scream (магия школы shadow) рвёт burst: маг может снять фир [[ability:ice-block]], рог — [[ability:cloak-of-shadows]]. Вражеский рог тринкетит kidney → [[ability:vanish]] или [[ability:blind]] и продолжаем давить приста. Учти: SP в shadowform мягко танчит урон и лечится от своих DoT'ов (passive heal по источнику), поэтому добивать его нужно в чистое burst-окно, а не размазанным уроном.
 
 ## Common mistakes
 
-- Бурстить прийста, не закрыв [[ability:counterspell]]/kick его Psychic Scream — фир сбрасывает весь сетап.
-- Гоняться за рогом вместо immobile-прийста (по источнику SP — kill target, escape у него нет).
+- Бурстить приста, не закрыв [[ability:counterspell]]/kick его Psychic Scream — фир сбрасывает весь сетап.
+- Гоняться за рогом вместо immobile-приста (по источнику SP — kill target, escape у него нет).
 - Размазывать урон: shadowform + self-heal от DoT'ов отлечивают медленный дамаг — нужен сфокусированный шатер.
 - Забывать, что SP offensive-dispel'ит наши баффы и может снимать [[ability:nova]]-root с союзника (purge-эффекта нет, но dispel magic есть).
 
@@ -58,3 +61,12 @@ Sourced-каркас (Windz, Warcraft Tavern, «SPR vs Mage/Rogue» + обзор
 ---
 
 > **Тиринг:** sourced-каркас (Windz/WT: RM контрит SPR; kill SP; SP immobile, без жёстких CD, lose mana war) + *synthesized-execution* для точной последовательности опенера (на RM-механике из Mirlol-гайда). Перед промоутом в `kb/matchups/` — желателен ревью топ-игрока по конкретным combo-таймингам.
+
+## Video addendum (Arena Stories)
+
+Глава sp/rogue (DLEZ7Yi4-jU 34:12–35:29) подтверждает килл-таргет «shadow priest» и добавляет:
+
+- [[ability:sap]] приста как против disc'а, дождаться пока маг снимет спелл-стилом его бафы/бабл; увидел рога — [[ability:sap]] и его (DLEZ7Yi4-jU 34:12–34:27).
+- Открытие: [[ability:shadowstep]] → [[ability:cheap-shot]] → [[ability:evisc]] → [[ability:cloak-of-shadows]], БЕЗ полного стана — «время решает»: в TBC у SP нет dispersion и почти нет дефензивов, его просто перепиливают (DLEZ7Yi4-jU 34:27–34:43).
+- [[ability:cloak-of-shadows]] → [[ability:vanish]] от fear'а на добиве (DLEZ7Yi4-jU 34:43–34:46).
+- SP тринкетит рано и лезет в fear — не тринкетить его полный kidney по тебе мгновенно: «в миллисекунду тринкета можно словить blind» — вместо этого передавить уроном (DLEZ7Yi4-jU 35:04–35:20).

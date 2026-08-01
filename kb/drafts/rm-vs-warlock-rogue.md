@@ -15,7 +15,10 @@ sources:
   lines: 264-291
   author: Mirlol (transcribed)
   retrieved: '2026-05-12'
-last_reviewed: '2026-05-12'
+- type: youtube
+  url: "https://www.youtube.com/watch?v=DLEZ7Yi4-jU&t=2736s"
+  title: "Arena Stories — Anniversary TBC Rogue/Mage 2v2 Guide, глава warlock/rogue (45:36–47:05)"
+last_reviewed: '2026-08-01'
 reviewer: null
 confidence: draft
 tags: []
@@ -42,3 +45,13 @@ tags: []
 Можно также [[ability:premed]] → [[ability:cheap-shot]] → [[ability:kidney]] рога и [[ability:blind]] на trinket — но я не рекомендую этот вариант когда убиваешь рога, потому что он может trinket → [[ability:blind]] тебя и просто vanish. Что ставит тебя в неудобную позицию.
 
 Pre-vanish'инг в этом матчапе тоже частая вещь, особенно если ты в goggles или с perception (или обоими). Pre-vanish vs rogue warlock как rogue mage обычно приносит много profit'а — вражеский рог чувствует себя очень уверенно про opener имея paranoia + goggles + perception.
+
+## Alternative opener
+
+Видео-гайд Arena Stories, глава warlock/rogue (DLEZ7Yi4-jU 45:36–47:05) — «самый частый комп»; план совпадает с Mirlol (kill warlock):
+
+- [[ability:sap]] варлока (до его входа в combat, sprint с ворот); увидел рога — [[ability:sap]] и его: двойной сап = лучший опенер (DLEZ7Yi4-jU 45:36–45:49, 46:34–46:44).
+- По варлоку: [[ability:cheap-shot]] → мгновенный [[ability:evisc]] БЕЗ kidney — «kidney он просто тринкетит в [[ability:death-coil]]»; максимум урона, пока рог сидит sap (DLEZ7Yi4-jU 45:49–45:56).
+- [[ability:vanish]] → [[ability:garrote]] — отнимает у варлока восстановление; его вынужденный тринкет на sap → мы тринкетим стан их рога → [[ability:blind]] → добив варлока (DLEZ7Yi4-jU 45:56–46:14).
+- Пре-vanish, если рога не видно: «он почти наверняка рядом с варлоком и сам в пре-vanish'е» (DLEZ7Yi4-jU 46:22–46:34; совпадает с Mirlol).
+- [[ability:cloak-of-shadows]] на его trinket+[[ability:death-coil]]-попытку, свой тринкет беречь под [[ability:blind]]-ответ (DLEZ7Yi4-jU 46:44–46:59).

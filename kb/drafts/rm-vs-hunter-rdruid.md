@@ -15,7 +15,13 @@ sources:
   lines: 158-178
   author: Mirlol (transcribed)
   retrieved: '2026-05-12'
-last_reviewed: '2026-05-12'
+- type: youtube
+  url: "https://www.youtube.com/watch?v=DLEZ7Yi4-jU&t=2129s"
+  title: "Arena Stories — Anniversary TBC Rogue/Mage 2v2 Guide, глава druid/hunt (35:29–36:32)"
+- type: youtube
+  url: "https://www.youtube.com/watch?v=axI9kxAn1gM&t=160s"
+  title: "Aphane — Master Rogue Mage 2026 Part 1, раздел Matchups (2:40)"
+last_reviewed: '2026-08-01'
 reviewer: null
 confidence: draft
 tags: []
@@ -32,3 +38,17 @@ tags: []
 Часто друид сидит прямо на flare'е рядом с hunter'ом, иногда в tree form'е с pre-hot'ами. Но стратегия обычно не меняется.
 
 Бывает что маг не вытягивает соло против hunter'а из-за неудачного RNG. В этом случае после неудачной попытки убийства можно sheep'нуть hunter'а и попробовать убить друида вместо него.
+
+## Alternative opener
+
+Видео-гайд Arena Stories, глава druid/hunt (DLEZ7Yi4-jU 35:29–36:32): «мы контрим их во всех аспектах, вопрос только в хорошем сетапе»; Aphane также относит druid/hunter к выгодным (axI9kxAn1gM 2:53).
+
+⚠️ РАСХОЖДЕНИЕ С ОСНОВНЫМ ПЛАНОМ: у Mirlol маг соло-давит ХАНТЕРА, рог убивает друида→ханта (kill_target=hunter). В обоих примерах Arena Stories урон заливается в ДРУИДА (спек друида в видео не назван; «стан от друида» во втором примере намекает на bash/feral). Оба плана зафиксированы — ревьюеру решить, разносить ли по спекам друида.
+
+- Хантер сидит на trap+flare — сапать его невозможно и слишком рискованно: маг открывает [[ability:nova]] по хантеру, рог — [[ability:cheap-shot]] → полный [[ability:kidney]] по друиду; маг лэндит [[ability:sheep]] на хантера (он тринкетит sheep) → [[ability:blind]] хантера = ~9 чистых секунд на друиде (DLEZ7Yi4-jU 35:31–36:04).
+- Вариант: [[ability:sap]] хантера (если он не на flare); стан от друида пересиживается [[ability:evasion]] + ghostly strike; хантер вынужден «сидеть» sap — если тринкетит его, получает полный [[ability:blind]] (DLEZ7Yi4-jU 36:12–36:29).
+
+## Common mistakes
+
+- Попытка сапа по хантеру на flare/trap (DLEZ7Yi4-jU 35:31–35:42).
+- Отпустить хантера без размена sheep→trinket→blind — план строится на этой цепочке (DLEZ7Yi4-jU 35:48–35:56).
