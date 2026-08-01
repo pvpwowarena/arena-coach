@@ -27,6 +27,7 @@ AC.KB_KILL_TARGETS = {
     ["2v2|mage+rogue|druid+rogue"] = { t = "ROGUE", sure = true },
     ["2v2|mage+rogue|druid+warlock"] = { t = "DRUID", sure = true },
     ["2v2|mage+rogue|druid+warrior"] = { t = "DRUID", sure = true },
+    ["2v2|mage+rogue|hunter+priest"] = { t = "HUNTER", sure = true },
     ["2v2|mage+rogue|mage+paladin"] = { t = "MAGE", sure = true },
     ["2v2|mage+rogue|mage+priest"] = { t = "PRIEST", sure = true },
     ["2v2|mage+rogue|mage+rogue"] = { t = "ROGUE", sure = true },
@@ -37,6 +38,7 @@ AC.KB_KILL_TARGETS = {
     ["2v2|mage+rogue|paladin+warrior"] = { t = "WARRIOR", sure = true },
     ["2v2|mage+rogue|priest+rogue"] = { t = "PRIEST", sure = false },
     ["2v2|mage+rogue|priest+warlock"] = { t = "PRIEST", sure = true },
+    ["2v2|mage+rogue|priest+warrior"] = { t = "PRIEST", sure = true },
     ["2v2|mage+rogue|rogue+rogue"] = { t = "ROGUE", sure = true },
     ["2v2|mage+rogue|rogue+warlock"] = { t = "WARLOCK", sure = true },
     ["2v2|mage+rogue|rogue+warrior"] = { t = "ROGUE", sure = true },
@@ -104,4 +106,4 @@ AC.KB_KILL_TARGETS = {
 }
 
 -- Сколько матчапов скомпилировано (для /ac status и диагностики).
-AC.KB_KILL_TARGETS_COUNT = 90
+AC.KB_KILL_TARGETS_COUNT = 92

@@ -26,6 +26,7 @@ AC.KB_OPENERS = {
     ["2v2|mage+rogue|druid+rogue"] = { c = "op_2v2_mage-rogue_druid-rogue", t = "Сап друида, бей рогу! Премед, чип, кидни." },
     ["2v2|mage+rogue|druid+warlock"] = { c = "op_2v2_mage-rogue_druid-warlock", t = "Бей друида! Премед, чип, шив, кидни." },
     ["2v2|mage+rogue|druid+warrior"] = { c = "op_2v2_mage-rogue_druid-warrior", t = "Бей друида! Ваниш, премед, гарота, эвис." },
+    ["2v2|mage+rogue|hunter+priest"] = { c = "op_2v2_mage-rogue_hunter-priest", t = "Сап приста, бей ханта! Премед, чип, хема, кидни. Жди пэ-эс." },
     ["2v2|mage+rogue|mage+paladin"] = { c = "op_2v2_mage-rogue_mage-paladin", t = "Бей мага! Премед, чип, хема, кидни. Бабл — не сливай." },
     ["2v2|mage+rogue|mage+priest"] = { c = "op_2v2_mage-rogue_mage-priest", t = "Сап мага, бей приста! Премед, чип, кидни. Блок — не сливай." },
     ["2v2|mage+rogue|mage+rogue"] = { c = "op_2v2_mage-rogue_mage-rogue", t = "Сап мага, бей рогу! Степ, премед, чип, хема." },
@@ -36,6 +37,7 @@ AC.KB_OPENERS = {
     ["2v2|mage+rogue|paladin+warrior"] = { c = "op_2v2_mage-rogue_paladin-warrior", t = "Бей вара! Бабл — не сливай." },
     ["2v2|mage+rogue|priest+rogue"] = { c = "op_2v2_mage-rogue_priest-rogue", t = "Бей рогу! Премед, чип, хема, кидни." },
     ["2v2|mage+rogue|priest+warlock"] = { c = "op_2v2_mage-rogue_priest-warlock", t = "Бей приста! Премед, чип, кидни." },
+    ["2v2|mage+rogue|priest+warrior"] = { c = "op_2v2_mage-rogue_priest-warrior", t = "Бей приста! Премед, чип, хема, кидни." },
     ["2v2|mage+rogue|rogue+rogue"] = { c = "op_2v2_mage-rogue_rogue-rogue", t = "Бей рогу! Премед, чип, кидни." },
     ["2v2|mage+rogue|rogue+warlock"] = { c = "op_2v2_mage-rogue_rogue-warlock", t = "Сап рогу, бей лока! Премед, чип, кидни. Блайнд — тринка." },
     ["2v2|mage+rogue|rogue+warrior"] = { c = "op_2v2_mage-rogue_rogue-warrior", t = "Бей рогу! Премед, чип, хема, кидни." },
@@ -102,4 +104,4 @@ AC.KB_OPENERS = {
     ["3v3|mage+priest+rogue|priest+shaman+warlock"] = { c = "op_3v3_mage-priest-rogue_priest-shaman-warlock", t = "Сап шама, бей приста! Чип, кидни. Фир — в лос." },
 }
 
-AC.KB_OPENERS_COUNT = 90
+AC.KB_OPENERS_COUNT = 92

@@ -125,7 +125,14 @@ class TestValidateDirectory:
         # (premed-опенер, блиды против плейта, блинк-бэйт, яды). Своя логика состава
         # БЕЗ хилера — не копия RD; execution синтезирован
         # (off-meta-comp/synthesized-execution/needs-top-source/new-comp-rr).
-        assert ok == 92, f"Ожидалось 92 валидных draft'а, получено {ok}"
+        # +4 (2026-08-01, Phase 4.21.1): rm-vs-hunter-priest / retpala-rogue /
+        # rogue-feral / warrior-priest — sourced-драфты RM из видео-транскриптов
+        # Arena Stories (теги video-transcript, таймкоды YouTube). Лежали
+        # незакоммиченными в рабочей копии владельца и заехали в main вместе с
+        # патчем 4.21 (`git add kb/drafts`); решение владельца — интегрировать.
+        # retpala-rogue и rogue-feral дают спек-схлопывание с rogue-hpala и
+        # rogue-rdruid (ключи paladin+rogue / druid+rogue → sure=false).
+        assert ok == 96, f"Ожидалось 96 валидных draft'ов, получено {ok}"
 
     def test_all_drafts_have_resolved_abilities(
         self, drafts_dir: Path, glossary_path: Path

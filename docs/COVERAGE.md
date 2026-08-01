@@ -1,7 +1,7 @@
 # Матрица покрытия матчапов (auto-generated)
 
 `python tools/coverage_matrix.py` — перегенерировать. Уровень классов; ✅ sourced draft · 🟡 AI-hypothesis (kb/hypotheses/, непроверено) · ⬜ todo.
-**Итого (класс-уровень):** ✅ 90 sourced · 🟡 4 hypotheses · ⬜ 461 todo (всего ячеек 555).
+**Итого (класс-уровень):** ✅ 92 sourced · 🟡 4 hypotheses · ⬜ 459 todo (всего ячеек 555).
 
 **Спек-варианты (сверх 255):** ✅ 2 · 🟡 0 · ⬜ 3.
 
@@ -14,7 +14,7 @@
 | warrior+paladin | ✅ | ✅ | ✅ | ✅ | ✅ |
 | warrior+hunter | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | warrior+rogue | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
-| warrior+priest | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| warrior+priest | ✅ | ⬜ | ⬜ | ⬜ | ⬜ |
 | warrior+shaman | ✅ | ✅ | ✅ | ✅ | ✅ |
 | warrior+mage | ✅ | ✅ | ⬜ | ⬜ | ⬜ |
 | warrior+warlock | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -29,7 +29,7 @@
 | paladin+druid | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | hunter+hunter | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | hunter+rogue | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| hunter+priest | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| hunter+priest | ✅ | ⬜ | ⬜ | ⬜ | ⬜ |
 | hunter+shaman | 🟡 | 🟡 | ⬜ | ⬜ | ⬜ |
 | hunter+mage | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | hunter+warlock | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |

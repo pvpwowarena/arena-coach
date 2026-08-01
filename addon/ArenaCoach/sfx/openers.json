@@ -165,8 +165,9 @@
       "syllables": 12,
       "seconds": 4.3,
       "sure": true,
-      "manual": false,
+      "manual": true,
       "kb": [
+        "rm-vs-rogue-feral",
         "rm-vs-rogue-rdruid"
       ]
     },
@@ -192,6 +193,18 @@
       "manual": false,
       "kb": [
         "rm-vs-warrior-rdruid"
+      ]
+    },
+    "2v2|mage+rogue|hunter+priest": {
+      "clip": "op_2v2_mage-rogue_hunter-priest",
+      "text": "Сап приста, бей ханта! Премед, чип, хема, кидни. Жди пэ-эс.",
+      "say": "Сап приста, бей ханта! Премед, чип, хема, кидни. Жди пэ-эс.",
+      "syllables": 16,
+      "seconds": 5.7,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-hunter-priest"
       ]
     },
     "2v2|mage+rogue|mage+paladin": {
@@ -249,8 +262,9 @@
       "syllables": 10,
       "seconds": 3.6,
       "sure": true,
-      "manual": false,
+      "manual": true,
       "kb": [
+        "rm-vs-retpala-rogue",
         "rm-vs-rogue-hpala"
       ]
     },
@@ -313,6 +327,18 @@
       "manual": false,
       "kb": [
         "rm-vs-warlock-priest"
+      ]
+    },
+    "2v2|mage+rogue|priest+warrior": {
+      "clip": "op_2v2_mage-rogue_priest-warrior",
+      "text": "Бей приста! Премед, чип, хема, кидни.",
+      "say": "Бей приста! Премед, чип, хема, кидни.",
+      "syllables": 10,
+      "seconds": 3.6,
+      "sure": true,
+      "manual": false,
+      "kb": [
+        "rm-vs-warrior-priest"
       ]
     },
     "2v2|mage+rogue|rogue+rogue": {
