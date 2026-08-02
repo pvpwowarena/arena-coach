@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import textwrap
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -431,17 +432,25 @@ class TestFiveVFive:
     захардкожены на arena1-3 / player+party1-2, и в 5v5 арена4/5 не существовали
     для панели, черепа, дизамбигуации дублей и трекинга тринкетов."""
 
-    _PARTY5 = {
-        "player": "ROGUE", "party1": "ROGUE", "party2": "DRUID",
-        "party3": "MAGE", "party4": "PRIEST",
+    _PARTY5: ClassVar[dict[str, str]] = {
+        "player": "ROGUE",
+        "party1": "ROGUE",
+        "party2": "DRUID",
+        "party3": "MAGE",
+        "party4": "PRIEST",
     }
 
     def test_all_five_enemies_visible(self) -> None:
         res = _run(
             _scenario(
                 self._PARTY5,
-                [{"class": "WARRIOR"}, {"class": "PALADIN"}, {"class": "HUNTER"},
-                 {"class": "MAGE"}, {"class": "WARLOCK"}],
+                [
+                    {"class": "WARRIOR"},
+                    {"class": "PALADIN"},
+                    {"class": "HUNTER"},
+                    {"class": "MAGE"},
+                    {"class": "WARLOCK"},
+                ],
                 "5v5",
             )
             + "\nO:StartMatch()",
@@ -457,8 +466,13 @@ class TestFiveVFive:
         setup = (
             _scenario(
                 self._PARTY5,
-                [{"class": "WARRIOR"}, {"class": "PALADIN"}, {"class": "PRIEST"},
-                 {"class": "MAGE", "hp": 90}, {"class": "MAGE", "hp": 90}],
+                [
+                    {"class": "WARRIOR"},
+                    {"class": "PALADIN"},
+                    {"class": "PRIEST"},
+                    {"class": "MAGE", "hp": 90},
+                    {"class": "MAGE", "hp": 90},
+                ],
                 "5v5",
             )
             + "\nO:StartMatch()"
@@ -487,8 +501,6 @@ class TestFiveVFive:
 @needs_lua
 class TestPostTrinket:
     """Phase 4.22: тринкет врага → план из KB (PostTrinket.lua) + edge «тринкетов нет»."""
-
-    _SETUP = None  # см. _setup(): rm vs warrior+resto-druid — друид тринкетит kidney
 
     def _setup(self) -> str:
         return (
@@ -529,9 +541,7 @@ class TestPostTrinket:
 
     def test_all_trinkets_gone_fires_once(self) -> None:
         res = _run(
-            self._setup()
-            + '\nO:NoteTrinket("GUID-arena1")'
-            + '\nO:NoteTrinket("GUID-arena2")',
+            self._setup() + '\nO:NoteTrinket("GUID-arena1")' + '\nO:NoteTrinket("GUID-arena2")',
             _EMIT_VOICE,
         )
         assert str(res["clips"]).split(",").count("no_trinkets") == 1
@@ -569,8 +579,6 @@ class TestRaceLayer:
 @needs_lua
 class TestEventWarnings:
     """Phase 4.22: Intervene / Summon Felhunter / спад формы."""
-
-    _BASE = None
 
     def _base(self) -> str:
         return (
@@ -611,8 +619,7 @@ class TestEventWarnings:
 
     def test_own_form_drop_is_ignored(self) -> None:
         res = _run(
-            self._base()
-            + '\nArenaCoach.Voice:OnCombatLog("SPELL_AURA_REMOVED","GUID-me","Me",0,'
+            self._base() + '\nArenaCoach.Voice:OnCombatLog("SPELL_AURA_REMOVED","GUID-me","Me",0,'
             '"GUID-me","Me",0,9634,"Dire Bear Form")',
             _EMIT_VOICE,
         )
