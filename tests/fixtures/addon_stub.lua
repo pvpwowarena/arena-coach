@@ -69,7 +69,11 @@ function _G.UnitClass(unit)
     if not u then return nil end
     return u.class, u.class
 end
-function _G.UnitRace(unit) return "Human", "HUMAN" end
+function _G.UnitRace(unit)
+    local u = unitInfo(unit)
+    local r = u and u.race or "Human"
+    return r, r
+end
 function _G.UnitName(unit)
     local u = unitInfo(unit)
     return u and (u.name or unit) or nil

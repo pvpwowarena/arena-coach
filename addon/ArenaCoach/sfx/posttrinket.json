@@ -1,0 +1,107 @@
+{
+  "_comment": "СГЕНЕРИРОВАНО tools/gen_addon_posttrinket.py. Клипы синтезирует gen_addon_voice.py (класс срочности state, RHVoice elena).",
+  "syllables_per_sec": 2.8,
+  "clips": {
+    "pt_blind_vanish": {
+      "clip": "pt_blind_vanish",
+      "text": "Блайнд, ваниш!",
+      "syllables": 3,
+      "seconds": 1.1,
+      "used_by": [
+        "2v2|mage+rogue|druid+warlock|DRUID",
+        "2v2|mage+rogue|druid+warrior|DRUID"
+      ]
+    },
+    "pt_blind": {
+      "clip": "pt_blind",
+      "text": "Блайнд его!",
+      "syllables": 3,
+      "seconds": 1.1,
+      "used_by": [
+        "2v2|mage+rogue|druid+rogue|ROGUE"
+      ]
+    },
+    "pt_blind_war": {
+      "clip": "pt_blind_war",
+      "text": "Блайнд вара!",
+      "syllables": 3,
+      "seconds": 1.1,
+      "used_by": [
+        "2v2|mage+rogue|priest+warrior|WARRIOR"
+      ]
+    },
+    "pt_blind_mage": {
+      "clip": "pt_blind_mage",
+      "text": "Блайнд мага!",
+      "syllables": 3,
+      "seconds": 1.1,
+      "used_by": [
+        "2v2|mage+rogue|mage+priest|MAGE"
+      ]
+    },
+    "pt_blind_priest": {
+      "clip": "pt_blind_priest",
+      "text": "Блайнд приста!",
+      "syllables": 3,
+      "seconds": 1.1,
+      "used_by": [
+        "2v2|mage+rogue|priest+warlock|PRIEST"
+      ]
+    },
+    "pt_full_kidney": {
+      "clip": "pt_full_kidney",
+      "text": "Полный кидни!",
+      "syllables": 4,
+      "seconds": 1.4,
+      "used_by": [
+        "2v2|mage+rogue|paladin+warrior|PALADIN",
+        "2v2|mage+rogue|priest+warrior|PRIEST"
+      ]
+    },
+    "pt_trade_stun": {
+      "clip": "pt_trade_stun",
+      "text": "Тринкеть его стан!",
+      "syllables": 5,
+      "seconds": 1.8,
+      "used_by": [
+        "2v2|mage+rogue|mage+rogue|ROGUE"
+      ]
+    },
+    "pt_cloak_coil": {
+      "clip": "pt_cloak_coil",
+      "text": "Клоак — коил!",
+      "syllables": 4,
+      "seconds": 1.4,
+      "used_by": [
+        "2v2|mage+rogue|rogue+warlock|WARLOCK"
+      ]
+    },
+    "pt_vanish_reopen": {
+      "clip": "pt_vanish_reopen",
+      "text": "Ваниш, реоткрытие!",
+      "syllables": 7,
+      "seconds": 2.5,
+      "used_by": [
+        "2v2|mage+rogue|priest+rogue|ROGUE"
+      ]
+    },
+    "pt_vanish_garrote": {
+      "clip": "pt_vanish_garrote",
+      "text": "Ваниш, гарота!",
+      "syllables": 5,
+      "seconds": 1.8,
+      "used_by": [
+        "2v2|mage+rogue|paladin+shaman|SHAMAN"
+      ]
+    },
+    "pt_wait_dr": {
+      "clip": "pt_wait_dr",
+      "text": "Пережди, рестан!",
+      "syllables": 5,
+      "seconds": 1.8,
+      "used_by": [
+        "2v2|mage+rogue|hunter+priest|HUNTER"
+      ]
+    }
+  }
+}

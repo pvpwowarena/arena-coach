@@ -41,6 +41,14 @@ local COOLDOWN = {
     notrinket = 15.0,
     target    = 30.0,   -- общий ключ для всех target_* : один анонс на матч
     opener    = 60.0,   -- тактический колаут: строго один раз за матч
+    -- Phase 4.22: пост-тринкет план, расовый факт и событийные предупреждения.
+    pt            = 15.0,  -- общий ключ пост-тринкет колаутов (раз на класс — в AnnouncePostTrinket)
+    no_trinkets   = 600.0, -- «тринкетов нет» — edge, страхуется флагом матча
+    warn_dwarf    = 600.0, -- расовый факт: один раз за матч
+    warn_intervene = 8.0,
+    warn_felhunter = 45.0,
+    druid_out     = 10.0,
+    sham_out      = 10.0,
 }
 local DEFAULT_CD = 3.0
 
@@ -71,6 +79,22 @@ local IMMUNE_SPELLS = {
 }
 
 local VANISH_SPELLS = { ["Vanish"] = true }
+
+-- Phase 4.22: касты-события, которые меняют план (факты из KB, см.
+-- docs/proposals/addon-recommendation-triggers.md #7/#8).
+local WARN_CASTS = {
+    ["Intervene"]       = "warn_intervene",  -- следующая абилка по хилу уйдёт в вара
+    ["Summon Felhunter"] = "warn_felhunter", -- devour съест бафф и выбьет из стелса
+}
+
+-- Спад формы = окно на сап/блайнд (в форме друид/шаман не сапаются,
+-- блайнд по мишке запрещён каноном war/druid). Событие само по себе edge.
+local FORM_OUT = {
+    ["Dire Bear Form"] = "druid_out", ["Bear Form"] = "druid_out",
+    ["Cat Form"] = "druid_out", ["Tree of Life"] = "druid_out",
+    ["Travel Form"] = "druid_out",
+    ["Ghost Wolf"] = "sham_out",
+}
 
 -- Класс килл-таргета → клип «Бей ...».
 local TARGET_CLIP = {
@@ -120,6 +144,7 @@ function V:ResetMatch()
     lastPlayed = {}
     self.openerPlayed = false
     self.lastTargetClass = nil
+    self.ptDone = {}
 end
 
 local function OffCooldown(key, cd)
@@ -179,6 +204,25 @@ function V:AnnounceOpener(key, class)
     return self:Say(op.c, "opener")
 end
 
+--- Пост-тринкет колаут (Phase 4.22): враг класса `class` потратил тринкет —
+--- KB говорит, что делать дальше (скомпилировано в PostTrinket.lua из секций
+--- «If enemy trinkets»). Раз за матч на класс: повторный тринкет того же класса
+--- в 2v2/3v3 невозможен (КД 2 мин), а дубли классов делят один план.
+function V:AnnouncePostTrinket(key, class)
+    if not self.enabled then return false end
+    local map = AC.KB_POST_TRINKET
+    if not map or not key or not class then return false end
+    local row = map[key .. "|" .. class]
+    if not row or not row.c then return false end
+    self.ptDone = self.ptDone or {}
+    if self.ptDone[class] then return false end
+    self.ptDone[class] = true
+    if row.t and AC.Print then
+        AC.Print("|cff40ff40После тринкета:|r " .. row.t)
+    end
+    return self:Say(row.c, "pt")
+end
+
 -- ── Вход из CLEU (зовётся из Tracker до всех фильтров) ──────────────────────
 
 function V:OnCombatLog(subevent, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags,
@@ -198,7 +242,20 @@ function V:OnCombatLog(subevent, srcGUID, srcName, srcFlags, dstGUID, dstName, d
         return
     end
 
+    -- Спад формы: единственный момент, когда друида/шамана снова можно
+    -- сапнуть/блайндить (Phase 4.22). Для самобаффов src = dst = враг.
+    if subevent == "SPELL_AURA_REMOVED" then
+        local out = FORM_OUT[spellName]
+        if out then self:Say(out) end
+        return
+    end
+
     if subevent ~= "SPELL_CAST_SUCCESS" and subevent ~= "SPELL_AURA_APPLIED" then
+        return
+    end
+
+    if subevent == "SPELL_CAST_SUCCESS" and WARN_CASTS[spellName] then
+        self:Say(WARN_CASTS[spellName])
         return
     end
 

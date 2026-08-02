@@ -154,6 +154,17 @@ local function PickUnit(targetClass)
     return best
 end
 
+--- Живые классы врагов — тот же список, что строит Recompute для ключа матчапа.
+function O:AliveClasses()
+    local out = {}
+    for _, u in ipairs(self.units) do
+        if u.class and u.class ~= "UNKNOWN" and IsAlive(u.unit) then
+            table.insert(out, u.class)
+        end
+    end
+    return out
+end
+
 --- Является ли GUID одним из врагов на арене (нужен голосу для фильтра «свой/чужой»).
 function O:IsEnemyGUID(guid)
     if not guid then return false end
@@ -207,6 +218,13 @@ function O:Recompute()
 
     -- «Тринкета нет» — отдельный сигнал: окно на добив открывается именно тут.
     if pick and pick.trinketUsed and AC.Voice then AC.Voice:Say("notrinket") end
+
+    -- Раса цели меняет план (Phase 4.22, из KB): на дворф-присте открываться
+    -- нельзя — stoneform снимает bleeds/wound и режет станы (rm-vs-rogue-priest).
+    -- Говорим ФАКТ, решение за игроком: KB-цель мы не подменяем.
+    if pick and pick.class == "PRIEST" and pick.race == "DWARF" and AC.Voice then
+        AC.Voice:Say("warn_dwarf")
+    end
 end
 
 -- ── Череп на цели ───────────────────────────────────────────────────────────
@@ -304,6 +322,14 @@ function O:Refresh()
             if u.trinketUsed then
                 line = line .. " |cffff4040БЕЗ ТРИНКЕТА|r"
             end
+            -- Расовые пометки (Phase 4.22): только те, что меняют план боя.
+            if u.race == "DWARF" and u.class == "PRIEST" then
+                line = line .. " |cffffcc00ДВОРФ|r"
+            elseif u.race == "GNOME" and u.class == "WARRIOR" then
+                line = line .. " |cffffcc00ГНОМ|r"
+            elseif u.race == "SCOURGE" then
+                line = line .. " |cffffcc00АНДЕД|r"
+            end
             if isTarget and not self.targetSure then
                 line = line .. " |cffaaaaaa(?)|r"
             end
@@ -349,6 +375,9 @@ function O:ScanRoster()
             table.insert(self.units, {
                 unit        = unit,
                 class       = select(2, UnitClass(unit)) or "UNKNOWN",
+                -- Раса — часть тактики (Phase 4.22): дворф-прист снимает bleeds
+                -- stoneform'ом, гном-вар снимает нову, андед — фир/гароту (WotF).
+                race        = string.upper(select(2, UnitRace(unit)) or ""),
                 name        = UnitName(unit) or "?",
                 trinketUsed = prev[unit] or false,
             })
@@ -361,6 +390,7 @@ function O:StartMatch()
     self.units = {}
     self.targetUnit = nil
     self.markedGUID = nil
+    self.allTrinketsGone = false
     if AC.Voice then AC.Voice:ResetMatch() end
     self:ScanRoster()
 end
@@ -373,15 +403,37 @@ function O:EndMatch()
 end
 
 -- Тринкет врага: аддон трекает сам, тем же CLEU, что и Tracker.
+-- Phase 4.22: тринкет — главная развилка боя, и KB знает, что делать ПОСЛЕ него
+-- (секции «If enemy trinkets»). Скомпилировано в PostTrinket.lua.
 function O:NoteTrinket(sourceGUID)
-    local changed = false
+    local changed, who = false, nil
     for _, u in ipairs(self.units) do
         if UnitExists(u.unit) and UnitGUID(u.unit) == sourceGUID and not u.trinketUsed then
             u.trinketUsed = true
             changed = true
+            who = u
         end
     end
-    if changed then self:Recompute() end
+    if not changed then return end
+
+    if who and AC.Voice then
+        local bracket = (AC.currentSession and AC.currentSession.bracket) or "2v2"
+        local key = MatchupKey(bracket, OurClasses(), self:AliveClasses())
+        AC.Voice:AnnouncePostTrinket(key, who.class)
+    end
+
+    -- Все живые враги без тринкета → окно чистого сетапа. Edge-сигнал, один раз
+    -- за матч: дальше игрок и так видит «БЕЗ ТРИНКЕТА» на панели.
+    local all = true
+    for _, u in ipairs(self.units) do
+        if IsAlive(u.unit) and not u.trinketUsed then all = false end
+    end
+    if all and not self.allTrinketsGone and AC.Voice then
+        self.allTrinketsGone = true
+        AC.Voice:Say("no_trinkets")
+    end
+
+    self:Recompute()
 end
 
 function O:IsTrinketSpell(spellId)

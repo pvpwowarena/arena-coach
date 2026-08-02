@@ -42,6 +42,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 OUT = REPO / "addon" / "ArenaCoach" / "sfx"
 MANIFEST = OUT / "openers.json"
+PT_MANIFEST = OUT / "posttrinket.json"
 
 #: ключ клипа → фраза. Ключ совпадает с именем файла (`kick` → `kick.ogg`)
 #: и с ключом в `Voice.lua`.
@@ -63,6 +64,13 @@ PHRASES: dict[str, str] = {
     "target_rogue": "Бей рогу!",
     "target_warrior": "Бей вара!",
     "target_paladin": "Бей палу!",
+    # ── Phase 4.22: события, меняющие план ──────────────────────────────
+    "no_trinkets": "Тринкетов нет — дожимай!",
+    "warn_dwarf": "Прист — дворф!",
+    "warn_intervene": "Интервин — не сапь!",
+    "warn_felhunter": "Сними бафы!",
+    "druid_out": "Друид вышел!",
+    "sham_out": "Шам вышел!",
 }
 
 #: RHVoice: русский голос. `elena` — самый разборчивый из бесплатных на коротких
@@ -92,12 +100,20 @@ _CLASS_OF_KEY: dict[str, str] = {
     "vanish": "state",
     "immune": "state",
     "notrinket": "state",
+    "no_trinkets": "state",
+    "warn_dwarf": "state",
+    "warn_intervene": "cast",  # окно = длительность интервина, решение про сап — сейчас
+    "warn_felhunter": "cast",  # бафы надо снять ДО подхода
+    "druid_out": "state",
+    "sham_out": "state",
 }
 
 
 def clip_class(key: str) -> str:
     if key.startswith("op_"):
         return "opener"
+    if key.startswith("pt_"):
+        return "state"  # пост-тринкет план: решение в секунду тринкета
     if key.startswith("target_"):
         return "target"
     return _CLASS_OF_KEY.get(key, "target")
@@ -190,9 +206,18 @@ def _opener_phrases() -> dict[str, str]:
     как слово. Если RHVoice где-то и правда коверкает слово — заводим ОТДЕЛЬНУЮ
     карту под этот движок, а не переиспользуем чужую.
     """
-    if not MANIFEST.exists():
+    return _manifest_phrases(MANIFEST)
+
+
+def _posttrinket_phrases() -> dict[str, str]:
+    """Клипы пост-тринкет планов — из манифеста `sfx/posttrinket.json` (4.22)."""
+    return _manifest_phrases(PT_MANIFEST)
+
+
+def _manifest_phrases(path: Path) -> dict[str, str]:
+    if not path.exists():
         return {}
-    data = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    data = json.loads(path.read_text(encoding="utf-8"))
     clips = data.get("clips", {})
     return {
         row["clip"]: row["text"]
@@ -218,6 +243,7 @@ def generate(engine: str = "auto", what: str = "all") -> int:
             print("нет sfx/openers.json — сперва tools/gen_addon_openers.py", file=sys.stderr)
             return 2
         todo.update(openers)
+        todo.update(_posttrinket_phrases())  # 4.22: та же логика, свой манифест
     total = 0
     with tempfile.TemporaryDirectory() as tmp:
         for key, phrase in todo.items():
@@ -248,7 +274,7 @@ def generate(engine: str = "auto", what: str = "all") -> int:
 
 
 def check() -> int:
-    expected = {**PHRASES, **_opener_phrases()}
+    expected = {**PHRASES, **_opener_phrases(), **_posttrinket_phrases()}
     missing = [k for k in expected if not (OUT / f"{k}.ogg").exists()]
     if missing:
         print(

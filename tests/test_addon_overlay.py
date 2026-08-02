@@ -34,6 +34,7 @@ FILES = (
     "Tracker.lua",
     "KillTargets.lua",
     "Openers.lua",
+    "PostTrinket.lua",
     "Overlay.lua",
     "Voice.lua",
     "UI.lua",
@@ -96,8 +97,9 @@ def _scenario(party: dict[str, str], enemies: list[dict[str, object]], bracket: 
     for i, e in enumerate(enemies, start=1):
         hp = e.get("hp", 100)
         dead = "true" if e.get("dead") else "false"
+        race = e.get("race", "Human")
         lines.append(
-            f'S.units["arena{i}"] = {{ class = "{e["class"]}", '
+            f'S.units["arena{i}"] = {{ class = "{e["class"]}", race = "{race}", '
             f'name = "Enemy{i}", guid = "GUID-arena{i}", hp = {hp}, dead = {dead} }}'
         )
     lines.append(f'ArenaCoach.currentSession = {{ bracket = "{bracket}" }}')
@@ -480,3 +482,138 @@ class TestFiveVFive:
         )
         assert res["units"] == 2
         assert res["source"] == "KB"
+
+
+@needs_lua
+class TestPostTrinket:
+    """Phase 4.22: тринкет врага → план из KB (PostTrinket.lua) + edge «тринкетов нет»."""
+
+    _SETUP = None  # см. _setup(): rm vs warrior+resto-druid — друид тринкетит kidney
+
+    def _setup(self) -> str:
+        return (
+            _scenario(
+                {"player": "ROGUE", "party1": "MAGE"},
+                [{"class": "DRUID"}, {"class": "WARRIOR"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()"
+        )
+
+    def test_trinket_plays_kb_plan(self) -> None:
+        res = _run(self._setup() + '\nO:NoteTrinket("GUID-arena1")', _EMIT_VOICE)
+        assert "pt_blind_vanish" in str(res["clips"]).split(",")
+
+    def test_same_class_plan_is_not_repeated(self) -> None:
+        res = _run(
+            self._setup()
+            + '\nO:NoteTrinket("GUID-arena1")'
+            + '\nArenaCoach.Voice:AnnouncePostTrinket("2v2|mage+rogue|druid+warrior", "DRUID")',
+            _EMIT_VOICE,
+        )
+        assert str(res["clips"]).split(",").count("pt_blind_vanish") == 1
+
+    def test_unknown_matchup_stays_silent(self) -> None:
+        """Нет в KB → нет совета: пост-тринкет не выдумывается эвристикой."""
+        res = _run(
+            _scenario(
+                {"player": "WARRIOR", "party1": "WARRIOR"},
+                [{"class": "SHAMAN"}, {"class": "SHAMAN"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()"
+            + '\nO:NoteTrinket("GUID-arena1")',
+            _EMIT_VOICE,
+        )
+        assert not any(c.startswith("pt_") for c in str(res["clips"]).split(","))
+
+    def test_all_trinkets_gone_fires_once(self) -> None:
+        res = _run(
+            self._setup()
+            + '\nO:NoteTrinket("GUID-arena1")'
+            + '\nO:NoteTrinket("GUID-arena2")',
+            _EMIT_VOICE,
+        )
+        assert str(res["clips"]).split(",").count("no_trinkets") == 1
+
+
+@needs_lua
+class TestRaceLayer:
+    """Phase 4.22: раса меняет план (дворф-прист из rm-vs-rogue-priest)."""
+
+    def test_dwarf_priest_kill_target_warns(self) -> None:
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "MAGE"},
+                [{"class": "PRIEST", "race": "Dwarf"}, {"class": "WARRIOR"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()",
+            _EMIT_VOICE,
+        )
+        assert "warn_dwarf" in str(res["clips"]).split(",")
+
+    def test_human_priest_stays_silent(self) -> None:
+        res = _run(
+            _scenario(
+                {"player": "ROGUE", "party1": "MAGE"},
+                [{"class": "PRIEST"}, {"class": "WARRIOR"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()",
+            _EMIT_VOICE,
+        )
+        assert "warn_dwarf" not in str(res["clips"]).split(",")
+
+
+@needs_lua
+class TestEventWarnings:
+    """Phase 4.22: Intervene / Summon Felhunter / спад формы."""
+
+    _BASE = None
+
+    def _base(self) -> str:
+        return (
+            _scenario(
+                {"player": "ROGUE", "party1": "MAGE"},
+                [{"class": "WARRIOR"}, {"class": "DRUID"}],
+                "2v2",
+            )
+            + "\nO:StartMatch()"
+        )
+
+    def test_intervene_warns(self) -> None:
+        res = _run(
+            self._base()
+            + '\nArenaCoach.Voice:OnCombatLog("SPELL_CAST_SUCCESS","GUID-arena1","E",0,'
+            '"GUID-arena2","D",0,3411,"Intervene")',
+            _EMIT_VOICE,
+        )
+        assert "warn_intervene" in str(res["clips"]).split(",")
+
+    def test_felhunter_summon_warns(self) -> None:
+        res = _run(
+            self._base()
+            + '\nArenaCoach.Voice:OnCombatLog("SPELL_CAST_SUCCESS","GUID-arena2","D",0,'
+            '"GUID-arena2","D",0,691,"Summon Felhunter")',
+            _EMIT_VOICE,
+        )
+        assert "warn_felhunter" in str(res["clips"]).split(",")
+
+    def test_bear_form_drop_opens_sap_window(self) -> None:
+        res = _run(
+            self._base()
+            + '\nArenaCoach.Voice:OnCombatLog("SPELL_AURA_REMOVED","GUID-arena2","D",0,'
+            '"GUID-arena2","D",0,9634,"Dire Bear Form")',
+            _EMIT_VOICE,
+        )
+        assert "druid_out" in str(res["clips"]).split(",")
+
+    def test_own_form_drop_is_ignored(self) -> None:
+        res = _run(
+            self._base()
+            + '\nArenaCoach.Voice:OnCombatLog("SPELL_AURA_REMOVED","GUID-me","Me",0,'
+            '"GUID-me","Me",0,9634,"Dire Bear Form")',
+            _EMIT_VOICE,
+        )
+        assert "druid_out" not in str(res["clips"]).split(",")
